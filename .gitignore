@@ -1,0 +1,13 @@
+*.pyc
+*.swp
+*.swo
+*.old
+__pycache__
+.tox/
+.coverage
+coverage/
+htmlcov/
+build/
+dist/
+*.egg-info/
+MANIFEST

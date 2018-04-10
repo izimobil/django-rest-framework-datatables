@@ -1,0 +1,381 @@
+[
+{
+    "model": "albums.genre",
+    "pk": 1,
+    "fields": {
+        "name": "Rock & Roll"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 2,
+    "fields": {
+        "name": "Psychedelic Rock"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 3,
+    "fields": {
+        "name": "Pop Rock"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 4,
+    "fields": {
+        "name": "Folk Rock"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 5,
+    "fields": {
+        "name": "Blues Rock"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 6,
+    "fields": {
+        "name": "Soul"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 7,
+    "fields": {
+        "name": "Classic Rock"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 8,
+    "fields": {
+        "name": "Punk"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 9,
+    "fields": {
+        "name": "New Wave"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 10,
+    "fields": {
+        "name": "Rhythm & Blues"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 11,
+    "fields": {
+        "name": "Experimental"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 12,
+    "fields": {
+        "name": "Modal"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 13,
+    "fields": {
+        "name": "Garage Rock"
+    }
+},
+{
+    "model": "albums.genre",
+    "pk": 14,
+    "fields": {
+        "name": "Art Rock"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 2,
+    "fields": {
+        "name": "The Beatles"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 3,
+    "fields": {
+        "name": "The Beach Boys"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 4,
+    "fields": {
+        "name": "Bob Dylan"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 5,
+    "fields": {
+        "name": "Marvin Gaye"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 6,
+    "fields": {
+        "name": "The Rolling Stones"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 7,
+    "fields": {
+        "name": "The Clash"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 8,
+    "fields": {
+        "name": "Elvis Presley"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 9,
+    "fields": {
+        "name": "Miles Davis"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 10,
+    "fields": {
+        "name": "The Velvet Underground"
+    }
+},
+{
+    "model": "albums.artist",
+    "pk": 11,
+    "fields": {
+        "name": "The Jimi Hendrix Experience"
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 1,
+    "fields": {
+        "name": "Sgt. Pepper's Lonely Hearts Club Band",
+        "rank": 1,
+        "year": 1967,
+        "artist": 2,
+        "genres": [
+            2,
+            1
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 2,
+    "fields": {
+        "name": "Pet Sounds",
+        "rank": 2,
+        "year": 1966,
+        "artist": 3,
+        "genres": [
+            3,
+            2
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 3,
+    "fields": {
+        "name": "Revolver",
+        "rank": 3,
+        "year": 1966,
+        "artist": 2,
+        "genres": [
+            3,
+            2
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 4,
+    "fields": {
+        "name": "Highway 61 Revisited",
+        "rank": 4,
+        "year": 1965,
+        "artist": 4,
+        "genres": [
+            5,
+            4
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 5,
+    "fields": {
+        "name": "Rubber Soul",
+        "rank": 5,
+        "year": 1965,
+        "artist": 2,
+        "genres": [
+            3
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 6,
+    "fields": {
+        "name": "What's Going On",
+        "rank": 6,
+        "year": 1971,
+        "artist": 5,
+        "genres": [
+            6
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 7,
+    "fields": {
+        "name": "Exile on Main St.",
+        "rank": 7,
+        "year": 1972,
+        "artist": 6,
+        "genres": [
+            5,
+            7,
+            1
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 8,
+    "fields": {
+        "name": "London Calling",
+        "rank": 8,
+        "year": 1979,
+        "artist": 7,
+        "genres": [
+            9,
+            8
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 9,
+    "fields": {
+        "name": "Blonde on Blonde",
+        "rank": 9,
+        "year": 1966,
+        "artist": 4,
+        "genres": [
+            4,
+            10
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 10,
+    "fields": {
+        "name": "The Beatles (\"The White Album\")",
+        "rank": 10,
+        "year": 1968,
+        "artist": 2,
+        "genres": [
+            11,
+            3,
+            2,
+            1
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 11,
+    "fields": {
+        "name": "The Sun Sessions",
+        "rank": 11,
+        "year": 1976,
+        "artist": 8,
+        "genres": [
+            1
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 12,
+    "fields": {
+        "name": "Kind of Blue",
+        "rank": 12,
+        "year": 1959,
+        "artist": 9,
+        "genres": [
+            12
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 13,
+    "fields": {
+        "name": "The Velvet Underground & Nico",
+        "rank": 13,
+        "year": 1967,
+        "artist": 10,
+        "genres": [
+            14,
+            11,
+            13
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 14,
+    "fields": {
+        "name": "Abbey Road",
+        "rank": 14,
+        "year": 1969,
+        "artist": 2,
+        "genres": [
+            7,
+            3,
+            2
+        ]
+    }
+},
+{
+    "model": "albums.album",
+    "pk": 15,
+    "fields": {
+        "name": "Are You Experienced",
+        "rank": 15,
+        "year": 1967,
+        "artist": 11,
+        "genres": [
+            5,
+            2
+        ]
+    }
+}
+]
