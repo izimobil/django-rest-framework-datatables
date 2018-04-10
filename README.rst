@@ -162,8 +162,5 @@ To build the documentation:
    :target: http://travis-ci.org/izimobil/django-rest-framework-datatables?branch=master
 .. |coveralls-image| image:: https://coveralls.io/repos/izimobil/django-rest-framework-datatables/badge.svg?branch=master&service=github
     :target: https://coveralls.io/github/izimobil/django-rest-framework-datatables?branch=master
-.. |landscapeio-image| image:: https://landscape.io/github/izimobil/django-rest-framework-datatables/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/izimobil/django-rest-framework-datatables/master
-    :alt: Code Health
 .. |pypi-version| image:: https://img.shields.io/pypi/v/djangorestframework-datatables.svg
    :target: https://pypi.python.org/pypi/djangorestframework-datatables
