@@ -6,7 +6,12 @@ djangorestframework-datatables
 Overview
 --------
 
-Seamless integration between Django REST framework and Datatables (https://datatables.net)
+Seamless integration between Django REST framework and Datatables (https://datatables.net).
+
+When you call your API with ``?format=datatables`` it will return a JSON structure that is fully compatible with what Datatables expects.
+It handles searching, filtering, ordering and most usecases you can imagine with Datatables.
+
+The great benefit of django-rest-framework-datatables is that you don't have to create a different API, your API will be untouched unless you specify the datatables format on your request.
 
 Requirements
 ------------
@@ -24,19 +29,102 @@ Install using ``pip``\ …
 
     $ pip install djangorestframework-datatables
 
-Example
--------
+Quickstart
+----------
 
-TODO
+Add ``rest_framework_datatables`` to INSTALLED_APPS.
+
+Edit your REST_FRAMEWORK settings to match the following:
+
+.. code:: python
+
+    REST_FRAMEWORK = {
+        'DEFAULT_RENDERER_CLASSES': (
+            'rest_framework.renderers.JSONRenderer',
+            'rest_framework.renderers.BrowsableAPIRenderer',
+            'rest_framework_datatables.renderers.DatatablesRenderer',
+        ),
+        'DEFAULT_FILTER_BACKENDS': (
+            'rest_framework_datatables.filters.DatatablesFilterBackend',
+        ),
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesPageNumberPagination',
+        'PAGE_SIZE': 50,
+    }
+
+In your serializers you must inherit from ``rest_framework_datatables.DatatablesModelSerializer`` or ``rest_framework_datatables.DatatablesHyperlinkedModelSerializer``.
+
+An example of Datatables (HTML/JS):
+
+.. code:: html
+
+    <!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <title>Rolling Stone Top 500 albums of all time</title>
+      <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
+      <link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+    </head>
+    
+    <body>
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <table id="albums" class="table table-striped table-bordered" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Artist</th>
+                  <th>Album name</th>
+                  <th>Year</th>
+                  <th>Genres</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+      <script src="//code.jquery.com/jquery-1.12.4.js"></script>
+      <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+      <script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+      <script>
+          $(document).ready(function() {
+              var table = $('#albums').DataTable({
+                  "serverSide": true,
+                  "ajax": "/api/albums/?format=datatables",
+                  "columns": [
+                      {"data": "rank", "searchable": false},
+                      {"data": "artist_name", "name": "artist.name"},
+                      {"data": "name"},
+                      {"data": "year"},
+                      {"data": "genres", "name": "genres.name", "sortable": false},
+                  ]
+              });
+          });
+      </script>
+    </body>
+    </html>
+
+Example project
+---------------
+
+To play with the example project, just clone the repository and run the dev server.
+
+.. code:: bash
+
+    $ git clone https://github.com/izimobil/django-rest-framework-datatables.git
+    $ cd django-rest-framework-datatables
+    $ python example/manage.py runserver
+    $ firefox http://127.0.0.1:8000
 
 Testing
 -------
 
-Install testing requirements.
+Install development requirements.
 
 .. code:: bash
 
-    $ pip install -r requirements.txt
+    $ pip install -r requirements-dev.txt
 
 Run with runtests.
 
