@@ -1,7 +1,7 @@
 djangorestframework-datatables
 ======================================
 
-|build-status-image| |coveralls-image| |landscapeio-image| |pypi-version|
+|build-status-image| |coveralls-image| |pypi-version|
 
 Overview
 --------
