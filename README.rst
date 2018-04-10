@@ -51,8 +51,6 @@ Edit your REST_FRAMEWORK settings to match the following:
         'PAGE_SIZE': 50,
     }
 
-In your serializers you must inherit from ``rest_framework_datatables.DatatablesModelSerializer`` or ``rest_framework_datatables.DatatablesHyperlinkedModelSerializer``.
-
 An example of Datatables (HTML/JS):
 
 .. code:: html
