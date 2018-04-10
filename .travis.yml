@@ -8,31 +8,15 @@ python:
 
 sudo: false
 
-env:
-  - TOX_ENV=py27-lint
-  - TOX_ENV=py35-lint
-  - TOX_ENV=py27-django1.9-drf3.5
-  - TOX_ENV=py27-django1.9-drf3.6
-  - TOX_ENV=py27-django1.10-drf3.5
-  - TOX_ENV=py27-django1.10-drf3.6
-  - TOX_ENV=py27-django1.10-drf3.7
-  - TOX_ENV=py27-django1.10-drf3.8
-  - TOX_ENV=py27-django1.11-drf3.5
-  - TOX_ENV=py27-django1.11-drf3.6
-  - TOX_ENV=py27-django1.11-drf3.7
-  - TOX_ENV=py27-django1.11-drf3.8
-  - TOX_ENV=py34-django2.0-drf3.7
-  - TOX_ENV=py34-django2.0-drf3.8
-  - TOX_ENV=py35-django2.0-drf3.7
-  - TOX_ENV=py35-django2.0-drf3.8
-  - TOX_ENV=py36-django2.0-drf3.7
-  - TOX_ENV=py36-django2.0-drf3.8
-
 matrix:
   fast_finish: true
 
 install:
-  - pip install tox
+  - pip install tox-travis
 
 script:
-  - tox -e $TOX_ENV
+  - tox
+
+after_success:
+  - pip install coveralls
+  - coveralls
