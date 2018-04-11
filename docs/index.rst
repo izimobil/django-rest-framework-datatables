@@ -20,3 +20,12 @@ Seamless integration between Django REST framework and Datatables.
    quickstart
    tutorial
    example-app
+   changelog
+
+Useful links
+------------
+
+- `Github project page <https://github.com/izimobil/django-rest-framework-datatables/>`_
+- `Bugtracker <https://github.com/izimobil/django-rest-framework-datatables/issues>`_
+- `Documentation <http://django-rest-framework-datatables.readthedocs.io/en/latest/>`_
+- `Pypi page <https://pypi.org/project/djangorestframework-datatables/>`_
