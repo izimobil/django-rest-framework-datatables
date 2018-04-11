@@ -1,5 +1,5 @@
-djangorestframework-datatables
-======================================
+django-rest-framework-datatables
+================================
 
 |build-status-image| |coveralls-image| |documentation-status-image| |pypi-version|
 
