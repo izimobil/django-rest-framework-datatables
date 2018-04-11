@@ -37,7 +37,29 @@ class DatatablesRenderer(JSONRenderer):
             new_data = data
         # add datatables "draw" parameter
         new_data['draw'] = int(request.query_params.get('draw', '1'))
+        new_data = self._filter_unused_fields(request, new_data)
 
         return super(DatatablesRenderer, self).render(
             new_data, accepted_media_type, renderer_context
         )
+
+    def _filter_unused_fields(self, request, result):
+        cols = []
+        i = 0
+        while True:
+            col = request.query_params.get('columns[%d][data]' % i)
+            if col is None:
+                break
+            cols.append(col)
+            i += 1
+        if len(cols):
+            data = result['data']
+            for i, item in enumerate(data):
+                try:
+                    keys = set(item.keys())
+                except AttributeError:
+                    continue
+                for k in keys:
+                    if k not in cols:
+                        result['data'][i].pop(k)
+        return result
