@@ -1,17 +1,19 @@
 djangorestframework-datatables
 ======================================
 
-|build-status-image| |coveralls-image| |pypi-version|
+|build-status-image| |coveralls-image| |documentation-status-image| |pypi-version|
 
 Overview
 --------
 
 Seamless integration between Django REST framework and Datatables (https://datatables.net).
 
-When you call your API with ``?format=datatables`` it will return a JSON structure that is fully compatible with what Datatables expects.
+Install django-rest-framework-datatables, call your API with ``?format=datatables`` and it will return a JSON structure that is fully compatible with what Datatables expects.
 It handles searching, filtering, ordering and most usecases you can imagine with Datatables.
 
-The great benefit of django-rest-framework-datatables is that you don't have to create a different API, your API will be untouched unless you specify the datatables format on your request.
+The great benefit of django-rest-framework-datatables is that you don't have to create a different API, your API still work exactly the same unless you specify the ``datatables`` format on your request.
+
+Full documentation is available on `Read the Docs <http://django-rest-framework-datatables.readthedocs.io/en/latest/>`_ !
 
 Requirements
 ------------
@@ -132,7 +134,7 @@ Install development requirements.
 
     $ pip install -r requirements-dev.txt
 
-Run with runtests.
+Run the tests.
 
 .. code:: bash
 
@@ -146,6 +148,13 @@ globally, and then simply run:
 
     $ tox
 
+If you want to check the coverage, use:
+
+.. code:: bash
+
+    $ coverage run ./example/manage.py test
+    $ coverage report -m
+
 Documentation
 -------------
 
@@ -153,20 +162,30 @@ To build the documentation, you’ll need to install ``sphinx``.
 
 .. code:: bash
 
-    $ pip install sphinx
+    $ pip install -r requirements-docs.txt
 
 To build the documentation:
 
 .. code:: bash
 
     $ cd docs
-    $ make
+    $ make clean && make build
+
 
 .. _tox: http://tox.readthedocs.org/en/latest/
 
 .. |build-status-image| image:: https://secure.travis-ci.org/izimobil/django-rest-framework-datatables.svg?branch=master
    :target: http://travis-ci.org/izimobil/django-rest-framework-datatables?branch=master
+   :alt: Travis build
+
 .. |coveralls-image| image:: https://coveralls.io/repos/izimobil/django-rest-framework-datatables/badge.svg?branch=master&service=github
-    :target: https://coveralls.io/github/izimobil/django-rest-framework-datatables?branch=master
+   :target: https://coveralls.io/github/izimobil/django-rest-framework-datatables?branch=master
+   :alt: Coverage
+
 .. |pypi-version| image:: https://img.shields.io/pypi/v/djangorestframework-datatables.svg
    :target: https://pypi.python.org/pypi/djangorestframework-datatables
+   :alt: Pypi version
+
+.. |documentation-status-image| image:: https://readthedocs.org/projects/django-rest-framework-datatables/badge/?version=latest
+   :target: http://django-rest-framework-datatables.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
