@@ -20,21 +20,22 @@ Requirements
 -  Django (1.9, 1.10, 1.11, 2.0)
 -  Django REST Framework (3.5, 3.6, 3.7, 3.8)
 
-Installation
-------------
+Quickstart
+----------
 
-Install using ``pip``\ …
+Installation
+~~~~~~~~~~~~
+
+Just use ``pip``:
 
 .. code:: bash
 
     $ pip install djangorestframework-datatables
 
-Quickstart
-----------
+Configuration
+~~~~~~~~~~~~~
 
-Add ``rest_framework_datatables`` to INSTALLED_APPS.
-
-Edit your REST_FRAMEWORK settings to match the following:
+To enable Datatables support in your project, add ``'rest_framework_datatables'`` to your ``INSTALLED_APPS``, and modify your ``REST_FRAMEWORK`` settings like this:
 
 .. code:: python
 
@@ -51,7 +52,14 @@ Edit your REST_FRAMEWORK settings to match the following:
         'PAGE_SIZE': 50,
     }
 
-An example of Datatables (HTML/JS):
+And that's it !
+~~~~~~~~~~~~~~~
+
+Your API is now fully compatible with Datatables and will provide searching, filtering, ordering and pagination without any modification of your API code !
+
+
+An example of Datatable
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: html
 
