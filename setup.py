@@ -35,8 +35,11 @@ def get_long_description():
     ret = []
     with open('README.rst') as fh:
         ret.append(fh.read())
-    with open('docs/changelog.rst') as fh:
-        ret.append(fh.read())
+    try:
+        with open('docs/changelog.rst') as fh:
+            ret.append(fh.read())
+    except IOError:
+        pass
     return '\n\n'.join(ret)
 
 
