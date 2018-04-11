@@ -1,7 +1,7 @@
 django-rest-framework-datatables
 ================================
 
-|build-status-image| |coveralls-image| |documentation-status-image| |pypi-version|
+|build-status-image| |codecov-image| |documentation-status-image| |pypi-version|
 
 Overview
 --------
@@ -178,9 +178,8 @@ To build the documentation:
    :target: http://travis-ci.org/izimobil/django-rest-framework-datatables?branch=master
    :alt: Travis build
 
-.. |coveralls-image| image:: https://coveralls.io/repos/izimobil/django-rest-framework-datatables/badge.svg?branch=master&service=github
-   :target: https://coveralls.io/github/izimobil/django-rest-framework-datatables?branch=master
-   :alt: Coverage
+.. |codecov-image| image:: https://codecov.io/gh/izimobil/django-rest-framework-datatables/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/izimobil/django-rest-framework-datatables
 
 .. |pypi-version| image:: https://img.shields.io/pypi/v/djangorestframework-datatables.svg
    :target: https://pypi.python.org/pypi/djangorestframework-datatables

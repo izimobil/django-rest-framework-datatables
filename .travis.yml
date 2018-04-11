@@ -13,10 +13,10 @@ matrix:
 
 install:
   - pip install tox-travis
+  - pip install codecov
 
 script:
   - tox
 
 after_success:
-  - pip install coveralls
-  - coveralls
+  - codecov
