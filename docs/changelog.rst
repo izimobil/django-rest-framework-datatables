@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.2.1 (2018-04-11):
+---------------------------
+
+- This version replaces the 0.2.0 who was broken (bad setup.py)
+
 Version 0.2.0 (2018-04-11):
 ---------------------------
 
