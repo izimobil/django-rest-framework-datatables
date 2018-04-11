@@ -19,9 +19,25 @@ def get_version(package):
     """
     Return package version as listed in `__version__` in `init.py`.
     """
+    with open(os.path.join(package, '__init__.py')) as fh:
+        return re.search(
+            "^__version__ = ['\"]([^'\"]+)['\"]",
+            fh.read(),
+            re.MULTILINE
+        ).group(1)
     init_py = open(os.path.join(package, '__init__.py')).read()
-    return re.search("^__version__ = ['\"]([^'\"]+)['\"]",
-                     init_py, re.MULTILINE).group(1)
+
+
+def get_long_description():
+    """
+    Return rst formatted readme and changelog.
+    """
+    ret = []
+    with open('README.rst') as fh:
+        ret.append(fh.read())
+    with open('docs/changelog.rst') as fh:
+        ret.append(fh.read())
+    return '\n\n'.join(ret)
 
 
 def get_packages(package):
@@ -51,7 +67,6 @@ def get_package_data(package):
 
 version = get_version(package)
 
-
 if sys.argv[-1] == 'publish':
     os.system("python setup.py sdist upload")
     os.system("python setup.py bdist_wheel upload")
@@ -67,6 +82,7 @@ setup(
     url=url,
     license=license,
     description=description,
+    long_description=get_long_description(),
     author=author,
     author_email=author_email,
     packages=get_packages(package),
