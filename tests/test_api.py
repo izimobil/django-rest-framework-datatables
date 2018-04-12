@@ -22,20 +22,6 @@ class TestApiTestCase(TestCase):
         result = response.json()
         self.assertEquals(result['count'], expected)
 
-    @override_settings(REST_FRAMEWORK={'PAGE_SIZE': None})
-    def test_datatables_modelserializer(self):
-        response = self.client.get('/api/albums/?format=datatables&start=0')
-        expected = 15
-        result = response.json()
-        self.assertEquals(result['recordsTotal'], expected)
-
-    @override_settings(REST_FRAMEWORK={'PAGE_SIZE': None})
-    def test_datatables_hyperlinkedmodelserializer(self):
-        response = self.client.get('/api/albums/?format=datatables&start=0')
-        expected = 15
-        result = response.json()
-        self.assertEquals(result['recordsTotal'], expected)
-
     def test_pagenumber_pagination(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
         expected = (15, 15, 'Elvis Presley')
@@ -78,6 +64,18 @@ class TestApiTestCase(TestCase):
         expected = (15, 'Elvis Presley')
         result = response.json()
         self.assertEquals((result['count'], result['results'][0]['artist_name']), expected)
+
+    def test_column_column_data_null(self):
+        response = self.client.get('/api/albums/?format=datatables&length=10&start=10&columns[0][data]=&columns[1][data]=name')
+        expected = (15, 15, 'The Sun Sessions')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)
+
+    def test_dt_row_attrs_present(self):
+        response = self.client.get('/api/albums/?format=datatables&length=10&start=0&columns[0][data]=&columns[1][data]=name')
+        result = response.json()
+        self.assertTrue('DT_RowId' in result['data'][0])
+        self.assertTrue('DT_RowAttr' in result['data'][0])
 
     def test_filtering_simple(self):
         response = self.client.get('/api/albums/?format=datatables&columns[0][data]=name&columns[0][searchable]=true&search[value]=are+you+exp')

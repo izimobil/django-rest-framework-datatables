@@ -60,6 +60,6 @@ class DatatablesRenderer(JSONRenderer):
                 except AttributeError:
                     continue
                 for k in keys:
-                    if k not in cols:
+                    if k not in cols and not k.startswith('DT_Row'):
                         result['data'][i].pop(k)
         return result
