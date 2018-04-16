@@ -1,7 +1,7 @@
 django-rest-framework-datatables
 ================================
 
-|build-status-image| |codecov-image| |documentation-status-image| |pypi-version|
+|build-status-image| |codecov-image| |documentation-status-image| |pypi-version| |py-versions|
 
 Overview
 --------
@@ -122,6 +122,7 @@ To play with the example project, just clone the repository and run the dev serv
 
     $ git clone https://github.com/izimobil/django-rest-framework-datatables.git
     $ cd django-rest-framework-datatables
+    $ pip install requirements.txt
     $ python example/manage.py runserver
     $ firefox http://127.0.0.1:8000
 
@@ -188,3 +189,11 @@ To build the documentation:
 .. |documentation-status-image| image:: https://readthedocs.org/projects/django-rest-framework-datatables/badge/?version=latest
    :target: http://django-rest-framework-datatables.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
+
+.. |py-versions| image:: https://img.shields.io/pypi/pyversions/djangorestframework-datatables.svg
+   :target: https://img.shields.io/pypi/pyversions/djangorestframework-datatables.svg
+   :alt: Python versions
+
+.. |dj-versions| image:: https://img.shields.io/pypi/djversions/djangorestframework-datatables.svg
+   :target: https://img.shields.io/pypi/djversions/djangorestframework-datatables.svg
+   :alt: Django versions
