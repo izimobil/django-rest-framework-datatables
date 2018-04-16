@@ -13,9 +13,10 @@ class DatatablesFilterBackend(BaseFilterBackend):
         if request.query_params.get('format') != 'datatables':
             return queryset
 
+        total_count = queryset.count()
         # set the queryset count as an attribute of the view for later
         # TODO: find a better way than this hack
-        setattr(view, '_datatables_total_count', queryset.count())
+        setattr(view, '_datatables_total_count', total_count)
 
         # parse query params
         getter = request.query_params.get
@@ -43,11 +44,15 @@ class DatatablesFilterBackend(BaseFilterBackend):
                         q |= Q(**{'%s__iregex' % f['name']: f_search_value})
                 else:
                     q |= Q(**{'%s__icontains' % f['name']: f_search_value})
-        queryset = queryset.filter(q).distinct()
 
+        if q != Q():
+            queryset = queryset.filter(q).distinct()
+            filtered_count = queryset.count()
+        else:
+            filtered_count = total_count
         # set the queryset count as an attribute of the view for later
         # TODO: maybe find a better way than this hack ?
-        setattr(view, '_datatables_filtered_count', queryset.count())
+        setattr(view, '_datatables_filtered_count', filtered_count)
 
         # order queryset
         if len(ordering):
