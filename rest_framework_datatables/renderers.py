@@ -15,6 +15,8 @@ class DatatablesRenderer(JSONRenderer):
         request = renderer_context['request']
         new_data = {}
 
+        view = renderer_context.get('view')
+
         if 'recordsTotal' not in data:
             # pagination was not used, let's fix the data dict
             if 'results' in data:
@@ -24,7 +26,6 @@ class DatatablesRenderer(JSONRenderer):
                 results = data
                 count = len(results)
             new_data['data'] = results
-            view = renderer_context.get('view')
             if view and hasattr(view, '_datatables_filtered_count'):
                 count = view._datatables_filtered_count
             if view and hasattr(view, '_datatables_total_count'):
@@ -37,13 +38,27 @@ class DatatablesRenderer(JSONRenderer):
             new_data = data
         # add datatables "draw" parameter
         new_data['draw'] = int(request.query_params.get('draw', '1'))
-        new_data = self._filter_unused_fields(request, new_data)
+
+        serializer_class = None
+        if hasattr(view, 'get_serializer_class'):
+            serializer_class = view.get_serializer_class()
+        elif hasattr(view, 'serializer_class'):
+            serializer_class = view.serializer_class
+
+        if serializer_class is not None and hasattr(serializer_class, 'Meta'):
+            force_serialize = getattr(
+                serializer_class.Meta, 'datatables_always_serialize', ()
+            )
+        else:
+            force_serialize = ()
+
+        self._filter_unused_fields(request, new_data, force_serialize)
 
         return super(DatatablesRenderer, self).render(
             new_data, accepted_media_type, renderer_context
         )
 
-    def _filter_unused_fields(self, request, result):
+    def _filter_unused_fields(self, request, result, force_serialize):
         cols = []
         i = 0
         while True:
@@ -60,6 +75,7 @@ class DatatablesRenderer(JSONRenderer):
                 except AttributeError:
                     continue
                 for k in keys:
-                    if k not in cols and not k.startswith('DT_Row'):
+                    if (k not in cols
+                            and not k.startswith('DT_Row')
+                            and k not in force_serialize):
                         result['data'][i].pop(k)
-        return result

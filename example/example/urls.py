@@ -8,6 +8,7 @@ from albums import views
 
 router = routers.DefaultRouter()
 router.register(r'albums', views.AlbumViewSet)
+router.register(r'artists', views.ArtistViewSet)
 
 
 urlpatterns = [

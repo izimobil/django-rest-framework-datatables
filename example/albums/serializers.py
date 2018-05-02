@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Album
+from .models import Album, Artist
 
 
 class AlbumSerializer(serializers.ModelSerializer):
@@ -28,3 +28,16 @@ class AlbumSerializer(serializers.ModelSerializer):
             'DT_RowId', 'DT_RowAttr', 'rank', 'name',
             'year', 'artist_name', 'genres',
         )
+
+
+class ArtistSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Artist
+        fields = (
+            'id', 'name',
+        )
+        # Specifying fields in datatables_always_serialize
+        # will also force them to always be serialized.
+        datatables_always_serialize = ('id',)
