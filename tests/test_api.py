@@ -83,7 +83,7 @@ class TestApiTestCase(TestCase):
         result = response.json()
         self.assertTrue('year' in result['data'][0])
 
-        delattr(AlbumSerializer, 'DT_ALWAYS_SERIALIZE')
+        delattr(AlbumSerializer.Meta, 'datatables_always_serialize')
 
     def test_dt_force_serialize_generic(self):
         response = self.client.get('/api/artists/?format=datatables&length=10&start=0&columns[0][data]=&columns[1][data]=name')

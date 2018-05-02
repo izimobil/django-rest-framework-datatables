@@ -47,7 +47,7 @@ class DatatablesRenderer(JSONRenderer):
 
         if serializer_class is not None and hasattr(serializer_class, 'Meta'):
             force_serialize = getattr(
-                serializer_class, 'datatables_always_serialize', ()
+                serializer_class.Meta, 'datatables_always_serialize', ()
             )
         else:
             force_serialize = ()
