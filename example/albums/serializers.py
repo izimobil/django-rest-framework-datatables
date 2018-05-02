@@ -33,12 +33,11 @@ class AlbumSerializer(serializers.ModelSerializer):
 class ArtistSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
 
-    # Specifying fields in DT_ALWAYS_SERIALIZE will also
-    # force them to always be serialized.
-    DT_ALWAYS_SERIALIZE = ('id',)
-
     class Meta:
         model = Artist
         fields = (
             'id', 'name',
         )
+        # Specifying fields in datatables_always_serialize
+        # will also force them to always be serialized.
+        datatables_always_serialize = ('id',)

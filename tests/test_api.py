@@ -78,7 +78,7 @@ class TestApiTestCase(TestCase):
         self.assertTrue('DT_RowAttr' in result['data'][0])
 
     def test_dt_force_serialize_class(self):
-        AlbumSerializer.DT_ALWAYS_SERIALIZE = ('year',)
+        AlbumSerializer.Meta.datatables_always_serialize = ('year',)
         response = self.client.get('/api/albums/?format=datatables&length=10&start=0&columns[0][data]=&columns[1][data]=name')
         result = response.json()
         self.assertTrue('year' in result['data'][0])

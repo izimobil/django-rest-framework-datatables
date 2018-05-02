@@ -39,13 +39,15 @@ class DatatablesRenderer(JSONRenderer):
         # add datatables "draw" parameter
         new_data['draw'] = int(request.query_params.get('draw', '1'))
 
+        serializer_class = None
         if hasattr(view, 'get_serializer_class'):
-            force_serialize = getattr(
-                view.get_serializer_class(), 'DT_ALWAYS_SERIALIZE', ()
-            )
+            serializer_class = view.get_serializer_class()
         elif hasattr(view, 'serializer_class'):
+            serializer_class = view.serializer_class
+
+        if serializer_class is not None and hasattr(serializer_class, 'Meta'):
             force_serialize = getattr(
-                view.serializer_class, 'DT_ALWAYS_SERIALIZE', ()
+                serializer_class, 'datatables_always_serialize', ()
             )
         else:
             force_serialize = ()
