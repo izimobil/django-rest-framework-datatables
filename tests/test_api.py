@@ -77,6 +77,19 @@ class TestApiTestCase(TestCase):
         self.assertTrue('DT_RowId' in result['data'][0])
         self.assertTrue('DT_RowAttr' in result['data'][0])
 
+    def test_dt_force_serialize_class(self):
+        AlbumSerializer.Meta.datatables_always_serialize = ('year',)
+        response = self.client.get('/api/albums/?format=datatables&length=10&start=0&columns[0][data]=&columns[1][data]=name')
+        result = response.json()
+        self.assertTrue('year' in result['data'][0])
+
+        delattr(AlbumSerializer.Meta, 'datatables_always_serialize')
+
+    def test_dt_force_serialize_generic(self):
+        response = self.client.get('/api/artists/?format=datatables&length=10&start=0&columns[0][data]=&columns[1][data]=name')
+        result = response.json()
+        self.assertTrue('id' in result['data'][0])
+
     def test_filtering_simple(self):
         response = self.client.get('/api/albums/?format=datatables&columns[0][data]=name&columns[0][searchable]=true&search[value]=are+you+exp')
         expected = (1, 15, 'Are You Experienced')
