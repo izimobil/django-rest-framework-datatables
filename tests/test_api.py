@@ -113,6 +113,18 @@ class TestApiTestCase(TestCase):
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
 
+    def test_filtering_multicolumn1(self):
+        response = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=artist_name&columns[0][name]=artist__name&columns[0][searchable]=true&columns[0][search][value]=Beatles&columns[1][data]=year&columns[1][searchable]=true&columns[1][search][value]=1968')
+        expected = (1, 15, 'The Beatles')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    def test_filtering_multicolumn2(self):
+        response = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=artist_name&columns[0][name]=artist__name&columns[0][searchable]=true&columns[0][search][value]=Beatles&columns[1][data]=year&columns[1][searchable]=true&columns[1][search][value]=2018')
+        expected = (0, 15)
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
+
     def test_ordering_simple(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=artist_name&columns[0][name]=artist__name&columns[0][orderable]=true&order[0][column]=0&order[0][dir]=desc')
         expected = (15, 15, 'The Velvet Underground')
