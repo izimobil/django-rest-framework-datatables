@@ -91,7 +91,7 @@ class TestApiTestCase(TestCase):
         self.assertTrue('id' in result['data'][0])
 
     def test_filtering_simple(self):
-        response = self.client.get('/api/albums/?format=datatables&columns[0][data]=name&columns[0][searchable]=true&search[value]=are+you+exp')
+        response = self.client.get('/api/albums/?format=datatables&columns[0][data]=name&columns[0][searchable]=true&columns[1][data]=artist__name&columns[1][searchable]=true&search[value]=are+you+exp')
         expected = (1, 15, 'Are You Experienced')
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)

@@ -33,9 +33,9 @@ class DatatablesFilterBackend(BaseFilterBackend):
             if search_value and search_value != 'false':
                 if search_regex:
                     if self.is_valid_regex(search_value):
-                        q &= Q(**{'%s__iregex' % f['name']: search_value})
+                        q |= Q(**{'%s__iregex' % f['name']: search_value})
                 else:
-                    q &= Q(**{'%s__icontains' % f['name']: search_value})
+                    q |= Q(**{'%s__icontains' % f['name']: search_value})
             f_search_value = f.get('search_value')
             f_search_regex = f.get('search_regex') == 'true'
             if f_search_value:
