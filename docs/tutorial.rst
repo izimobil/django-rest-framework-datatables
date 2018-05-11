@@ -177,6 +177,22 @@ What we just did:
 
     Perhaps you noticed that we didn't use all fields from our serializer in the above example, that's not a problem, django-rest-framework-datatables will automatically filter the fields that are not necessary when processing the request from Datatables.
 
+    If you want to force serialization of fields that are not requested by Datatables you can use the ``datatables_always_serialize`` Meta option in your serializer, here's an example:
+
+    .. code:: python
+
+        class AlbumSerializer(serializers.ModelSerializer):
+            id = serializers.IntegerField(read_only=True)
+            class Meta:
+                model = Album
+                fields = (
+                    'id', 'rank', 'name', 'year',
+                )
+                datatables_always_serialize = ('id', 'rank',)
+
+    In the above example, the fields 'id' and 'rank' will always be serialized in the response regardless of fields requested in the Datatables request.
+
+
 .. important::
 
     To sum up, **the most important things** to remember here are:
