@@ -6,7 +6,7 @@ django-rest-framework-datatables
 Overview
 --------
 
-Seamless integration between Django REST framework and Datatables (https://datatables.net).
+This package provides seamless integration between `Django REST framework <https://www.django-rest-framework.org>`_ and `Datatables <https://datatables.net>`_.
 
 Install django-rest-framework-datatables, call your API with ``?format=datatables`` and it will return a JSON structure that is fully compatible with what Datatables expects.
 It handles searching, filtering, ordering and most usecases you can imagine with Datatables.
