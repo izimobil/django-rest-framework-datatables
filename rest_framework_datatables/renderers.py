@@ -65,7 +65,7 @@ class DatatablesRenderer(JSONRenderer):
             col = request.query_params.get('columns[%d][data]' % i)
             if col is None:
                 break
-            cols.append(col)
+            cols.append(col.split('.').pop(0))
             i += 1
         if len(cols):
             data = result['data']
