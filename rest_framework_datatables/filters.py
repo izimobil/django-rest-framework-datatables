@@ -34,7 +34,8 @@ class DatatablesFilterBackend(BaseFilterBackend):
             if search_value and search_value != 'false':
                 if search_regex:
                     if self.is_valid_regex(search_value):
-                    # iterate through the list created from the 'name' param and create a string of 'ior' Q() objects.
+                        # iterate through the list created from the 'name'
+                        # param and create a string of 'ior' Q() objects.
                         for x in f['name']:
                             q |= Q(**{'%s__iregex' % x: search_value})
                 else:
@@ -46,12 +47,14 @@ class DatatablesFilterBackend(BaseFilterBackend):
             if f_search_value:
                 if f_search_regex:
                     if self.is_valid_regex(f_search_value):
-                        # create a temporary q variable to hold the Q() objects adhering to the field's name criteria.
+                        # create a temporary q variable to hold the Q()
+                        # objects adhering to the field's name criteria.
                         temp_q = Q()
                         for x in f['name']:
                             temp_q |= Q(**{'%s__iregex' % x: f_search_value})
-                        # Use deepcopy() to transfer them to the global Q() object. Deepcopy() necessary, since the var
-                        # will be reinstantiated next iteration.
+                        # Use deepcopy() to transfer them to the global Q()
+                        # object. Deepcopy() necessary, since the var will be
+                        # reinstantiated next iteration.
                         q = q & deepcopy(temp_q)
                 else:
                     temp_q = Q()
@@ -85,10 +88,14 @@ class DatatablesFilterBackend(BaseFilterBackend):
             if not name:
                 name = data
             search_col = col % (i, 'search')
-            # to be able to search across multiple fields (e.g. to search through concatenated names), we create a list
-            # of the name field, replacing dot notation with double-underscores and splitting along the commas.
+            # to be able to search across multiple fields (e.g. to search
+            # through concatenated names), we create a list of the name field,
+            # replacing dot notation with double-underscores and splitting
+            # along the commas.
             field = {
-                'name': [n.lstrip() for n in name.replace('.', '__').split(',')],
+                'name': [
+                    n.lstrip() for n in name.replace('.', '__').split(',')
+                ],
                 'data': data,
                 'searchable': getter(col % (i, 'searchable')) == 'true',
                 'orderable': getter(col % (i, 'orderable')) == 'true',
