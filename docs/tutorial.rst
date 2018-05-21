@@ -201,6 +201,15 @@ What we just did:
 
     In the above example, the fields 'id' and 'rank' will always be serialized in the response regardless of fields requested in the Datatables request.
 
+.. hint::
+
+    Alternatively, if you wish to choose which fields to preserve at runtime rather than hardcoding them into your serializer models, use the ``?keep=`` param along with the fields you wish to maintain (comma separated). For example, if you wished to preserve ``id`` and ``rank`` as before, you would simply use the following API call:
+
+
+.. code:: html
+
+    data-ajax="/api/albums/?format=datatables&keep=id,rank"
+
 .. important::
 
     To sum up, **the most important things** to remember here are:

@@ -85,6 +85,19 @@ class TestApiTestCase(TestCase):
 
         delattr(AlbumSerializer.Meta, 'datatables_always_serialize')
 
+    def test_param_keep_field(self):
+        response = self.client.get(
+            '/api/albums/?format=datatables&length=10&columns[0][data]=artist.name&columns[0][name]=artist.name&keep=year')
+        expected = (15, 15, 1967)
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['year']), expected)
+
+    def test_param_keep_field_search(self):
+        response = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=artist.name&columns[0][name]=artist.name,year&columns[0][searchable]=true&keep=year&search[value]=1968')
+        expected = (1, 15, 'The Beatles', 1968)
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist']['name'], result['data'][0]['year']), expected)
+
     def test_dt_force_serialize_generic(self):
         response = self.client.get('/api/artists/?format=datatables&length=10&start=0&columns[0][data]=&columns[1][data]=name')
         result = response.json()
