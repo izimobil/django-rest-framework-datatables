@@ -65,7 +65,7 @@ class DatatablesRenderer(JSONRenderer):
             col = request.query_params.get('columns[%d][data]' % i)
             if col is None:
                 break
-            cols.append(col)
+            cols.append(col.split('.').pop(0))
             i += 1
         if len(cols):
             data = result['data']
@@ -78,4 +78,4 @@ class DatatablesRenderer(JSONRenderer):
                     if (k not in cols
                             and not k.startswith('DT_Row')
                             and k not in force_serialize):
-                        result['data'][i].pop(k)
+                            result['data'][i].pop(k)

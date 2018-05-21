@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 
 from django.db.models import Q
 
@@ -33,19 +34,35 @@ class DatatablesFilterBackend(BaseFilterBackend):
             if search_value and search_value != 'false':
                 if search_regex:
                     if self.is_valid_regex(search_value):
-                        q |= Q(**{'%s__iregex' % f['name']: search_value})
+                        # iterate through the list created from the 'name'
+                        # param and create a string of 'ior' Q() objects.
+                        for x in f['name']:
+                            q |= Q(**{'%s__iregex' % x: search_value})
                 else:
-                    q |= Q(**{'%s__icontains' % f['name']: search_value})
+                    # same as above.
+                    for x in f['name']:
+                        q |= Q(**{'%s__icontains' % x: search_value})
             f_search_value = f.get('search_value')
             f_search_regex = f.get('search_regex') == 'true'
             if f_search_value:
                 if f_search_regex:
                     if self.is_valid_regex(f_search_value):
-                        q &= Q(**{'%s__iregex' % f['name']: f_search_value})
+                        # create a temporary q variable to hold the Q()
+                        # objects adhering to the field's name criteria.
+                        temp_q = Q()
+                        for x in f['name']:
+                            temp_q |= Q(**{'%s__iregex' % x: f_search_value})
+                        # Use deepcopy() to transfer them to the global Q()
+                        # object. Deepcopy() necessary, since the var will be
+                        # reinstantiated next iteration.
+                        q = q & deepcopy(temp_q)
                 else:
-                    q &= Q(**{'%s__icontains' % f['name']: f_search_value})
+                    temp_q = Q()
+                    for x in f['name']:
+                        temp_q |= Q(**{'%s__icontains' % x: f_search_value})
+                    q = q & deepcopy(temp_q)
 
-        if q != Q():
+        if q:
             queryset = queryset.filter(q).distinct()
             filtered_count = queryset.count()
         else:
@@ -71,8 +88,14 @@ class DatatablesFilterBackend(BaseFilterBackend):
             if not name:
                 name = data
             search_col = col % (i, 'search')
+            # to be able to search across multiple fields (e.g. to search
+            # through concatenated names), we create a list of the name field,
+            # replacing dot notation with double-underscores and splitting
+            # along the commas.
             field = {
-                'name': name.replace('.', '__'),
+                'name': [
+                    n.lstrip() for n in name.replace('.', '__').split(',')
+                ],
                 'data': data,
                 'searchable': getter(col % (i, 'searchable')) == 'true',
                 'orderable': getter(col % (i, 'orderable')) == 'true',
@@ -102,7 +125,7 @@ class DatatablesFilterBackend(BaseFilterBackend):
             dir_ = getter(col % (i, 'dir'), 'asc')
             ordering.append('%s%s' % (
                 '-' if dir_ == 'desc' else '',
-                field['name']
+                field['name'][0]
             ))
             i += 1
         return ordering

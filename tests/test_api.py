@@ -96,6 +96,20 @@ class TestApiTestCase(TestCase):
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)
 
+    def test_filtering_multiple_names(self):
+        # Two asserts here to test searching on separate namespaces.
+        api_call = '/api/albums/?format=datatables&columns[0][data]=name&columns[0][searchable]=true&columns[1][data]=artist__name&columns[1][name]=artist__name,year&columns[1][searchable]=true'
+        # First search.
+        response_1 = self.client.get(api_call + '&search[value]=Beatles')
+        # Second search.
+        response_2 = self.client.get(api_call + '&search[value]=1968')
+        expected_1 = (5, 15, 'Sgt. Pepper\'s Lonely Hearts Club Band')
+        expected_2 = (1, 15, 'The Beatles ("The White Album")')
+        result_1 = response_1.json()
+        result_2 = response_2.json()
+        self.assertEquals((result_1['recordsFiltered'], result_1['recordsTotal'], result_1['data'][0]['name']), expected_1)
+        self.assertEquals((result_2['recordsFiltered'], result_2['recordsTotal'], result_2['data'][0]['name']), expected_2)
+
     def test_filtering_regex(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=name&columns[0][searchable]=true&search[regex]=true&search[value]=^Highway [0-9]{2} Revisited$')
         expected = (1, 15, 'Highway 61 Revisited')
@@ -108,11 +122,18 @@ class TestApiTestCase(TestCase):
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)
 
-    def test_filtering_foreignkey(self):
+    def test_filtering_foreignkey_without_nested_serializer(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=artist_name&columns[0][name]=artist__name&columns[0][searchable]=true&search[value]=Jimi')
         expected = (1, 15, 'The Jimi Hendrix Experience')
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    def test_filtering_foreignkey_with_nested_serializer(self):
+        response = self.client.get(
+            '/api/albums/?format=datatables&length=10&columns[0][data]=artist.name&columns[0][name]=artist.name&columns[0][searchable]=true&search[value]=Jimi')
+        expected = (1, 15, 'The Jimi Hendrix Experience')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist']['name']), expected)
 
     def test_filtering_column(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=artist_name&columns[0][name]=artist__name&columns[0][searchable]=true&columns[0][search][value]=Beatles')
@@ -155,4 +176,3 @@ class TestApiTestCase(TestCase):
         expected = (15, 15, 'The Beatles')
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
-
