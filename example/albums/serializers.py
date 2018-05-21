@@ -3,8 +3,23 @@ from rest_framework import serializers
 from .models import Album, Artist
 
 
+class ArtistSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Artist
+        fields = (
+            'id', 'name',
+        )
+        # Specifying fields in datatables_always_serialize
+        # will also force them to always be serialized.
+        datatables_always_serialize = ('id',)
+
+
 class AlbumSerializer(serializers.ModelSerializer):
     artist_name = serializers.ReadOnlyField(source='artist.name')
+    # DRF-Datatables can deal with nested serializers as well.
+    artist = ArtistSerializer()
     genres = serializers.SerializerMethodField()
 
     def get_genres(self, album):
@@ -26,18 +41,7 @@ class AlbumSerializer(serializers.ModelSerializer):
         model = Album
         fields = (
             'DT_RowId', 'DT_RowAttr', 'rank', 'name',
-            'year', 'artist_name', 'genres',
+            'year', 'artist_name', 'genres', 'artist',
         )
 
 
-class ArtistSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Artist
-        fields = (
-            'id', 'name',
-        )
-        # Specifying fields in datatables_always_serialize
-        # will also force them to always be serialized.
-        datatables_always_serialize = ('id',)
