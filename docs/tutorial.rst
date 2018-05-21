@@ -66,10 +66,19 @@ albums/serializers.py:
 
     from rest_framework import serializers
     from .models import Album
-    
+
+    class ArtistSerializer(serializers.ModelSerializer):
+        id = serializers.IntegerField(read_only=True)
+
+        class Meta:
+            model = Artist
+            fields = (
+                'id', 'name',
+            )
+
     
     class AlbumSerializer(serializers.ModelSerializer):
-        artist_name = serializers.ReadOnlyField(source='artist.name')
+        artist = ArtistSerializer()
         genres = serializers.SerializerMethodField()
     
         def get_genres(self, album):
@@ -192,7 +201,6 @@ What we just did:
 
     In the above example, the fields 'id' and 'rank' will always be serialized in the response regardless of fields requested in the Datatables request.
 
-
 .. important::
 
     To sum up, **the most important things** to remember here are:
@@ -231,10 +239,10 @@ The HTML/JS code will look like this:
               <thead>
                 <tr>
                   <th data-data="rank">Rank</th>
-                  <th data-data="artist_name" data-name="artist__name">Artist</th>
+                  <th data-data="artist.name" data-name="artist.name">Artist</th>
                   <th data-data="name">Album name</th>
                   <th data-data="year">Year</th>
-                  <th data-data="genres" data-name="genres__name">Year</th>
+                  <th data-data="genres" data-name="genres.name">Year</th>
                 </tr>
               </thead>
             </table>
@@ -296,10 +304,10 @@ We could also have written that in a more conventional form (without data attrib
                   'ajax': '/api/albums/?format=datatables',
                   'columns': [
                       {'data': 'rank'},
-                      {'data': 'artist_name', 'name': 'artist__name'},
+                      {'data': 'artist.name', 'name': 'artist.name'},
                       {'data': 'name'},
                       {'data': 'year'},
-                      {'data': 'genres', 'name': 'genres__name'},
+                      {'data': 'genres', 'name': 'genres.name'},
                   ]
           
               });
@@ -310,7 +318,30 @@ We could also have written that in a more conventional form (without data attrib
 
 .. hint::
 
-    Here our "fields parts" are ``artist__name`` and ``genres__name``, but we could also use the dot syntax ``artist.name`` and ``genres.name``, both are recognised !
+    Datatables uses the dot notation in the ``data`` field to populate columns with nested data. In this example, ``artist.name`` refers to the field ``name`` within the nested serializer ``artist``.
+
+
+Filtering
+---------
+
+Filtering is based off of the either the ``data`` or ``name`` fields. If you need to filter on multiple fields, you can always pass through multiple variables like so
+
+.. code:: html
+
+    <script>
+        'columns': [
+            {'data': 'artist.name', 'name': 'artist.name, artist__year'}
+    </script>
+
+This would allow you to filter the ``artist.name`` column based upon ``name`` or ``year``.
+
+.. hint::
+
+    Because the ``name`` field is used to filter on Django queries, you can use either dot or double-underscore notation as shown in the example above.
+
+.. hint::
+
+    The values within a single ``name`` field are tied together using a logical ``OR`` operator for filtering, while those between ``name`` fields are strung together with an ``AND`` operator. This means that Datatables' multicolumn search functionality is preserved.
 
 .. hint::
 

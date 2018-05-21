@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 
 from django.db.models import Q
 
@@ -33,10 +34,11 @@ class DatatablesFilterBackend(BaseFilterBackend):
             if search_value and search_value != 'false':
                 if search_regex:
                     if self.is_valid_regex(search_value):
+                    # iterate through the list created from the 'name' param and create a string of 'ior' Q() objects.
                         for x in f['name']:
                             q |= Q(**{'%s__iregex' % x: search_value})
                 else:
-                    # iterate through the list created from the 'name' param and create a string of 'ior' Q() objects.
+                    # same as above.
                     for x in f['name']:
                         q |= Q(**{'%s__icontains' % x: search_value})
             f_search_value = f.get('search_value')
@@ -44,11 +46,18 @@ class DatatablesFilterBackend(BaseFilterBackend):
             if f_search_value:
                 if f_search_regex:
                     if self.is_valid_regex(f_search_value):
+                        # create a temporary q variable to hold the Q() objects adhering to the field's name criteria.
+                        temp_q = Q()
                         for x in f['name']:
-                            q |= Q(**{'%s__iregex' % x: f_search_value})
+                            temp_q |= Q(**{'%s__iregex' % x: f_search_value})
+                        # Use deepcopy() to transfer them to the global Q() object. Deepcopy() necessary, since the var
+                        # will be reinstantiated next iteration.
+                        q = q & deepcopy(temp_q)
                 else:
+                    temp_q = Q()
                     for x in f['name']:
-                        q |= Q(**{'%s__icontains' % x: f_search_value})
+                        temp_q |= Q(**{'%s__icontains' % x: f_search_value})
+                    q = q & deepcopy(temp_q)
 
         if q:
             queryset = queryset.filter(q).distinct()

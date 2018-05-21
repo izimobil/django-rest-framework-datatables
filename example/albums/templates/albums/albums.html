@@ -41,6 +41,7 @@
             <thead>
                 <tr>
                     <th data-data="rank">Rank</th>
+                    <th data-data="artist_name" data-name="artist.name">Artist</th>
                     <th data-data="name">Album name</th>
                 </tr>
             </thead>
@@ -64,7 +65,9 @@ $(document).ready(function() {
         "ajax": "/api/albums/?format=datatables",
         "columns": [
             {"data": "rank", "searchable": false},
-            {"data": "artist_name", "name": "artist.name"},
+            // Use dot notation to reference nested serializers.
+            // This data: could alternatively be displayed with the serializer's ReadOnlyField as well, as seen in the minimal example.
+            {"data": "artist.name", "name": "artist.name"},
             {"data": "name"},
             {"data": "year"},
             {"data": "genres", "name": "genres.name", "sortable": false},

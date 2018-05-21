@@ -78,4 +78,4 @@ class DatatablesRenderer(JSONRenderer):
                     if (k not in cols
                             and not k.startswith('DT_Row')
                             and k not in force_serialize):
-                        result['data'][i].pop(k)
+                            result['data'][i].pop(k)
