@@ -59,10 +59,9 @@ class DatatablesRenderer(JSONRenderer):
         )
 
     def _filter_unused_fields(self, request, result, force_serialize):
-        # list of params to keep, triggered by ?keep= and can be comma separated.
-        keep = request.query_params.get('keep')
-        if keep is None:
-            keep = []
+        # list of params to keep, triggered by ?keep= and can be comma
+        # separated.
+        keep = request.query_params.get('keep', [])
         cols = []
         i = 0
         while True:
@@ -79,9 +78,10 @@ class DatatablesRenderer(JSONRenderer):
                 except AttributeError:
                     continue
                 for k in keys:
-                    if (k not in cols
-                            and not k.startswith('DT_Row')
-                            and k not in force_serialize
-                            and not k.startswith('id')
-                            and k not in keep):
-                            result['data'][i].pop(k)
+                    if (
+                        k not in cols
+                        and not k.startswith('DT_Row')
+                        and k not in force_serialize
+                        and k not in keep
+                    ):
+                        result['data'][i].pop(k)
