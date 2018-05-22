@@ -182,24 +182,30 @@ What we just did:
 - and finally initialized the Datatable via a javascript one-liner.
 
 
+Perhaps you noticed that we didn't use all fields from our serializer in the above example, that's not a problem, django-rest-framework-datatables will automatically filter the fields that are not necessary when processing the request from Datatables.
+
+If you want to force serialization of fields that are not requested by Datatables you can use the ``datatables_always_serialize`` Meta option in your serializer, here's an example:
+
+.. code:: python
+
+    class AlbumSerializer(serializers.ModelSerializer):
+        id = serializers.IntegerField(read_only=True)
+        class Meta:
+            model = Album
+            fields = (
+                'id', 'rank', 'name', 'year',
+            )
+            datatables_always_serialize = ('id', 'rank',)
+
+In the above example, the fields 'id' and 'rank' will always be serialized in the response regardless of fields requested in the Datatables request.
+
 .. hint::
 
-    Perhaps you noticed that we didn't use all fields from our serializer in the above example, that's not a problem, django-rest-framework-datatables will automatically filter the fields that are not necessary when processing the request from Datatables.
+    Alternatively, if you wish to choose which fields to preserve at runtime rather than hardcoding them into your serializer models, use the ``?keep=`` param along with the fields you wish to maintain (comma separated). For example, if you wished to preserve ``id`` and ``rank`` as before, you would simply use the following API call:
 
-    If you want to force serialization of fields that are not requested by Datatables you can use the ``datatables_always_serialize`` Meta option in your serializer, here's an example:
+    .. code:: html
 
-    .. code:: python
-
-        class AlbumSerializer(serializers.ModelSerializer):
-            id = serializers.IntegerField(read_only=True)
-            class Meta:
-                model = Album
-                fields = (
-                    'id', 'rank', 'name', 'year',
-                )
-                datatables_always_serialize = ('id', 'rank',)
-
-    In the above example, the fields 'id' and 'rank' will always be serialized in the response regardless of fields requested in the Datatables request.
+        data-ajax="/api/albums/?format=datatables&keep=id,rank"
 
 .. important::
 
@@ -335,17 +341,11 @@ Filtering is based off of the either the ``data`` or ``name`` fields. If you nee
 
 This would allow you to filter the ``artist.name`` column based upon ``name`` or ``year``.
 
-.. hint::
+Because the ``name`` field is used to filter on Django queries, you can use either dot or double-underscore notation as shown in the example above.
 
-    Because the ``name`` field is used to filter on Django queries, you can use either dot or double-underscore notation as shown in the example above.
+The values within a single ``name`` field are tied together using a logical ``OR`` operator for filtering, while those between ``name`` fields are strung together with an ``AND`` operator. This means that Datatables' multicolumn search functionality is preserved.
 
-.. hint::
-
-    The values within a single ``name`` field are tied together using a logical ``OR`` operator for filtering, while those between ``name`` fields are strung together with an ``AND`` operator. This means that Datatables' multicolumn search functionality is preserved.
-
-.. hint::
-
-    If you need more complex filtering and ordering, you can always implement your own filter backend by inheriting from ``rest_framework_datatables.DatatablesFilterBackend``.
+If you need more complex filtering and ordering, you can always implement your own filter backend by inheriting from ``rest_framework_datatables.DatatablesFilterBackend``.
 
 .. important::
 
