@@ -33,6 +33,22 @@ class DatatablesRendererTestCase(TestCase):
         }
         self.assertEquals(json.loads(content.decode('utf-8')), expected)
 
+    def test_render_no_pagination1_1(self):
+        obj = [{'foo': 'bar'}]
+        renderer = DatatablesRenderer()
+        view = APIView()
+        request = view.initialize_request(
+            self.factory.get('/api/foo.datatables?draw=1')
+        )
+        content = renderer.render(obj, 'application/json', {'request': request, 'view': view})
+        expected = {
+            'recordsTotal': 1,
+            'recordsFiltered': 1,
+            'data': [{'foo': 'bar'}],
+            'draw': 1
+        }
+        self.assertEquals(json.loads(content.decode('utf-8')), expected)
+
     def test_render_no_pagination2(self):
         obj = {'results': [{'foo': 'bar'}, {'spam': 'eggs'}]}
         renderer = DatatablesRenderer()

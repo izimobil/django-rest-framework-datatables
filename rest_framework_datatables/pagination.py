@@ -37,7 +37,7 @@ class DatatablesMixin(object):
 
 class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
     def paginate_queryset(self, queryset, request, view=None):
-        if request.query_params.get('format') != 'datatables':
+        if request.accepted_renderer.format != 'datatables':
             self.is_datatable_request = False
             return super(
                 DatatablesPageNumberPagination, self
@@ -70,7 +70,7 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
 
 class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
     def paginate_queryset(self, queryset, request, view=None):
-        if request.query_params.get('format') == 'datatables':
+        if request.accepted_renderer.format == 'datatables':
             self.is_datatable_request = True
             if request.query_params.get('length') is None:
                 return None

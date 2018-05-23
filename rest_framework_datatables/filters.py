@@ -11,7 +11,7 @@ class DatatablesFilterBackend(BaseFilterBackend):
     Filter that works with datatables params.
     """
     def filter_queryset(self, request, queryset, view):
-        if request.query_params.get('format') != 'datatables':
+        if request.accepted_renderer.format != 'datatables':
             return queryset
 
         total_count = queryset.count()
