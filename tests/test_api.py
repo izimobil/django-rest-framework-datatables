@@ -1,4 +1,5 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, modify_settings
+from django.conf import settings
 from rest_framework.test import APIClient
 from rest_framework.settings import api_settings
 
@@ -21,6 +22,22 @@ class TestApiTestCase(TestCase):
         expected = 15
         result = response.json()
         self.assertEquals(result['count'], expected)
+
+    def test_datatables_query(self):
+        response = self.client.get('/api/albums/?format=datatables')
+        expected = 15
+        result = response.json()
+        self.assertEquals('count' in result, False)
+        self.assertEquals('recordsTotal' in result, True)
+        self.assertEquals(result['recordsTotal'], expected)
+
+    def test_datatables_suffix(self):
+        response = self.client.get('/api/albums.datatables/')
+        expected = 15
+        result = response.json()
+        self.assertEquals('count' in result, False)
+        self.assertEquals('recordsTotal' in result, True)
+        self.assertEquals(result['recordsTotal'], expected)
 
     def test_pagenumber_pagination(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
@@ -150,6 +167,12 @@ class TestApiTestCase(TestCase):
 
     def test_filtering_column(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=artist_name&columns[0][name]=artist__name&columns[0][searchable]=true&columns[0][search][value]=Beatles')
+        expected = (5, 15, 'The Beatles')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    def test_filtering_column_suffix(self):
+        response = self.client.get('/api/albums.datatables?length=10&columns[0][data]=artist_name&columns[0][name]=artist__name&columns[0][searchable]=true&columns[0][search][value]=Beatles')
         expected = (5, 15, 'The Beatles')
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
