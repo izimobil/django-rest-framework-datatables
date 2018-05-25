@@ -26,7 +26,7 @@ class DatatablesMixin(object):
             count = view._datatables_filtered_count
             del view._datatables_filtered_count
         else:  # pragma: no cover
-            count = queryset.Count()
+            count = queryset.count()
         if hasattr(view, '_datatables_total_count'):
             total_count = view._datatables_total_count
             del view._datatables_total_count
