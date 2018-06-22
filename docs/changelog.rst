@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 0.4.0 (2018-06-22):
+---------------------------
+
+- Added top level filtering for nested serializers
+- Added multiple field filtering
+- Added a ?keep= parameter that allows to bypass the filtering of unused fields
+- Better detection of the requested format
+- Fixed typo in Queryset.count() method name
+
+
 Version 0.3.0 (2018-05-11):
 ---------------------------
 
