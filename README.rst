@@ -174,6 +174,8 @@ If you want to check the coverage, use:
 Documentation
 -------------
 
+The documentation is available online on `Read the Docs <http://django-rest-framework-datatables.readthedocs.io/en/latest/>`_.
+
 To build the documentation, you’ll need to install ``sphinx``.
 
 .. code:: bash
