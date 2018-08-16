@@ -59,6 +59,21 @@ And that's it !
 
 Your API is now fully compatible with Datatables and will provide searching, filtering, ordering and pagination without any modification of your API code !
 
+Always Serialize Specific Fields
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sometimes you may want to expose fields regardless of datatable's url parameters. You can do so by setting the ``datatables_always_serialize`` tuple like so:
+
+.. code:: python
+
+    class ArtistSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    
+    class Meta:
+        model = Artist
+        fields = (
+            'id', 'name',
+            )
+        datatables_always_serialize = ('id',)
 
 An example of Datatable
 ~~~~~~~~~~~~~~~~~~~~~~~
