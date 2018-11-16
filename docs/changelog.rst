@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 0.4.1 (2018-11-16):
+---------------------------
+
+- Added support for Django 2.1 and DRF 3.9
+- Updated README
+
 Version 0.4.0 (2018-06-22):
 ---------------------------
 
