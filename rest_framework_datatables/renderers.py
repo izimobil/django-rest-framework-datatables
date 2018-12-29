@@ -54,6 +54,15 @@ class DatatablesRenderer(JSONRenderer):
 
         self._filter_unused_fields(request, new_data, force_serialize)
 
+        if hasattr(view.__class__, 'Meta'):
+            extra_json_funcs = getattr(
+                view.__class__.Meta, 'datatables_extra_json', ()
+            )
+        else:
+            extra_json_funcs = ()
+
+        self._filter_extra_json(view, new_data, extra_json_funcs)
+
         return super(DatatablesRenderer, self).render(
             new_data, accepted_media_type, renderer_context
         )
@@ -85,3 +94,16 @@ class DatatablesRenderer(JSONRenderer):
                         and k not in keep
                     ):
                         result['data'][i].pop(k)
+
+    def _filter_extra_json(self, view, result, extra_json_funcs):
+        read_only_keys = result.keys()  # everything that's present should remain unaltered
+        for func in extra_json_funcs:
+            if not hasattr(view, func):
+                raise TypeError("extra_json_funcs entry {0} is not a view method.".format(func))
+            method = getattr(view, func)
+            if not callable(method):
+                raise TypeError("extra_json_funcs entry {0} is not callable.")
+            key, val = method()
+            if key in read_only_keys:
+                raise ValueError("Duplicate key found: {key}".format(key=key))
+            result[key] = val
