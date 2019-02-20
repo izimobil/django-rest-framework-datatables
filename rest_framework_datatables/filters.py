@@ -14,7 +14,8 @@ class DatatablesFilterBackend(BaseFilterBackend):
         if request.accepted_renderer.format != 'datatables':
             return queryset
 
-        total_count = queryset.count()
+        filtered_count_before = queryset.count()
+        total_count = view.get_queryset().count()
         # set the queryset count as an attribute of the view for later
         # TODO: find a better way than this hack
         setattr(view, '_datatables_total_count', total_count)
@@ -66,7 +67,7 @@ class DatatablesFilterBackend(BaseFilterBackend):
             queryset = queryset.filter(q).distinct()
             filtered_count = queryset.count()
         else:
-            filtered_count = total_count
+            filtered_count = filtered_count_before
         # set the queryset count as an attribute of the view for later
         # TODO: maybe find a better way than this hack ?
         setattr(view, '_datatables_filtered_count', filtered_count)
