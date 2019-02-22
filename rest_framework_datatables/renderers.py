@@ -96,13 +96,13 @@ class DatatablesRenderer(JSONRenderer):
                         result['data'][i].pop(k)
 
     def _filter_extra_json(self, view, result, extra_json_funcs):
-        read_only_keys = result.keys()  # everything that's present should remain unaltered
+        read_only_keys = result.keys()  # don't change anything else
         for func in extra_json_funcs:
             if not hasattr(view, func):
-                raise TypeError("extra_json_funcs entry {0} is not a view method.".format(func))
+                raise TypeError("{0} is not a view method.".format(func))
             method = getattr(view, func)
             if not callable(method):
-                raise TypeError("extra_json_funcs entry {0} is not callable.")
+                raise TypeError("{0} is not callable.")
             key, val = method()
             if key in read_only_keys:
                 raise ValueError("Duplicate key found: {key}".format(key=key))
