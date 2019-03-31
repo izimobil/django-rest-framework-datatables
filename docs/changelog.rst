@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 0.5.0 (2019-03-31):
+---------------------------
+
+- Fixed total number of rows when view is using multiple filter back-ends
+- New meta option ``datatables_extra_json`` on view for adding key/value pairs to rendered JSON
+- Minor docs fixes
+
 Version 0.4.1 (2018-11-16):
 ---------------------------
 
