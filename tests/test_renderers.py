@@ -98,3 +98,81 @@ class DatatablesRendererTestCase(TestCase):
             'draw': 2
         }
         self.assertEquals(json.loads(content.decode('utf-8')), expected)
+
+    def test_render_extra_json(self):
+        class TestAPIView(APIView):
+            def test_callback(self):
+                return "key", "value"
+
+            class Meta:
+                datatables_extra_json = ('test_callback', )
+        obj = {'recordsTotal': 4, 'recordsFiltered': 2, 'data': [{'foo': 'bar'}, {'spam': 'eggs'}]}
+        renderer = DatatablesRenderer()
+        view = TestAPIView()
+        request = view.initialize_request(
+            self.factory.get('/api/foo/?format=datatables&draw=2')
+        )
+        content = renderer.render(obj, 'application/json', {'request': request, 'view': view})
+        expected = {
+            'recordsTotal': 4,
+            'recordsFiltered': 2,
+            'data': [{'foo': 'bar'}, {'spam': 'eggs'}],
+            'key': 'value',
+            'draw': 2
+        }
+        self.assertEquals(json.loads(content.decode('utf-8')), expected)
+
+    def test_render_extra_json_attr_missing(self):
+        class TestAPIView(APIView):
+            class Meta:
+                datatables_extra_json = ('test_callback', )
+
+        obj = {'recordsTotal': 4, 'recordsFiltered': 2, 'data': [{'foo': 'bar'}, {'spam': 'eggs'}]}
+        renderer = DatatablesRenderer()
+        view = TestAPIView()
+        request = view.initialize_request(
+            self.factory.get('/api/foo/?format=datatables&draw=2')
+        )
+        try:
+            renderer.render(obj, 'application/json', {'request': request, 'view': view})
+            self.assertEqual(True, False, "TypeError expected; did not occur.")
+        except TypeError as e:
+            self.assertEqual(e.__str__(), "extra_json_funcs entry test_callback is not a view method.")
+
+    def test_render_extra_json_attr_not_callable(self):
+        class TestAPIView(APIView):
+            test_callback = 'gotcha'
+            class Meta:
+                datatables_extra_json = ('test_callback', )
+
+        obj = {'recordsTotal': 4, 'recordsFiltered': 2, 'data': [{'foo': 'bar'}, {'spam': 'eggs'}]}
+        renderer = DatatablesRenderer()
+        view = TestAPIView()
+        request = view.initialize_request(
+            self.factory.get('/api/foo/?format=datatables&draw=2')
+        )
+        try:
+            renderer.render(obj, 'application/json', {'request': request, 'view': view})
+            self.assertEqual(True, False, "TypeError expected; did not occur.")
+        except TypeError as e:
+            self.assertEqual(e.__str__(), "extra_json_funcs entry test_callback is not callable.")
+
+    def test_render_extra_json_clashes(self):
+        class TestAPIView(APIView):
+            def test_callback(self):
+                return "recordsTotal", "this could be bad"
+
+            class Meta:
+                datatables_extra_json = ('test_callback', )
+
+        obj = {'recordsTotal': 4, 'recordsFiltered': 2, 'data': [{'foo': 'bar'}, {'spam': 'eggs'}]}
+        renderer = DatatablesRenderer()
+        view = TestAPIView()
+        request = view.initialize_request(
+            self.factory.get('/api/foo/?format=datatables&draw=2')
+        )
+        try:
+            renderer.render(obj, 'application/json', {'request': request, 'view': view})
+            self.assertEqual(True, False, "Value expected; did not occur.")
+        except ValueError as e:
+            self.assertEqual(e.__str__(), "Duplicate key found: recordsTotal")
