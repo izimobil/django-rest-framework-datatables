@@ -137,7 +137,7 @@ class DatatablesRendererTestCase(TestCase):
             renderer.render(obj, 'application/json', {'request': request, 'view': view})
             self.assertEqual(True, False, "TypeError expected; did not occur.")
         except TypeError as e:
-            self.assertEqual(e.__str__(), "extra_json_funcs entry test_callback is not a view method.")
+            self.assertEqual(e.__str__(), "extra_json_funcs: test_callback not a view method.")
 
     def test_render_extra_json_attr_not_callable(self):
         class TestAPIView(APIView):
@@ -155,7 +155,7 @@ class DatatablesRendererTestCase(TestCase):
             renderer.render(obj, 'application/json', {'request': request, 'view': view})
             self.assertEqual(True, False, "TypeError expected; did not occur.")
         except TypeError as e:
-            self.assertEqual(e.__str__(), "extra_json_funcs entry test_callback is not callable.")
+            self.assertEqual(e.__str__(), "extra_json_funcs: test_callback not callable.")
 
     def test_render_extra_json_clashes(self):
         class TestAPIView(APIView):

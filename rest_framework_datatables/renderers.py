@@ -105,7 +105,7 @@ class DatatablesRenderer(JSONRenderer):
             method = getattr(view, func)
             if not callable(method):
                 raise TypeError(
-                    "extra_json_funcs: {0}  not callable.".format(func)
+                    "extra_json_funcs: {0} not callable.".format(func)
                 )
             key, val = method()
             if key in read_only_keys:
