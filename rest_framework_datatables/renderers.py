@@ -102,7 +102,7 @@ class DatatablesRenderer(JSONRenderer):
                 raise TypeError("extra_json_funcs entry {0} is not a view method.".format(func))
             method = getattr(view, func)
             if not callable(method):
-                raise TypeError("extra_json_funcs entry {0} is not callable.")
+                raise TypeError("extra_json_funcs entry {0} is not callable.".format(func))
             key, val = method()
             if key in read_only_keys:
                 raise ValueError("Duplicate key found: {key}".format(key=key))
