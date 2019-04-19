@@ -74,6 +74,15 @@ class DatatablesFilterBackend(BaseFilterBackend):
 
         # order queryset
         if len(ordering):
+            if hasattr(view, '_datatables_additional_order_by'):
+                additional = view._datatables_additional_order_by
+                # Django will actually only take the first occurrence if the
+                # same column is added multiple times in an order_by, but it
+                # feels cleaner to double check for duplicate anyway.
+                if not any((o[1:] if o[0] == '-' else o) == additional
+                           for o in ordering):
+                    ordering.append(additional)
+
             queryset = queryset.order_by(*ordering)
         return queryset
 
