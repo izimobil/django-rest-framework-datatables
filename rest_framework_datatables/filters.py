@@ -74,6 +74,18 @@ class DatatablesFilterBackend(BaseFilterBackend):
 
         # order queryset
         if len(ordering):
+            if type(queryset).__name__ == 'TranslatableQuerySet':
+                current_lang = queryset[0].get_current_language()
+                queryset = queryset.translated(current_lang)
+                translatable_ordering = []
+                for ordering_field in ordering:
+                    if ordering_field[0] == '-' and getattr(queryset.model, ordering_field[1:], False):
+                        translatable_ordering.append('-translations__%s' % ordering_field[1:])
+                    elif getattr(queryset.model, ordering_field, False):
+                        translatable_ordering.append('translations__%s' % ordering_field)
+                    else:
+                        translatable_ordering.append(ordering_field)
+                ordering = translatable_ordering
             queryset = queryset.order_by(*ordering)
         return queryset
 
