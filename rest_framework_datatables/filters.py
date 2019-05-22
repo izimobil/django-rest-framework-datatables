@@ -12,14 +12,15 @@ class DatatablesFilterBackend(BaseFilterBackend):
     Filter that works with datatables params.
     """
 
-    def rearange_field_names(self, request, datatables_field_string, queryset):
+    def rearange_field_names(self, request, datatables_field, queryset):
         if type(queryset).__name__ == 'TranslatableQuerySet':
             current_lang = get_language_from_request(request)
             queryset = queryset.translated(current_lang)
-        if '__' in datatables_field_string:
-            splitted_name = datatables_field_string.split('__')
+        if '__' in datatables_field:
+            splitted_name = datatables_field.split('__')
             model_prefix, field_name = splitted_name[0], splitted_name[1]
-            related_model = getattr(queryset.model, model_prefix).field.related_model
+            related_model = getattr(queryset.model,
+                                    model_prefix).field.related_model
             if type(related_model.objects).__name__ == 'TranslatableManager'\
                     or type(queryset).__name__ == 'TranslatableQuerySet':
                 field_object = getattr(related_model, field_name, None)
@@ -29,9 +30,10 @@ class DatatablesFilterBackend(BaseFilterBackend):
                     result += '__translations__'
                 else:
                     result += '__'
-                result += self.rearange_field_names(request, '__'.join(splitted_name[1:]), related_model.objects.all())
+                result += self.rearange_field_names(request, '__'.join(
+                    splitted_name[1:]), related_model.objects.all())
                 return result
-        return datatables_field_string
+        return datatables_field
 
     def filter_queryset(self, request, queryset, view):
         if request.accepted_renderer.format != 'datatables':
@@ -54,12 +56,16 @@ class DatatablesFilterBackend(BaseFilterBackend):
                     order = '-'
                     name = name[1:]
                 if len(name.split('__')) > 1:
-                    modified_field_name = self.rearange_field_names(request, name, queryset)
-                    name = f'{order}{modified_field_name}'
-                elif type(queryset.model.objects).__name__ == 'TranslatableManager' or\
+                    modified_field_name = self.rearange_field_names(request,
+                                                                    name,
+                                                                    queryset)
+                    name = '%s%s' % (order, modified_field_name)
+                elif type(queryset.model.objects).__name__ ==\
+                        'TranslatableManager' or\
                         type(queryset).__name__ == 'TranslatableQuerySet':
                     field_object = getattr(queryset.model, name, None)
-                    if type(field_object).__name__ == 'TranslatedFieldDescriptor' or\
+                    if type(field_object).__name__\
+                            == 'TranslatedFieldDescriptor' or\
                             type(field_object).__name__ == 'TranslatedField':
                         name = 'translations__%s' % name
                     name = '%s%s' % (order, name)
