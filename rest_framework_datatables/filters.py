@@ -20,10 +20,12 @@ class DatatablesFilterBackend(BaseFilterBackend):
             splitted_name = datatables_field_string.split('__')
             model_prefix, field_name = splitted_name[0], splitted_name[1]
             related_model = getattr(queryset.model, model_prefix).field.related_model
-            if type(related_model.objects).__name__ == 'TranslatableManager' or type(queryset).__name__ == 'TranslatableQuerySet':
+            if type(related_model.objects).__name__ == 'TranslatableManager'\
+                    or type(queryset).__name__ == 'TranslatableQuerySet':
                 field_object = getattr(related_model, field_name, None)
                 result = model_prefix
-                if type(field_object).__name__ == 'TranslatedFieldDescriptor' or type(field_object).__name__ == 'TranslatedField':
+                if type(field_object).__name__ == 'TranslatedFieldDescriptor'\
+                        or type(field_object).__name__ == 'TranslatedField':
                     result += '__translations__'
                 else:
                     result += '__'
@@ -54,11 +56,13 @@ class DatatablesFilterBackend(BaseFilterBackend):
                 if len(name.split('__')) > 1:
                     modified_field_name = self.rearange_field_names(request, name, queryset)
                     name = f'{order}{modified_field_name}'
-                elif type(queryset.model.objects).__name__ == 'TranslatableManager' or type(queryset).__name__ == 'TranslatableQuerySet':
+                elif type(queryset.model.objects).__name__ == 'TranslatableManager' or\
+                        type(queryset).__name__ == 'TranslatableQuerySet':
                     field_object = getattr(queryset.model, name, None)
-                    if type(field_object).__name__ == 'TranslatedFieldDescriptor' or type(field_object).__name__ == 'TranslatedField':
-                        name = f'translations__{name}'
-                    name = f'{order}{name}'
+                    if type(field_object).__name__ == 'TranslatedFieldDescriptor' or\
+                            type(field_object).__name__ == 'TranslatedField':
+                        name = 'translations__%s' % name
+                    name = '%s%s' % (order, name)
                 modified_field.append(name)
                 field['name'] = modified_field
         ordering = self.get_ordering(getter, fields)
