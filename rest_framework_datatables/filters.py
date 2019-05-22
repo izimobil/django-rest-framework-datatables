@@ -2,6 +2,7 @@ import re
 from copy import deepcopy
 
 from django.db.models import Q
+from django.utils.translation import get_language_from_request
 
 from rest_framework.filters import BaseFilterBackend
 
@@ -10,6 +11,26 @@ class DatatablesFilterBackend(BaseFilterBackend):
     """
     Filter that works with datatables params.
     """
+
+    def rearange_field_names(self, request, datatables_field_string, queryset):
+        if type(queryset).__name__ == 'TranslatableQuerySet':
+            current_lang = get_language_from_request(request)
+            queryset = queryset.translated(current_lang)
+        if '__' in datatables_field_string:
+            splitted_name = datatables_field_string.split('__')
+            model_prefix, field_name = splitted_name[0], splitted_name[1]
+            related_model = getattr(queryset.model, model_prefix).field.related_model
+            if type(related_model.objects).__name__ == 'TranslatableManager' or type(queryset).__name__ == 'TranslatableQuerySet':
+                field_object = getattr(related_model, field_name, None)
+                result = model_prefix
+                if type(field_object).__name__ == 'TranslatedFieldDescriptor' or type(field_object).__name__ == 'TranslatedField':
+                    result += '__translations__'
+                else:
+                    result += '__'
+                result += self.rearange_field_names(request, '__'.join(splitted_name[1:]), related_model.objects.all())
+                return result
+        return datatables_field_string
+
     def filter_queryset(self, request, queryset, view):
         if request.accepted_renderer.format != 'datatables':
             return queryset
@@ -23,6 +44,23 @@ class DatatablesFilterBackend(BaseFilterBackend):
         # parse query params
         getter = request.query_params.get
         fields = self.get_fields(getter)
+        for field in fields:
+            modified_field = []
+            for name in field['name']:
+                order = ''
+                if name[0] == '-':
+                    order = '-'
+                    name = name[1:]
+                if len(name.split('__')) > 1:
+                    modified_field_name = self.rearange_field_names(request, name, queryset)
+                    name = f'{order}{modified_field_name}'
+                elif type(queryset.model.objects).__name__ == 'TranslatableManager' or type(queryset).__name__ == 'TranslatableQuerySet':
+                    field_object = getattr(queryset.model, name, None)
+                    if type(field_object).__name__ == 'TranslatedFieldDescriptor' or type(field_object).__name__ == 'TranslatedField':
+                        name = f'translations__{name}'
+                    name = f'{order}{name}'
+                modified_field.append(name)
+                field['name'] = modified_field
         ordering = self.get_ordering(getter, fields)
         search_value = getter('search[value]')
         search_regex = getter('search[regex]') == 'true'
