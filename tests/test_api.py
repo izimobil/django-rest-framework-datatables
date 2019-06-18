@@ -41,9 +41,15 @@ class TestApiTestCase(TestCase):
 
     def test_pagenumber_pagination(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
-        expected = (15, 15, 'Elvis Presley')
+        expected = (15, 15, 5, 'Elvis Presley')
         result = response.json()
-        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], len(result['data']), result['data'][0]['artist_name']), expected)
+
+    def test_pagenumber_pagination_show_all(self):
+        response = self.client.get('/api/albums/?format=datatables&length=-1&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 15, 'The Beatles')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], len(result['data']), result['data'][0]['artist_name']), expected)
 
     def test_pagenumber_pagination_invalid_page(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&start=20&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
