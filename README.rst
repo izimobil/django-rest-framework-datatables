@@ -66,7 +66,7 @@ Sometimes you may want to expose fields regardless of datatable's url parameters
 .. code:: python
 
     class ArtistSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
+        id = serializers.IntegerField(read_only=True)
     
     class Meta:
         model = Artist
