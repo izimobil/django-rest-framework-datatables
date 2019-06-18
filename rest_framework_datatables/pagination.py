@@ -42,7 +42,10 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
             return super(
                 DatatablesPageNumberPagination, self
             ).paginate_queryset(queryset, request, view)
-        if request.query_params.get('length') is None:
+
+        length = request.query_params.get('length')
+
+        if length is None or length == '-1':
             return None
         self.count, self.total_count = self.get_count_and_total_count(
             queryset, view
