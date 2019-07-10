@@ -17,7 +17,7 @@ class TestFilterTestCase(TestCase):
     class TestAPIView(ListAPIView):
         serializer_class = AlbumSerializer
         pagination_class = DatatablesLimitOffsetPagination
-        _datatables_additional_order_by = 'year'
+        datatables_additional_order_by = 'year'
 
         def get_queryset(self):
             return Album.objects.all()
