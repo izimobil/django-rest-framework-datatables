@@ -16,28 +16,28 @@ albums/models.py:
 .. code:: python
 
     from django.db import models
-    
-    
+
+
     class Genre(models.Model):
         name = models.CharField('Name', max_length=80)
-    
+
         class Meta:
             ordering = ['name']
-    
+
         def __str__(self):
             return self.name
-    
-    
+
+
     class Artist(models.Model):
         name = models.CharField('Name', max_length=80)
-    
+
         class Meta:
             ordering = ['name']
-    
+
         def __str__(self):
             return self.name
-    
-    
+
+
     class Album(models.Model):
         name = models.CharField('Name', max_length=80)
         rank = models.PositiveIntegerField('Rank')
@@ -53,10 +53,10 @@ albums/models.py:
             verbose_name='Genres',
             related_name='albums'
         )
-    
+
         class Meta:
             ordering = ['name']
-    
+
         def __str__(self):
             return self.name
 
@@ -76,14 +76,14 @@ albums/serializers.py:
                 'id', 'name',
             )
 
-    
+
     class AlbumSerializer(serializers.ModelSerializer):
         artist = ArtistSerializer()
         genres = serializers.SerializerMethodField()
-    
+
         def get_genres(self, album):
             return ', '.join([str(genre) for genre in album.genres.all()])
-    
+
         class Meta:
             model = Album
             fields = (
@@ -98,12 +98,12 @@ albums/views.py:
     from rest_framework import viewsets
     from .models import Album
     from .serializers import AlbumSerializer
-    
-    
+
+
     def index(request):
         return render(request, 'albums/albums.html')
-    
-    
+
+
     class AlbumViewSet(viewsets.ModelViewSet):
         queryset = Album.objects.all().order_by('rank')
         serializer_class = AlbumSerializer
@@ -111,16 +111,16 @@ albums/views.py:
 urls.py:
 
 .. code:: python
-    
+
     from django.conf.urls import url, include
     from rest_framework import routers
     from albums import views
-    
-    
+
+
     router = routers.DefaultRouter()
     router.register(r'albums', views.AlbumViewSet)
-    
-    
+
+
     urlpatterns = [
         url('^api/', include(router.urls)),
         url('', views.index, name='albums')
@@ -229,7 +229,7 @@ In the above example, the 'get_options' method will be called to populate the re
 .. important::
 
     To sum up, **the most important things** to remember here are:
-    
+
     - don't forget to add ``?format=datatables`` to your API URL
     - you must add a **data-data attribute** or specify the column data property via JS for each columns, the name must **match one of the fields of your DRF serializers**.
 
@@ -334,7 +334,7 @@ We could also have written that in a more conventional form (without data attrib
                       {'data': 'year'},
                       {'data': 'genres', 'name': 'genres.name'},
                   ]
-          
+
               });
           });
       </script>
@@ -372,3 +372,24 @@ If you need more complex filtering and ordering, you can always implement your o
 
 
 You can see this code live by running the :doc:`example app <example-app>`.
+
+
+Handling Duplicates in Sorting
+------------------------------
+If sorting is done on a single column with more duplicates than the page size it's possible than some rows are never retrieved as we traverse through our datatable. This is because of how order by together with limit and offset works in the database.
+
+As a workaround for this problem we add a second column to sort by in the case of ties.
+
+class AlbumViewSet(viewsets.ModelViewSet):
+    queryset = Album.objects.all().order_by('year')
+    serializer_class = AlbumSerializer
+    datatables_additional_order_by = 'rank'
+
+    def get_options(self):
+        return "options", {
+            "artist": [{'label': obj.name, 'value': obj.pk} for obj in Artist.objects.all()],
+            "genre": [{'label': obj.name, 'value': obj.pk} for obj in Genre.objects.all()]
+        }
+
+    class Meta:
+        datatables_extra_json = ('get_options', )
