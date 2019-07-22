@@ -22,7 +22,7 @@ class DatatablesFilterBackend(BaseFilterBackend):
 
         # parse query params
         getter = request.query_params.get
-        fields = self.get_fields(getter)
+        fields = self.get_fields(request.query_params)
         ordering = self.get_ordering(getter, fields)
         search_value = getter('search[value]')
         search_regex = getter('search[regex]') == 'true'
@@ -86,15 +86,17 @@ class DatatablesFilterBackend(BaseFilterBackend):
             queryset = queryset.order_by(*ordering)
         return queryset
 
-    def get_fields(self, getter):
+    def get_fields(self, params):
         fields = []
         i = 0
+        col = 'columns[%d][%s]'
         while True:
-            col = 'columns[%d][%s]'
-            data = getter(col % (i, 'data'))
-            if data is None or not data:
+            try:
+                data = params[col % (i, 'data')]
+            except KeyError:
                 break
-            name = getter(col % (i, 'name'))
+
+            name = params.get(col % (i, 'name'))
             if not name:
                 name = data
             search_col = col % (i, 'search')
@@ -107,10 +109,10 @@ class DatatablesFilterBackend(BaseFilterBackend):
                     n.lstrip() for n in name.replace('.', '__').split(',')
                 ],
                 'data': data,
-                'searchable': getter(col % (i, 'searchable')) == 'true',
-                'orderable': getter(col % (i, 'orderable')) == 'true',
-                'search_value': getter('%s[%s]' % (search_col, 'value')),
-                'search_regex': getter('%s[%s]' % (search_col, 'regex')),
+                'searchable': params.get(col % (i, 'searchable')) == 'true',
+                'orderable': params.get(col % (i, 'orderable')) == 'true',
+                'search_value': params.get('%s[%s]' % (search_col, 'value')),
+                'search_regex': params.get('%s[%s]' % (search_col, 'regex')),
             }
             fields.append(field)
             i += 1
