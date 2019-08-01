@@ -1,4 +1,3 @@
-import unittest
 import json
 
 from django.test import TestCase
@@ -105,7 +104,8 @@ class DatatablesRendererTestCase(TestCase):
                 return "key", "value"
 
             class Meta:
-                datatables_extra_json = ('test_callback', )
+                datatables_extra_json = ('test_callback',)
+
         obj = {'recordsTotal': 4, 'recordsFiltered': 2, 'data': [{'foo': 'bar'}, {'spam': 'eggs'}]}
         renderer = DatatablesRenderer()
         view = TestAPIView()
@@ -125,7 +125,7 @@ class DatatablesRendererTestCase(TestCase):
     def test_render_extra_json_attr_missing(self):
         class TestAPIView(APIView):
             class Meta:
-                datatables_extra_json = ('test_callback', )
+                datatables_extra_json = ('test_callback',)
 
         obj = {'recordsTotal': 4, 'recordsFiltered': 2, 'data': [{'foo': 'bar'}, {'spam': 'eggs'}]}
         renderer = DatatablesRenderer()
@@ -142,8 +142,9 @@ class DatatablesRendererTestCase(TestCase):
     def test_render_extra_json_attr_not_callable(self):
         class TestAPIView(APIView):
             test_callback = 'gotcha'
+
             class Meta:
-                datatables_extra_json = ('test_callback', )
+                datatables_extra_json = ('test_callback',)
 
         obj = {'recordsTotal': 4, 'recordsFiltered': 2, 'data': [{'foo': 'bar'}, {'spam': 'eggs'}]}
         renderer = DatatablesRenderer()
@@ -163,7 +164,7 @@ class DatatablesRendererTestCase(TestCase):
                 return "recordsTotal", "this could be bad"
 
             class Meta:
-                datatables_extra_json = ('test_callback', )
+                datatables_extra_json = ('test_callback',)
 
         obj = {'recordsTotal': 4, 'recordsFiltered': 2, 'data': [{'foo': 'bar'}, {'spam': 'eggs'}]}
         renderer = DatatablesRenderer()

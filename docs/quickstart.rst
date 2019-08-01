@@ -44,4 +44,4 @@ What have we done so far ?
 And that's it !
 ---------------
 
-Your API is now fully compatible with Datatables and will provide searching, filtering, ordering and pagination without any modification of your API code, to continue, follow the :doc:`tutorial<tutorial>`.
+Your API is now fully compatible with Datatables and Datatables Editor and will provide searching, filtering, ordering and pagination and editing, to continue, follow the :doc:`tutorial<tutorial>`.

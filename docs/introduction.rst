@@ -1,6 +1,9 @@
 Introduction
 ============
 
+View tables
+~~~~~~~~~~~
+
 django-rest-framework-datatables provides seamless integration between `Django REST framework <https://www.django-rest-framework.org>`_ and `Datatables <https://datatables.net>`_.
 
 Just call your API with ``?format=datatables``, and you will get a JSON structure that is fully compatible with what Datatables expects.
@@ -69,3 +72,11 @@ As you can see, django-rest-framework-datatables automatically adapt the JSON st
 
 But django-rest-framework-datatables can do much more ! As you will learn in the tutorial, it speaks the Datatables language and can handle searching, filtering, ordering, pagination, etc.
 Read the :doc:`quickstart guide<quickstart>` for instructions on how to install and configure django-rest-framework-datatables.
+
+
+Editing tables
+~~~~~~~~~~~~~~
+
+The URL for interaction with the Datatables Editor: http://127.0.0.1:8000/api/albums/editor for this view.
+
+You must set the parameter ``ajax: "/api/albums/editor/`` and that's it!

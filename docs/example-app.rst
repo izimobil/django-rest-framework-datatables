@@ -11,6 +11,12 @@ We encourage you to give it a try with a few commandline calls:
     $ git clone https://github.com/izimobil/django-rest-framework-datatables.git
     $ cd django-rest-framework-datatables
     $ pip install -r requirements-dev.txt
+
+You need to download `Datatables Editor <https://editor.datatables.net/download/>`_, the JS+CSS version, and unpack the downloaded archive in
+``django-rest-framework-datatables/static``
+
+.. code:: bash
+
     $ python example/manage.py runserver
     $ firefox http://127.0.0.1:8000
 

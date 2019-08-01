@@ -70,6 +70,11 @@ albums/serializers.py:
     class ArtistSerializer(serializers.ModelSerializer):
         id = serializers.IntegerField(read_only=True)
 
+        # if we need to edit a field that is a nested serializer,
+        # we must override to_internal_value method
+        def to_internal_value(self, data):
+            return get_object_or_404(Artist, pk=data['id'])
+
         class Meta:
             model = Artist
             fields = (
@@ -104,7 +109,7 @@ albums/views.py:
         return render(request, 'albums/albums.html')
 
 
-    class AlbumViewSet(viewsets.ModelViewSet):
+    class AlbumViewSet(EditorModelMixin, viewsets.ModelViewSet):
         queryset = Album.objects.all().order_by('rank')
         serializer_class = AlbumSerializer
 
@@ -229,13 +234,13 @@ In the above example, the 'get_options' method will be called to populate the re
 .. important::
 
     To sum up, **the most important things** to remember here are:
-
+    
     - don't forget to add ``?format=datatables`` to your API URL
     - you must add a **data-data attribute** or specify the column data property via JS for each columns, the name must **match one of the fields of your DRF serializers**.
 
 
-A more complex and detailed example
------------------------------------
+A more complex and detailed example with the ability to edit data
+-----------------------------------------------------------------
 
 In this example we want to display more informations about the album:
 
@@ -249,101 +254,135 @@ The HTML/JS code will look like this:
     <!doctype html>
     <html lang="en">
     <head>
-      <meta charset="utf-8">
-      <title>Rolling Stone Top 500 albums of all time</title>
-      <meta name="description" content="Rolling Stone magazine's 2012 list of 500 greatest albums of all time with genres.">
-      <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
-      <link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+        <meta charset="utf-8">
+        <title>Rolling Stone Top 500 albums of all time</title>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.bootstrap4.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.0/css/select.bootstrap4.min.css">
+        <link rel="stylesheet" href="/static/css/editor.bootstrap4.min.css">
     </head>
-
     <body>
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <table id="albums" class="table table-striped table-bordered" style="width:100%" data-server-side="true" data-ajax="/api/albums/?format=datatables">
-              <thead>
-                <tr>
-                  <th data-data="rank">Rank</th>
-                  <th data-data="artist.name" data-name="artist.name">Artist</th>
-                  <th data-data="name">Album name</th>
-                  <th data-data="year">Year</th>
-                  <th data-data="genres" data-name="genres.name">Year</th>
-                </tr>
-              </thead>
-            </table>
-          </div>
+        <div class="container" style="font-size: .9em;">
+            <div class="row">
+                <div class="col-sm-12">
+                    <table id="albums" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Artist</th>
+                            <th>Album name</th>
+                            <th>Year</th>
+                            <th>Genres</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
-      <script src="//code.jquery.com/jquery-1.12.4.js"></script>
-      <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-      <script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
-      <script>
-          $(document).ready(function() {
-              $('#albums').DataTable();
-          });
-      </script>
+        <script src="//code.jquery.com/jquery-3.3.1.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.bootstrap4.min.js"></script>
+        <script src="https://cdn.datatables.net/select/1.3.0/js/dataTables.select.min.js"></script>
+        <script src="/static/js/dataTables.editor.js"></script>
+        <script src="/static/js/editor.bootstrap4.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                editor = new $.fn.dataTable.Editor({
+                    ajax: "/api/albums/editor/?format=datatables",
+                    table: "#albums",
+                    fields: [{
+                        label: "rank",
+                        name: "rank",
+                    }, {
+                        label: "artist:",
+                        name: "artist.id",
+                        type: "select"
+                    }, {
+                        label: "name:",
+                        name: "name",
+                    }, {
+                        label: "year:",
+                        name: "year",
+                    }]
+                });
+                var table = $('#albums').DataTable({
+                    "serverSide": true,
+                    dom: "Bfrtip",
+                    "ajax": "/api/albums/?format=datatables",
+                    "columns": [
+                        {"data": "rank", "searchable": false},
+                        {"data": "artist.name", "name": "artist.name"},
+                        {"data": "name"},
+                        {"data": "year"},
+                        {"data": "genres", "name": "genres.name", "sortable": false},
+                    ],
+                    select: true,
+                    buttons: [
+                        {extend: "create", editor: editor},
+                        {extend: "edit", editor: editor},
+                        {extend: "remove", editor: editor}
+                    ]
+                });
+                table.buttons().container()
+                    .appendTo($('.col-md-6:eq(0)', table.table().container()));
+            });
+        </script>
     </body>
     </html>
 
 Notice that artist and genres columns have an extra data attribute: ``data-name``, this attribute is necessary to tell to the django-rest-framework-datatables builtin filter backend what field part to use to filter and reorder the queryset. The builtin filter will add ``__icontains`` to the string to perform the filtering/ordering.
 
-We could also have written that in a more conventional form (without data attributes), for example:
-
-.. code:: html
-
-    <!doctype html>
-    <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <title>Rolling Stone Top 500 albums of all time</title>
-      <meta name="description" content="Rolling Stone magazine's 2012 list of 500 greatest albums of all time with genres.">
-      <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
-      <link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
-    </head>
-
-    <body>
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <table id="albums" class="table table-striped table-bordered" style="width:100%">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Artist</th>
-                  <th>Album name</th>
-                  <th>Year</th>
-                  <th>Year</th>
-                </tr>
-              </thead>
-            </table>
-          </div>
-        </div>
-      </div>
-      <script src="//code.jquery.com/jquery-1.12.4.js"></script>
-      <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-      <script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
-      <script>
-          $(document).ready(function() {
-              $('#albums').DataTable({
-                  'serverSide': true,
-                  'ajax': '/api/albums/?format=datatables',
-                  'columns': [
-                      {'data': 'rank'},
-                      {'data': 'artist.name', 'name': 'artist.name'},
-                      {'data': 'name'},
-                      {'data': 'year'},
-                      {'data': 'genres', 'name': 'genres.name'},
-                  ]
-
-              });
-          });
-      </script>
-    </body>
-    </html>
 
 .. hint::
 
     Datatables uses the dot notation in the ``data`` field to populate columns with nested data. In this example, ``artist.name`` refers to the field ``name`` within the nested serializer ``artist``.
+
+
+Authorization
+-------------
+
+If you use user authorization you must sent a CSRF token with each POST request. To do this, you can use the following script:
+
+.. code:: html
+
+    <script>
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+    </script>
 
 
 Filtering

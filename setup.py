@@ -8,7 +8,7 @@ from setuptools import setup
 
 name = 'djangorestframework-datatables'
 package = 'rest_framework_datatables'
-description = 'Seamless integration between Django REST framework and Datatables (https://datatables.net)'
+description = 'Seamless integration between Django REST framework and Datatables (https://datatables.net) with supporting Datatables editor'
 url = 'https://github.com/izimobil/django-rest-framework-datatables'
 author = 'David Jean Louis'
 author_email = 'izimobil@gmail.com'
@@ -90,7 +90,7 @@ setup(
     author_email=author_email,
     packages=get_packages(package),
     install_requires=[
-        'djangorestframework>=3.5.0',
+        'djangorestframework>=3.9.1',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
