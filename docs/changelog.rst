@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.6.0 (2019-07-31):
+---------------------------
+
+- Added support of `Datatables editor <https://editor.datatables.net>`_.
+
 Version 0.5.0 (2019-03-31):
 ---------------------------
 
@@ -29,7 +34,7 @@ Version 0.3.0 (2018-05-11):
 
 - Added a serializer Meta option ``datatables_always_serialize`` that allows to specify a tuple of fields that should always be serialized in the response, regardless of what fields are requested in the Datatables request
 - Optimize filters
-- Use AND operator for column filtering instead of OR, to be consistant with the client-side behavior of Datatables
+- Use AND operator for column filtering instead of OR, to be consistent with the client-side behavior of Datatables
 
 Version 0.2.1 (2018-04-11):
 ---------------------------

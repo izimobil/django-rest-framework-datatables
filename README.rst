@@ -1,38 +1,28 @@
 django-rest-framework-datatables
-================================
+=======================================
 
 |build-status-image| |codecov-image| |documentation-status-image| |pypi-version| |py-versions|
 
 Overview
 --------
 
-This package provides seamless integration between `Django REST framework <https://www.django-rest-framework.org>`_ and `Datatables <https://datatables.net>`_.
+This package provides seamless integration between `Django REST framework <https://www.django-rest-framework.org>`_ and `Datatables <https://datatables.net>`_ with supporting `Datatables editor <https://editor.datatables.net>`_.
 
-Install django-rest-framework-datatables, call your API with ``?format=datatables`` and it will return a JSON structure that is fully compatible with what Datatables expects.
-It handles searching, filtering, ordering and most usecases you can imagine with Datatables.
-
-The great benefit of django-rest-framework-datatables is that you don't have to create a different API, your API still work exactly the same unless you specify the ``datatables`` format on your request.
+- It handles searching, filtering, ordering and most usecases you can imagine with Datatables.
 
 Full documentation is available on `Read the Docs <http://django-rest-framework-datatables.readthedocs.io/en/latest/>`_ !
 
-Requirements
-------------
-
--  Python (2.7, 3.4, 3.5, 3.6)
--  Django (1.9, 1.10, 1.11, 2.0, 2.1)
--  Django REST Framework (3.5, 3.6, 3.7, 3.8, 3.9)
-
-Quickstart
+How to use
 ----------
 
-Installation
-~~~~~~~~~~~~
-
-Just use ``pip``:
+Install
+~~~~~~~
 
 .. code:: bash
 
     $ pip install djangorestframework-datatables
+
+If you need the functionality of the editor, you also need to download the data editor from  `here <https://editor.datatables.net/download/>`_, the JS+CSS version, and put the downloaded files in ``static`` folder.
 
 Configuration
 ~~~~~~~~~~~~~
@@ -54,79 +44,117 @@ To enable Datatables support in your project, add ``'rest_framework_datatables'`
         'PAGE_SIZE': 50,
     }
 
+For using Datatables editor you should use DatatablesEditorModelViewSet instead ModelViewSet or add EditorModelMixin to your views.
+
 And that's it !
 ~~~~~~~~~~~~~~~
 
-Your API is now fully compatible with Datatables and will provide searching, filtering, ordering and pagination without any modification of your API code !
+Your API is now fully compatible with Datatables and will provide searching, filtering, ordering and pagination without any modification of your API code ! For using Datatables editor you should use DatatablesEditorModelViewSet instead ModelViewSet or add EditorModelMixin to your views.
 
-Always Serialize Specific Fields
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Sometimes you may want to expose fields regardless of datatable's url parameters. You can do so by setting the ``datatables_always_serialize`` tuple like so:
+Configuring Datatables and Datatables editor
+--------------------------------------------
 
-.. code:: python
+- The URL for connecting datatables is the URL of your view with ``?format=datatables``
+- The URL connecting datatables editor is the URL of your view with ``editor/``
+- Full documentation is available on `Read the Docs <https://drf-datatables-editor.readthedocs.io/en/latest/>`_ !
+- Also you'll need download `Datatables editor <https://editor.datatables.net>`_.
 
-    class ArtistSerializer(serializers.ModelSerializer):
-        id = serializers.IntegerField(read_only=True)
-    
-    class Meta:
-        model = Artist
-        fields = (
-            'id', 'name',
-            )
-        datatables_always_serialize = ('id',)
-
-An example of Datatable
-~~~~~~~~~~~~~~~~~~~~~~~
+Example of HTML code:
 
 .. code:: html
+
+
 
     <!doctype html>
     <html lang="en">
     <head>
-      <meta charset="utf-8">
-      <title>Rolling Stone Top 500 albums of all time</title>
-      <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
-      <link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+        <meta charset="utf-8">
+        <title>Rolling Stone Top 500 albums of all time</title>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.bootstrap4.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.0/css/select.bootstrap4.min.css">
+        <link rel="stylesheet" href="/static/css/editor.bootstrap4.min.css">
     </head>
-    
     <body>
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <table id="albums" class="table table-striped table-bordered" style="width:100%">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Artist</th>
-                  <th>Album name</th>
-                  <th>Year</th>
-                  <th>Genres</th>
-                </tr>
-              </thead>
-            </table>
-          </div>
+        <div class="container" style="font-size: .9em;">
+            <div class="row">
+                <div class="col-sm-12">
+                    <table id="albums" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Artist</th>
+                            <th>Album name</th>
+                            <th>Year</th>
+                            <th>Genres</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
-      <script src="//code.jquery.com/jquery-1.12.4.js"></script>
-      <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-      <script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
-      <script>
-          $(document).ready(function() {
-              var table = $('#albums').DataTable({
-                  "serverSide": true,
-                  "ajax": "/api/albums/?format=datatables",
-                  "columns": [
-                      {"data": "rank", "searchable": false},
-                      {"data": "artist_name", "name": "artist.name"},
-                      {"data": "name"},
-                      {"data": "year"},
-                      {"data": "genres", "name": "genres.name", "sortable": false},
-                  ]
-              });
-          });
-      </script>
+        <script src="//code.jquery.com/jquery-3.3.1.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.bootstrap4.min.js"></script>
+        <script src="https://cdn.datatables.net/select/1.3.0/js/dataTables.select.min.js"></script>
+        <script src="/static/js/dataTables.editor.js"></script>
+        <script src="/static/js/editor.bootstrap4.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                editor = new $.fn.dataTable.Editor({
+                    ajax: "/api/albums/editor/?format=datatables",
+                    table: "#albums",
+                    fields: [{
+                        label: "rank",
+                        name: "rank",
+                    }, {
+                        label: "artist:",
+                        name: "artist.id",
+                        type: "select"
+                    }, {
+                        label: "name:",
+                        name: "name",
+                    }, {
+                        label: "year:",
+                        name: "year",
+                    }]
+                });
+                var table = $('#albums').DataTable({
+                    "serverSide": true,
+                    dom: "Bfrtip",
+                    "ajax": "/api/albums/?format=datatables",
+                    "columns": [
+                        {"data": "rank", "searchable": false},
+                        {"data": "artist.name", "name": "artist.name"},
+                        {"data": "name"},
+                        {"data": "year"},
+                        {"data": "genres", "name": "genres.name", "sortable": false},
+                    ],
+                    select: true,
+                    buttons: [
+                        {extend: "create", editor: editor},
+                        {extend: "edit", editor: editor},
+                        {extend: "remove", editor: editor}
+                    ]
+                });
+                table.buttons().container()
+                    .appendTo($('.col-md-6:eq(0)', table.table().container()));
+            });
+        </script>
     </body>
     </html>
+
+
+Requirements
+------------
+
+-  Python (2.7, 3.4, 3.5, 3.6)
+-  Django (1.11, 2.0, 2.1)
+-  Django REST Framework (3.9)
 
 Example project
 ---------------
@@ -137,6 +165,7 @@ To play with the example project, just clone the repository and run the dev serv
 
     $ git clone https://github.com/izimobil/django-rest-framework-datatables.git
     $ cd django-rest-framework-datatables
+    Activate virtualenv.
     $ pip install -r requirements-dev.txt
     $ python example/manage.py runserver
     $ firefox http://127.0.0.1:8000

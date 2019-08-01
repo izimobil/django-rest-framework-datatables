@@ -1,14 +1,14 @@
 .. django-rest-framework-datatables documentation master file, created by
-   sphinx-quickstart on Tue Apr 10 13:28:41 2018.
+   sphinx-quickstart on Sat Apr 27 14:24:31 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-django-rest-framework-datatables documentation
-==============================================
+Welcome to django-rest-framework-datatables's documentation!
+===================================================================
 
-Seamless integration between Django REST framework and Datatables.
+Seamless integration between Django REST framework and Datatables with supporting Datatables Editor.
 
-**Django Rest Framework + Datatables = Awesome :)**
+**Django Rest Framework + Datatables + Editor = Awesome :)**
 
 .. image:: _static/screenshot.jpg
 
