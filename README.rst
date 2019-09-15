@@ -68,12 +68,12 @@ Sometimes you may want to expose fields regardless of datatable's url parameters
     class ArtistSerializer(serializers.ModelSerializer):
         id = serializers.IntegerField(read_only=True)
     
-    class Meta:
-        model = Artist
-        fields = (
-            'id', 'name',
+        class Meta:
+            model = Artist
+            fields = (
+                'id', 'name',
             )
-        datatables_always_serialize = ('id',)
+            datatables_always_serialize = ('id',)
 
 An example of Datatable
 ~~~~~~~~~~~~~~~~~~~~~~~
