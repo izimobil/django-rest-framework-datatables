@@ -6,7 +6,76 @@ from django.db.models import Q
 from rest_framework.filters import BaseFilterBackend
 
 
-class DatatablesFilterBackend(BaseFilterBackend):
+class DatatablesBaseFilterBackend(BaseFilterBackend):
+    """Base class for definining your own DatatablesFilterBackend classes"""
+    def get_fields(self, request):
+        getter = request.query_params.get
+        fields = []
+        i = 0
+        while True:
+            col = 'columns[%d][%s]'
+            data = getter(col % (i, 'data'))
+            # break out only when there are no more
+            # fields to get.
+            if data is None:
+                break
+            name = getter(col % (i, 'name'))
+            if not name:
+                name = data
+            search_col = col % (i, 'search')
+            # to be able to search across multiple fields (e.g. to search
+            # through concatenated names), we create a list of the name field,
+            # replacing dot notation with double-underscores and splitting
+            # along the commas.
+            field = {
+                'name': [
+                    n.lstrip() for n in name.replace('.', '__').split(',')
+                ],
+                'data': data,
+                'searchable': getter(col % (i, 'searchable')) == 'true',
+                'orderable': getter(col % (i, 'orderable')) == 'true',
+                'search_value': getter('%s[%s]' % (search_col, 'value')),
+                'search_regex': getter('%s[%s]' % (search_col, 'regex')),
+            }
+            fields.append(field)
+            i += 1
+        return fields
+
+    def get_ordering(self, request):
+        getter = request.query_params.get
+        fields = self.get_fields(request)
+        ordering = []
+        i = 0
+        while True:
+            col = 'order[%d][%s]'
+            idx = getter(col % (i, 'column'))
+            if idx is None:
+                break
+            try:
+                field = fields[int(idx)]
+            except IndexError:
+                i += 1
+                continue
+            if not field['orderable']:
+                i += 1
+                continue
+            dir_ = getter(col % (i, 'dir'), 'asc')
+            ordering.append('%s%s' % (
+                '-' if dir_ == 'desc' else '',
+                field['name'][0]
+            ))
+            i += 1
+        return ordering
+
+    def is_valid_regex(cls, regex):
+        try:
+            re.compile(regex)
+            return True
+        except re.error:
+            return False
+
+
+class DatatablesFilterBackend(DatatablesBaseFilterBackend):
     """
     Filter that works with datatables params.
     """
@@ -21,9 +90,9 @@ class DatatablesFilterBackend(BaseFilterBackend):
         setattr(view, '_datatables_total_count', total_count)
 
         # parse query params
+        fields = self.get_fields(request)
+        ordering = self.get_ordering(request)
         getter = request.query_params.get
-        fields = self.get_fields(getter)
-        ordering = self.get_ordering(getter, fields)
         search_value = getter('search[value]')
         search_regex = getter('search[regex]') == 'true'
 
@@ -62,7 +131,6 @@ class DatatablesFilterBackend(BaseFilterBackend):
                     for x in f['name']:
                         temp_q |= Q(**{'%s__icontains' % x: f_search_value})
                     q = q & deepcopy(temp_q)
-
         if q:
             queryset = queryset.filter(q).distinct()
             filtered_count = queryset.count()
@@ -85,66 +153,3 @@ class DatatablesFilterBackend(BaseFilterBackend):
 
             queryset = queryset.order_by(*ordering)
         return queryset
-
-    def get_fields(self, getter):
-        fields = []
-        i = 0
-        while True:
-            col = 'columns[%d][%s]'
-            data = getter(col % (i, 'data'))
-            # break out only when there are no more
-            # fields to get.
-            if data is None:
-                break
-            name = getter(col % (i, 'name'))
-            if not name:
-                name = data
-            search_col = col % (i, 'search')
-            # to be able to search across multiple fields (e.g. to search
-            # through concatenated names), we create a list of the name field,
-            # replacing dot notation with double-underscores and splitting
-            # along the commas.
-            field = {
-                'name': [
-                    n.lstrip() for n in name.replace('.', '__').split(',')
-                ],
-                'data': data,
-                'searchable': getter(col % (i, 'searchable')) == 'true',
-                'orderable': getter(col % (i, 'orderable')) == 'true',
-                'search_value': getter('%s[%s]' % (search_col, 'value')),
-                'search_regex': getter('%s[%s]' % (search_col, 'regex')),
-            }
-            fields.append(field)
-            i += 1
-        return fields
-
-    def get_ordering(self, getter, fields):
-        ordering = []
-        i = 0
-        while True:
-            col = 'order[%d][%s]'
-            idx = getter(col % (i, 'column'))
-            if idx is None:
-                break
-            try:
-                field = fields[int(idx)]
-            except IndexError:
-                i += 1
-                continue
-            if not field['orderable']:
-                i += 1
-                continue
-            dir_ = getter(col % (i, 'dir'), 'asc')
-            ordering.append('%s%s' % (
-                '-' if dir_ == 'desc' else '',
-                field['name'][0]
-            ))
-            i += 1
-        return ordering
-
-    def is_valid_regex(cls, regex):
-        try:
-            re.compile(regex)
-            return True
-        except re.error:
-            return False
