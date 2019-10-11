@@ -92,7 +92,9 @@ class DatatablesFilterBackend(BaseFilterBackend):
         while True:
             col = 'columns[%d][%s]'
             data = getter(col % (i, 'data'))
-            if data is None or not data:
+            # break out only when there are no more
+            # fields to get.
+            if data is None:
                 break
             name = getter(col % (i, 'name'))
             if not name:
