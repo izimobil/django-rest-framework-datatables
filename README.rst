@@ -18,7 +18,7 @@ Full documentation is available on `Read the Docs <http://django-rest-framework-
 Requirements
 ------------
 
--  Python (2.7, 3.4, 3.5, 3.6)
+-  Python (2.7, 3.4, 3.5, 3.6, 3.7, 3.8)
 -  Django (1.9, 1.10, 1.11, 2.0, 2.1)
 -  Django REST Framework (3.5, 3.6, 3.7, 3.8, 3.9)
 
@@ -67,7 +67,7 @@ Sometimes you may want to expose fields regardless of datatable's url parameters
 
     class ArtistSerializer(serializers.ModelSerializer):
         id = serializers.IntegerField(read_only=True)
-    
+
         class Meta:
             model = Artist
             fields = (
@@ -88,7 +88,7 @@ An example of Datatable
       <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
       <link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
     </head>
-    
+
     <body>
       <div class="container">
         <div class="row">
