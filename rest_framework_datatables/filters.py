@@ -8,6 +8,16 @@ from rest_framework.filters import BaseFilterBackend
 
 class DatatablesBaseFilterBackend(BaseFilterBackend):
     """Base class for definining your own DatatablesFilterBackend classes"""
+
+    def get_query_data(self, request):
+        ret = {}
+        ret['fields'] = self.get_fields(request)
+        ret['ordering'] = self.get_ordering(request)
+        ret['search_value'] = request.query_params.get('search[value]')
+        ret['search_regex'] = (request.query_params.get('search[regex]')
+                               == 'true')
+        return ret
+
     def get_fields(self, request):
         getter = request.query_params.get
         fields = []
@@ -90,11 +100,11 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         setattr(view, '_datatables_total_count', total_count)
 
         # parse query params
-        fields = self.get_fields(request)
-        ordering = self.get_ordering(request)
-        getter = request.query_params.get
-        search_value = getter('search[value]')
-        search_regex = getter('search[regex]') == 'true'
+        query_data = self.get_query_data(request)
+        fields = query_data['fields']
+        ordering = query_data['ordering']
+        search_value = query_data['search_value']
+        search_regex = query_data['search_regex']
 
         # filter queryset
         q = Q()
