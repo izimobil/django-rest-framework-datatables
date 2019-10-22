@@ -1,5 +1,7 @@
 import re
+from functools import reduce
 from copy import deepcopy
+import operator
 
 from django.db.models import Q
 
@@ -111,36 +113,10 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         for f in fields:
             if not f['searchable']:
                 continue
-            if search_value and search_value != 'false':
-                if search_regex:
-                    if self.is_valid_regex(search_value):
-                        # iterate through the list created from the 'name'
-                        # param and create a string of 'ior' Q() objects.
-                        for x in f['name']:
-                            q |= Q(**{'%s__iregex' % x: search_value})
-                else:
-                    # same as above.
-                    for x in f['name']:
-                        q |= Q(**{'%s__icontains' % x: search_value})
+            q |= self.f_search_q(f, search_value, search_regex)
             f_search_value = f.get('search_value')
             f_search_regex = f.get('search_regex') == 'true'
-            if f_search_value:
-                if f_search_regex:
-                    if self.is_valid_regex(f_search_value):
-                        # create a temporary q variable to hold the Q()
-                        # objects adhering to the field's name criteria.
-                        temp_q = Q()
-                        for x in f['name']:
-                            temp_q |= Q(**{'%s__iregex' % x: f_search_value})
-                        # Use deepcopy() to transfer them to the global Q()
-                        # object. Deepcopy() necessary, since the var will be
-                        # reinstantiated next iteration.
-                        q = q & deepcopy(temp_q)
-                else:
-                    temp_q = Q()
-                    for x in f['name']:
-                        temp_q |= Q(**{'%s__icontains' % x: f_search_value})
-                    q = q & deepcopy(temp_q)
+            q &= self.f_search_q(f, f_search_value, f_search_regex)
         if q:
             queryset = queryset.filter(q).distinct()
             filtered_count = queryset.count()
@@ -163,3 +139,15 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
 
             queryset = queryset.order_by(*ordering)
         return queryset
+
+    def f_search_q(self, f, search_value, search_regex=False):
+        qs = []
+        if search_value and search_value != 'false':
+            if search_regex:
+                if self.is_valid_regex(search_value):
+                    for x in f['name']:
+                        qs.append(Q(**{'%s__iregex' % x: search_value}))
+            else:
+                for x in f['name']:
+                    qs.append(Q(**{'%s__icontains' % x: search_value}))
+        return reduce(operator.or_, qs, Q())
