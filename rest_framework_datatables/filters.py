@@ -13,7 +13,7 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
     def get_query_data(self, request, view):
         ret = {}
         ret['fields'] = self.get_fields(request)
-        ret['ordering'] = self.get_ordering(request, view)
+        ret['ordering'] = self.get_ordering(request, view, ret['fields'])
         ret['search_value'] = request.query_params.get('search[value]')
         ret['search_regex'] = (request.query_params.get('search[regex]')
                                == 'true')
@@ -52,9 +52,10 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
             i += 1
         return fields
 
-    def get_ordering(self, request, view):
+    def get_ordering(self, request, view, fields=None):
         getter = request.query_params.get
-        fields = self.get_fields(request)
+        if fields is None:
+            fields = self.get_fields(request)
         ordering = []
         i = 0
         while True:
