@@ -114,9 +114,8 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
             if not f['searchable']:
                 continue
             q |= self.f_search_q(f, search_value, search_regex)
-            f_search_value = f.get('search_value')
-            f_search_regex = f.get('search_regex') == 'true'
-            q &= self.f_search_q(f, f_search_value, f_search_regex)
+            q &= self.f_search_q(f, f.get('search_value'),
+                                 f.get('search_regex') == 'true')
         if q:
             queryset = queryset.filter(q).distinct()
             filtered_count = queryset.count()
