@@ -1,6 +1,5 @@
 import re
 from functools import reduce
-from copy import deepcopy
 import operator
 
 from django.db.models import Q
