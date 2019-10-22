@@ -10,10 +10,10 @@ from rest_framework.filters import BaseFilterBackend
 class DatatablesBaseFilterBackend(BaseFilterBackend):
     """Base class for definining your own DatatablesFilterBackend classes"""
 
-    def get_query_data(self, request):
+    def get_query_data(self, request, view):
         ret = {}
         ret['fields'] = self.get_fields(request)
-        ret['ordering'] = self.get_ordering(request)
+        ret['ordering'] = self.get_ordering(request, view)
         ret['search_value'] = request.query_params.get('search[value]')
         ret['search_regex'] = (request.query_params.get('search[regex]')
                                == 'true')
@@ -52,7 +52,7 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
             i += 1
         return fields
 
-    def get_ordering(self, request):
+    def get_ordering(self, request, view):
         getter = request.query_params.get
         fields = self.get_fields(request)
         ordering = []
@@ -76,6 +76,15 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
                 field['name'][0]
             ))
             i += 1
+        if len(ordering):
+            if hasattr(view, 'datatables_additional_order_by'):
+                additional = view.datatables_additional_order_by
+                # Django will actually only take the first occurrence if the
+                # same column is added multiple times in an order_by, but it
+                # feels cleaner to double check for duplicate anyway.
+                if not any((o[1:] if o[0] == '-' else o) == additional
+                           for o in ordering):
+                    ordering.append(additional)
         return ordering
 
     def is_valid_regex(cls, regex):
@@ -101,7 +110,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         setattr(view, '_datatables_total_count', total_count)
 
         # parse query params
-        query_data = self.get_query_data(request)
+        query_data = self.get_query_data(request, view)
         fields = query_data['fields']
         ordering = query_data['ordering']
         search_value = query_data['search_value']
@@ -124,18 +133,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         # TODO: maybe find a better way than this hack ?
         setattr(view, '_datatables_filtered_count', filtered_count)
 
-        # order queryset
-        if len(ordering):
-            if hasattr(view, 'datatables_additional_order_by'):
-                additional = view.datatables_additional_order_by
-                # Django will actually only take the first occurrence if the
-                # same column is added multiple times in an order_by, but it
-                # feels cleaner to double check for duplicate anyway.
-                if not any((o[1:] if o[0] == '-' else o) == additional
-                           for o in ordering):
-                    ordering.append(additional)
-
-            queryset = queryset.order_by(*ordering)
+        queryset = queryset.order_by(*ordering)
         return queryset
 
     def f_search_q(self, f, search_value, search_regex=False):
