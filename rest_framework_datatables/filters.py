@@ -11,6 +11,8 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
     """Base class for definining your own DatatablesFilterBackend classes"""
 
     def parse_query_params(self, request, view):
+        """parse request.query_params into a list of fields and orderings and
+        global search parameters (value and regex)"""
         ret = {}
         ret['fields'] = self.get_fields(request)
         ret['ordering'] = self.get_ordering(request, view, ret['fields'])
@@ -20,6 +22,7 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
         return ret
 
     def get_fields(self, request):
+        """called by parse_query_params to get the list of fields"""
         getter = request.query_params.get
         fields = []
         i = 0
@@ -53,6 +56,12 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
         return fields
 
     def get_ordering(self, request, view, fields=None):
+        """called by parse_query_params to get the ordering
+
+        return value must be a valid list of arguments for order_by on
+        a queryset
+
+        """
         getter = request.query_params.get
         if fields is None:
             fields = self.get_fields(request)
@@ -89,6 +98,8 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
         return ordering
 
     def count_before(self, queryset, view):
+        """called by filter_queryset to get and store the ordering before the
+        filter operations"""
         filtered_count_before = queryset.count()
         total_count = view.get_queryset().count()
         # set the queryset count as an attribute of the view for later
@@ -97,11 +108,16 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
         return filtered_count_before
 
     def count_after(self, view, filtered_count):
+        """called by filter_queryset to store the ordering after the filter
+        operations
+
+        """
         # set the queryset count as an attribute of the view for later
         # TODO: maybe find a better way than this hack ?
         setattr(view, '_datatables_filtered_count', filtered_count)
 
     def is_valid_regex(cls, regex):
+        """helper method that checks regex for validity"""
         try:
             re.compile(regex)
             return True
@@ -114,6 +130,18 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
     Filter that works with datatables params.
     """
     def filter_queryset(self, request, queryset, view):
+        """filter the queryset
+
+        subclasses should adher to the same workflow:
+
+        1.) Check the renderer format
+        2.) get and store the counts with count_before
+        3.) (optional) parse the query parameters with parse_query_params
+        4.) do the actual filtering
+        5.) order the filtered queryset
+        6.) store the counts *after* the filtering with count_after
+        7.) return the filtered queryset
+        """
         if request.accepted_renderer.format != 'datatables':
             return queryset
         filtered_count_before = self.count_before(queryset, view)
