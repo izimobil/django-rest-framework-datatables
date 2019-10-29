@@ -88,6 +88,19 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
                     ordering.append(additional)
         return ordering
 
+    def count_before(self, queryset, view):
+        filtered_count_before = queryset.count()
+        total_count = view.get_queryset().count()
+        # set the queryset count as an attribute of the view for later
+        # TODO: find a better way than this hack
+        setattr(view, '_datatables_total_count', total_count)
+        return filtered_count_before
+
+    def count_after(self, view, filtered_count):
+        # set the queryset count as an attribute of the view for later
+        # TODO: maybe find a better way than this hack ?
+        setattr(view, '_datatables_filtered_count', filtered_count)
+
     def is_valid_regex(cls, regex):
         try:
             re.compile(regex)
@@ -103,12 +116,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         if request.accepted_renderer.format != 'datatables':
             return queryset
-
-        filtered_count_before = queryset.count()
-        total_count = view.get_queryset().count()
-        # set the queryset count as an attribute of the view for later
-        # TODO: find a better way than this hack
-        setattr(view, '_datatables_total_count', total_count)
+        filtered_count_before = self.count_before(queryset, view)
 
         # parse query params
         query_data = self.get_query_data(request, view)
@@ -130,9 +138,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
             filtered_count = queryset.count()
         else:
             filtered_count = filtered_count_before
-        # set the queryset count as an attribute of the view for later
-        # TODO: maybe find a better way than this hack ?
-        setattr(view, '_datatables_filtered_count', filtered_count)
+        self.count_after(view, filtered_count)
 
         queryset = queryset.order_by(*ordering)
         return queryset
