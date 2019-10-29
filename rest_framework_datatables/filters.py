@@ -10,7 +10,7 @@ from rest_framework.filters import BaseFilterBackend
 class DatatablesBaseFilterBackend(BaseFilterBackend):
     """Base class for definining your own DatatablesFilterBackend classes"""
 
-    def get_query_data(self, request, view):
+    def parse_query_params(self, request, view):
         ret = {}
         ret['fields'] = self.get_fields(request)
         ret['ordering'] = self.get_ordering(request, view, ret['fields'])
@@ -119,18 +119,14 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         filtered_count_before = self.count_before(queryset, view)
 
         # parse query params
-        query_data = self.get_query_data(request, view)
-        fields = query_data['fields']
-        ordering = query_data['ordering']
-        search_value = query_data['search_value']
-        search_regex = query_data['search_regex']
+        query = self.parse_query_params(request, view)
 
         # filter queryset
         q = Q()
-        for f in fields:
+        for f in query['fields']:
             if not f['searchable']:
                 continue
-            q |= self.f_search_q(f, search_value, search_regex)
+            q |= self.f_search_q(f, query['search_value'], query['search_regex'])
             q &= self.f_search_q(f, f.get('search_value'),
                                  f.get('search_regex') == 'true')
         if q:
@@ -140,7 +136,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
             filtered_count = filtered_count_before
         self.count_after(view, filtered_count)
 
-        queryset = queryset.order_by(*ordering)
+        queryset = queryset.order_by(*query['ordering'])
         return queryset
 
     def f_search_q(self, f, search_value, search_regex=False):
