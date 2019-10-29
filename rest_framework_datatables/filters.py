@@ -55,7 +55,7 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
             i += 1
         return fields
 
-    def get_ordering(self, request, view, fields=None):
+    def get_ordering(self, request, view, fields):
         """called by parse_query_params to get the ordering
 
         return value must be a valid list of arguments for order_by on
@@ -63,8 +63,6 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
 
         """
         getter = request.query_params.get
-        if fields is None:
-            fields = self.get_fields(request)
         ordering = []
         i = 0
         while True:
