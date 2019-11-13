@@ -57,7 +57,8 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
                 'searchable': getter(col % (i, 'searchable')) == 'true',
                 'orderable': getter(col % (i, 'orderable')) == 'true',
                 'search_value': getter('%s[%s]' % (search_col, 'value')),
-                'search_regex': getter('%s[%s]' % (search_col, 'regex')),
+                'search_regex': (getter('%s[%s]' % (search_col, 'regex'))
+                                 == 'true'),
             }
             fields.append(field)
             i += 1
@@ -156,7 +157,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
                                  query['search_value'],
                                  query['search_regex'])
             q &= self.f_search_q(f, f.get('search_value'),
-                                 f.get('search_regex') == 'true')
+                                 f.get('search_regex', False))
         if q:
             queryset = queryset.filter(q).distinct()
             filtered_count = queryset.count()
