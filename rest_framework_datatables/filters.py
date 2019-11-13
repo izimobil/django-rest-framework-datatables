@@ -6,6 +6,14 @@ from django.db.models import Q
 
 from rest_framework.filters import BaseFilterBackend
 
+def is_valid_regex(regex):
+    """helper function that checks regex for validity"""
+    try:
+        re.compile(regex)
+        return True
+    except re.error:
+        return False
+
 
 class DatatablesBaseFilterBackend(BaseFilterBackend):
     """Base class for definining your own DatatablesFilterBackend classes"""
@@ -114,14 +122,6 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
         # TODO: maybe find a better way than this hack ?
         setattr(view, '_datatables_filtered_count', filtered_count)
 
-    def is_valid_regex(cls, regex):
-        """helper method that checks regex for validity"""
-        try:
-            re.compile(regex)
-            return True
-        except re.error:
-            return False
-
 
 class DatatablesFilterBackend(DatatablesBaseFilterBackend):
     """
@@ -171,7 +171,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         qs = []
         if search_value and search_value != 'false':
             if search_regex:
-                if self.is_valid_regex(search_value):
+                if is_valid_regex(search_value):
                     for x in f['name']:
                         qs.append(Q(**{'%s__iregex' % x: search_value}))
             else:
