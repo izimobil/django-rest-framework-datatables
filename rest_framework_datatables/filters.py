@@ -15,6 +15,19 @@ def is_valid_regex(regex):
         return False
 
 
+def f_search_q(f, search_value, search_regex=False):
+    qs = []
+    if search_value and search_value != 'false':
+        if search_regex:
+            if is_valid_regex(search_value):
+                for x in f['name']:
+                    qs.append(Q(**{'%s__iregex' % x: search_value}))
+        else:
+            for x in f['name']:
+                qs.append(Q(**{'%s__icontains' % x: search_value}))
+    return reduce(operator.or_, qs, Q())
+
+
 class DatatablesBaseFilterBackend(BaseFilterBackend):
     """Base class for definining your own DatatablesFilterBackend classes"""
 
@@ -153,11 +166,12 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         for f in query['fields']:
             if not f['searchable']:
                 continue
-            q |= self.f_search_q(f,
-                                 query['search_value'],
-                                 query['search_regex'])
-            q &= self.f_search_q(f, f.get('search_value'),
-                                 f.get('search_regex', False))
+            q |= f_search_q(f,
+                            query['search_value'],
+                            query['search_regex'])
+            q &= f_search_q(f,
+                            f.get('search_value'),
+                            f.get('search_regex', False))
         if q:
             queryset = queryset.filter(q).distinct()
             filtered_count = queryset.count()
@@ -167,15 +181,3 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
 
         queryset = queryset.order_by(*query['ordering'])
         return queryset
-
-    def f_search_q(self, f, search_value, search_regex=False):
-        qs = []
-        if search_value and search_value != 'false':
-            if search_regex:
-                if is_valid_regex(search_value):
-                    for x in f['name']:
-                        qs.append(Q(**{'%s__iregex' % x: search_value}))
-            else:
-                for x in f['name']:
-                    qs.append(Q(**{'%s__icontains' % x: search_value}))
-        return reduce(operator.or_, qs, Q())
