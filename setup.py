@@ -91,6 +91,7 @@ setup(
     packages=get_packages(package),
     install_requires=[
         'djangorestframework>=3.5.0',
+        'six'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -101,6 +102,7 @@ setup(
         'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
         'Framework :: Django :: 2.1',
+        'Framework :: Django :: 3.0',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',

@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from django.utils import six
+from six import text_type
 from django.core.paginator import InvalidPage
 
 from rest_framework.exceptions import NotFound
@@ -64,7 +64,7 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
             self.page = paginator.page(page_number)
         except InvalidPage as exc:
             msg = self.invalid_page_message.format(
-                page_number=page_number, message=six.text_type(exc)
+                page_number=page_number, message=text_type(exc)
             )
             raise NotFound(msg)
         self.request = request
