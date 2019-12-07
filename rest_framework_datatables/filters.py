@@ -90,10 +90,13 @@ class DatatablesFilterBackend(BaseFilterBackend):
         fields = []
         i = 0
         while True:
+            if not getter('columns[%d]' % i):
+                break
             col = 'columns[%d][%s]'
             data = getter(col % (i, 'data'))
             if data is None or not data:
-                break
+                i += 1 
+                continue
             name = getter(col % (i, 'name'))
             if not name:
                 name = data
