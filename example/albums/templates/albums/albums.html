@@ -67,7 +67,7 @@ $(document).ready(function() {
             {"data": "rank", "searchable": false},
             // Use dot notation to reference nested serializers.
             // This data: could alternatively be displayed with the serializer's ReadOnlyField as well, as seen in the minimal example.
-            {"data": "artist.name", "name": "artist.name"},
+            {"data": "artist.name", "name": "artist.name", defaultContent: "-"},
             {"data": "name"},
             {"data": "year"},
             {"data": "genres", "name": "genres.name", "sortable": false},
