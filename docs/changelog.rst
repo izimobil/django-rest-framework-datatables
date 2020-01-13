@@ -5,6 +5,9 @@ Version 0.5.1 (2020-01-13):
 ---------------------------
 
 - Added support for Django 3.0
+- Added support for disabling pagination when the client requests it with length=-1 parameter
+- Added optional column sorting to handle ties
+- Minor code fixes
 
 Version 0.5.0 (2019-03-31):
 ---------------------------
