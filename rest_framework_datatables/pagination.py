@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from six import text_type
 from django.core.paginator import InvalidPage
 
 from rest_framework.exceptions import NotFound
@@ -8,6 +7,13 @@ from rest_framework.response import Response
 from rest_framework.pagination import (
     PageNumberPagination, LimitOffsetPagination
 )
+
+try:
+    from django.utils import six
+
+    text_type = six.text_type
+except ImportError:
+    text_type = str
 
 
 class DatatablesMixin(object):

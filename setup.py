@@ -90,8 +90,7 @@ setup(
     author_email=author_email,
     packages=get_packages(package),
     install_requires=[
-        'djangorestframework>=3.5.0',
-        'six'
+        'djangorestframework>=3.5.0'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
