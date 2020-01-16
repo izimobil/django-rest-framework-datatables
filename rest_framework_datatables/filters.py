@@ -6,6 +6,7 @@ from django.db.models import Q
 
 from rest_framework.filters import BaseFilterBackend
 
+
 def is_valid_regex(regex):
     """helper function that checks regex for validity"""
     try:
@@ -153,6 +154,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         5.) order the filtered queryset
         6.) store the counts *after* the filtering with count_after
         7.) return the filtered queryset
+
         """
         if request.accepted_renderer.format != 'datatables':
             return queryset
