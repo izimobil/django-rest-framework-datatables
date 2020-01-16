@@ -17,6 +17,7 @@ def is_valid_regex(regex):
 
 
 def f_search_q(f, search_value, search_regex=False):
+    """helper function that returns a Q-object for a search value"""
     qs = []
     if search_value and search_value != 'false':
         if search_regex:
@@ -145,7 +146,8 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         """filter the queryset
 
-        subclasses should adher to the same workflow:
+        subclasses overriding this method should adhere to the same
+        workflow:
 
         1.) Check the renderer format
         2.) get and store the counts with count_before
