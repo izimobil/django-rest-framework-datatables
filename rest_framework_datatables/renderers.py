@@ -37,7 +37,8 @@ class DatatablesRenderer(JSONRenderer):
         else:
             new_data = data
         # add datatables "draw" parameter
-        new_data['draw'] = int(request.query_params.get('draw', '1'))
+        request_data = request.data if request.method == 'POST' else request.query_params
+        new_data['draw'] = int(request_data.get('draw', '1'))
 
         serializer_class = None
         if hasattr(view, 'get_serializer_class'):
@@ -70,11 +71,12 @@ class DatatablesRenderer(JSONRenderer):
     def _filter_unused_fields(self, request, result, force_serialize):
         # list of params to keep, triggered by ?keep= and can be comma
         # separated.
-        keep = request.query_params.get('keep', [])
+        request_data = request.data if request.method == 'POST' else request.query_params
+        keep = request_data.get('keep', [])
         cols = []
         i = 0
         while True:
-            col = request.query_params.get('columns[%d][data]' % i)
+            col = request_data.get('columns[%d][data]' % i)
             if col is None:
                 break
             cols.append(col.split('.').pop(0))

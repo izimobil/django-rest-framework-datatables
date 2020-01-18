@@ -49,21 +49,24 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
                 DatatablesPageNumberPagination, self
             ).paginate_queryset(queryset, request, view)
 
-        length = request.query_params.get('length')
+        length_from_get = request.query_params.get('length')
+        length_from_post = request.data.get('length')
 
-        if length is None or length == '-1':
+        if length_from_get is None or length_from_get == '-1' and length_from_post is None or length_from_post == '-1':
             return None
         self.count, self.total_count = self.get_count_and_total_count(
             queryset, view
         )
         self.is_datatable_request = True
         self.page_size_query_param = 'length'
-        page_size = self.get_page_size(request)
+        getter = request.data if request.method == 'POST' else request.query_params
+        page_size = int(getter.get(self.page_size_query_param, self.page_size))
         if not page_size:  # pragma: no cover
             return None
 
         paginator = self.django_paginator_class(queryset, page_size)
-        start = int(request.query_params.get('start', 0))
+        request_data = request.data if request.method == 'POST' else request.query_params
+        start = int(request_data.get('start', 0))
         page_number = int(start / page_size) + 1
 
         try:
@@ -81,7 +84,7 @@ class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
     def paginate_queryset(self, queryset, request, view=None):
         if request.accepted_renderer.format == 'datatables':
             self.is_datatable_request = True
-            if request.query_params.get('length') is None:
+            if request.query_params.get('length') is None and request.data.get('length') is None:
                 return None
             self.limit_query_param = 'length'
             self.offset_query_param = 'start'

@@ -21,7 +21,9 @@ class DatatablesFilterBackend(BaseFilterBackend):
         setattr(view, '_datatables_total_count', total_count)
 
         # parse query params
-        getter = request.query_params.get
+        getter = request.POST.get
+        if request.method == 'GET':
+            getter = request.query_params.get
         fields = self.get_fields(getter)
         ordering = self.get_ordering(getter, fields)
         search_value = getter('search[value]')
