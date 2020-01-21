@@ -129,7 +129,7 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
         setattr(view, '_datatables_total_count', total_count)
         return filtered_count_before
 
-    def count_after(self, view, filtered_count):
+    def set_count_after(self, view, filtered_count):
         """called by filter_queryset to store the ordering after the filter
         operations
 
@@ -181,7 +181,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
             filtered_count = queryset.count()
         else:
             filtered_count = filtered_count_before
-        self.count_after(view, filtered_count)
+        self.set_count_after(view, filtered_count)
 
         queryset = queryset.order_by(*query['ordering'])
         return queryset

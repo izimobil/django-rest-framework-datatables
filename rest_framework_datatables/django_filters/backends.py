@@ -13,5 +13,5 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
 
         filterset = self.get_filterset(request, queryset, view)
         if filterset is None:
-            self.count_after(view, filtered_count_before)
+            self.set_count_after(view, filtered_count_before)
             return queryset
