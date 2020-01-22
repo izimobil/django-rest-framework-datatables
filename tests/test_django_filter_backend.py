@@ -35,7 +35,7 @@ class TestNotDataTablesFormat(TestDFBackendTestCase):
         req.accepted_renderer = mock.Mock()
         req.accepted_renderer.format = 'json'
         res = self.backend.filter_queryset(req, qs, None)
-        assert res == qs
+        self.assertEqual(res, qs)
 
 
 class AlbumFilter(filters.FilterSet):
@@ -80,12 +80,10 @@ class TestUnfiltered(TestWithViewSet):
 class TestCount(TestUnfiltered):
 
     def test_count_before(self):
-        assert [self.view._datatables_total_count
-                == 15]
+        self.assertEqual(self.view._datatables_total_count, 15)
 
     def test_count_after(self):
-        assert (self.view._datatables_filtered_count
-                == 15)
+        self.assertEqual(self.view._datatables_filtered_count, 15)
 
 
 class TestFiltered(TestWithViewSet):
@@ -94,9 +92,8 @@ class TestFiltered(TestWithViewSet):
         self.result = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=name&columns[0][name]=name&columns[0][searchable]=true&columns[0][search][value]=&columns[1][data]=year&columns[1][searchable]=true&columns[1][search][value]=1971')
 
     def test_count_before(self):
-        assert [self.result.json()['recordsTotal']
-                == 15]
+        self.assertEqual(self.result.json()['recordsTotal'], 15)
 
     def test_count_after(self):
-        assert (self.result.json()['recordsFiltered']
-                == 1)
+        self.assertEqual(self.result.json()['recordsFiltered'], 1)
+
