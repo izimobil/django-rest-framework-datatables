@@ -1,15 +1,14 @@
 import sys
 from unittest import SkipTest
 
-from django.conf.urls import url, include
+from django.conf.urls import include, url
 from django.test import TestCase
 from django.test.utils import override_settings
-from rest_framework import (routers, viewsets)
+from rest_framework import routers, viewsets
 from rest_framework.test import APIClient, APIRequestFactory
 
 from albums.models import Album
 from albums.serializers import AlbumSerializer
-from rest_framework_datatables import renderers
 
 if sys.version_info < (3, ):
     raise SkipTest('Python <3 is not supported, skipping module')
