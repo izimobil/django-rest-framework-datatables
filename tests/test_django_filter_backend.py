@@ -1,20 +1,27 @@
-from unittest import SkipTest, mock
+import sys
+from unittest import SkipTest
 
 from django.conf.urls import url, include
 from django.test import TestCase
 from django.test.utils import override_settings
-try:
-    from django_filters import rest_framework as filters
-except ImportError:
-    raise SkipTest('django_filter not available, skipping module')
 from rest_framework import (routers, viewsets)
 from rest_framework.test import APIClient, APIRequestFactory
 
 from albums.models import Album
 from albums.serializers import AlbumSerializer
 from rest_framework_datatables import renderers
-from rest_framework_datatables.django_filters.backends import \
-    DatatablesFilterBackend
+
+if sys.version_info < (3, ):
+    raise SkipTest('Python <3 is not supported, skipping module')
+else:
+    from unittest import mock
+
+try:
+    from django_filters import rest_framework as filters
+    from rest_framework_datatables.django_filters.backends import (
+        DatatablesFilterBackend)
+except ImportError:
+    raise SkipTest('django_filter not available, skipping module')
 
 
 factory = APIRequestFactory()
