@@ -1,5 +1,4 @@
-import sys
-from unittest import SkipTest
+from unittest import mock, SkipTest
 
 from django.conf.urls import include, url
 from django.test import TestCase
@@ -10,17 +9,13 @@ from rest_framework.test import APIClient, APIRequestFactory
 from albums.models import Album
 from albums.serializers import AlbumSerializer
 
-if sys.version_info < (3, ):
-    raise SkipTest('Python <3 is not supported, skipping module')
-else:
-    from unittest import mock
-
+# Skip this module if django-filter is not available
 try:
     from django_filters import rest_framework as filters
     from rest_framework_datatables.django_filters.backends import (
         DatatablesFilterBackend)
 except ImportError:
-    raise SkipTest('django_filter not available, skipping module')
+    raise SkipTest('django-filter not available')
 
 
 factory = APIRequestFactory()
