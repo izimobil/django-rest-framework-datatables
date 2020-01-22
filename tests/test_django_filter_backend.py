@@ -74,18 +74,17 @@ class TestUnfiltered(TestWithViewSet):
 
     def setUp(self):
         self.result = self.client.get('/api/albums/?format=datatables')
+        self.view = self.result.renderer_context.get('view')
 
 
 class TestCount(TestUnfiltered):
 
     def test_count_before(self):
-        assert [self.result.renderer_context.get('view')
-                ._datatables_total_count
+        assert [self.view._datatables_total_count
                 == 15]
 
     def test_count_after(self):
-        assert (self.result.renderer_context.get('view')
-                ._datatables_filtered_count
+        assert (self.view._datatables_filtered_count
                 == 15)
 
 
