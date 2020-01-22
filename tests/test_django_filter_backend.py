@@ -51,6 +51,7 @@ class AlbumFilterViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
     filter_backends = [DatatablesFilterBackend]
+    filterset_class = AlbumFilter
 
 
 @override_settings(ROOT_URLCONF=__name__)
@@ -86,3 +87,17 @@ class TestCount(TestUnfiltered):
         assert (self.result.renderer_context.get('view')
                 ._datatables_filtered_count
                 == 15)
+
+
+class TestFiltered(TestWithViewSet):
+
+    def setUp(self):
+        self.result = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=name&columns[0][name]=name&columns[0][searchable]=true&columns[0][search][value]=&columns[1][data]=year&columns[1][searchable]=true&columns[1][search][value]=1971')
+
+    def test_count_before(self):
+        assert [self.result.json()['recordsTotal']
+                == 15]
+
+    def test_count_after(self):
+        assert (self.result.json()['recordsFiltered']
+                == 1)
