@@ -1,6 +1,6 @@
 from rest_framework_datatables import filters
 from django_filters.rest_framework.backends import DjangoFilterBackend
-# from django_filters import utils
+from django_filters import utils
 
 
 class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
@@ -18,8 +18,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
             return queryset
 
         if not filterset.is_valid() and self.raise_exception:
-            pass
-            # raise utils.translate_validation(filterset.errors)
+            raise utils.translate_validation(filterset.errors)
         # TODO combine the global search with OR for every field
         queryset = filterset.qs
 

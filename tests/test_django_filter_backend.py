@@ -96,3 +96,28 @@ class TestFiltered(TestWithViewSet):
 
     def test_count_after(self):
         self.assertEqual(self.result.json()['recordsFiltered'], 1)
+
+
+class TestInvalid(TestWithViewSet):
+    """Test handling invalid data
+
+    Our artist (and genre) fields will automatically be multiple
+    choice fields (assigned by django-filter), so we can test what
+    happens if we pass an invalid (missing) choice
+
+    """
+
+    def setUp(self):
+        self.result = self.client.get(
+            '/api/albums/?format=datatables&length=10'
+            '&columns[0][data]=artist'
+            '&columns[0][searchable]=true'
+            '&columns[0][search][value]=Genesis')
+
+    def test(self):
+        self.assertEqual(self.result.status_code, 400)
+        self.assertEqual(
+            self.result.json()['data'],
+            {'artist': [
+                'Select a valid choice. '
+                'That choice is not one of the available choices.']})
