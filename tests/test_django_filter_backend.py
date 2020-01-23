@@ -11,7 +11,6 @@ from albums.serializers import AlbumSerializer
 
 # Skip this module if django-filter is not available
 try:
-    from django_filters import rest_framework as filters
     from rest_framework_datatables.django_filters.backends import (
         DatatablesFilterBackend)
 except ImportError:
@@ -38,12 +37,14 @@ class TestNotDataTablesFormat(TestDFBackendTestCase):
         self.assertEqual(res, qs)
 
 
-class AlbumFilter(filters.FilterSet):
-    """FilterSet for the Album model
+# Most things are much easier to test with client and viewset, even
+# though we're testing the backend here
+class AlbumFilterViewSet(viewsets.ModelViewSet):
+    """ViewSet for the Album model
 
     Simply not declaring any explicit fields and just giving '__all__'
-    will cause filtering for all model fields to "just work"[TM], with
-    the following fields:
+    for filterset_fields will cause filtering for all model fields to
+    "just work"[TM], with the following fields:
 
     artist: ModelChoiceField
     genres: ModelMultipleChoiceField
@@ -53,21 +54,15 @@ class AlbumFilter(filters.FilterSet):
 
     See
     https://django-filter.readthedocs.io/en/master/ref/filterset.html#automatic-filter-generation-with-model
+    and
+    https://django-filter.readthedocs.io/en/master/guide/rest_framework.html#using-the-filterset-fields-shortcut
     for details.
 
     """
-    class Meta:
-        model = Album
-        fields = '__all__'
-
-
-# Most things are much easier to test with client and viewset, even
-# though we're testing the backend here
-class AlbumFilterViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
     filter_backends = [DatatablesFilterBackend]
-    filterset_class = AlbumFilter
+    filterset_fields = '__all__'
 
 
 @override_settings(ROOT_URLCONF=__name__)
