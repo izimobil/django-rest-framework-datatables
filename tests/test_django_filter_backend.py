@@ -40,7 +40,7 @@ class TestNotDataTablesFormat(TestDFBackendTestCase):
 # Most things are much easier to test with client and viewset, even
 # though we're testing the backend here
 class AlbumFilterViewSet(viewsets.ModelViewSet):
-    """ViewSet for the Album model
+    """ViewSet for the Album model under /api/albums
 
     Simply not declaring any explicit fields and just giving '__all__'
     for filterset_fields will cause filtering for all model fields to
@@ -70,15 +70,6 @@ class TestWithViewSet(TestDFBackendTestCase):
 
     def setUp(self):
         self.client = APIClient()
-
-
-router = routers.DefaultRouter()
-router.register(r'albums', AlbumFilterViewSet)
-
-
-urlpatterns = [
-    url('^api/', include(router.urls)),
-]
 
 
 class TestUnfiltered(TestWithViewSet):
@@ -136,3 +127,12 @@ class TestInvalid(TestWithViewSet):
             {'artist': [
                 'Select a valid choice. '
                 'That choice is not one of the available choices.']})
+
+
+router = routers.DefaultRouter()
+router.register(r'albums', AlbumFilterViewSet)
+
+
+urlpatterns = [
+    url('^api/', include(router.urls)),
+]
