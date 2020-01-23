@@ -39,7 +39,23 @@ class TestNotDataTablesFormat(TestDFBackendTestCase):
 
 
 class AlbumFilter(filters.FilterSet):
+    """FilterSet for the Album model
 
+    Simply not declaring any explicit fields and just giving '__all__'
+    will cause filtering for all model fields to "just work"[TM], with
+    the following fields:
+
+    artist: ModelChoiceField
+    genres: ModelMultipleChoiceField
+    name: CharField
+    rank: DecimalField
+    year: DecimalField
+
+    See
+    https://django-filter.readthedocs.io/en/master/ref/filterset.html#automatic-filter-generation-with-model
+    for details.
+
+    """
     class Meta:
         model = Album
         fields = '__all__'
