@@ -11,6 +11,7 @@ from albums.serializers import AlbumSerializer
 
 # Skip this module if django-filter is not available
 try:
+    from django_filters import rest_framework as filters
     from rest_framework_datatables.django_filters.backends import (
         DatatablesFilterBackend)
 except ImportError:
@@ -129,8 +130,39 @@ class TestInvalid(TestWithViewSet):
                 'That choice is not one of the available choices.']})
 
 
+class AlbumFilter(filters.FilterSet):
+    """Filter name, artist and genre by name with icontains"""
+
+    name = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Album
+        fields = '__all__'
+
+
+class AlbumIcontainsViewSet(AlbumFilterViewSet):
+    filterset_fields = None
+    filterset_class = AlbumFilter
+
+
+class TestIcontainsOne(TestWithViewSet):
+
+    def setUp(self):
+        self.result = self.client.get(
+            '/api/albumsi/?format=datatables&length=10'
+            '&columns[0][data]=name'
+            '&columns[0][searchable]=true'
+            '&columns[0][search][value]=on')
+        self.assertEqual(self.result.status_code, 200)
+
+    def test(self):
+        self.assertEqual(self.result.json()['recordsTotal'], 15)
+        self.assertEqual(self.result.json()['recordsFiltered'], 6)
+
+
 router = routers.DefaultRouter()
 router.register(r'albums', AlbumFilterViewSet)
+router.register(r'albumsi', AlbumIcontainsViewSet)
 
 
 urlpatterns = [
