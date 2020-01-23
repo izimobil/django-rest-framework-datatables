@@ -89,11 +89,10 @@ class TestCount(TestUnfiltered):
 class TestFiltered(TestWithViewSet):
 
     def setUp(self):
-        self.result = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=name&columns[0][name]=name&columns[0][searchable]=true&columns[0][search][value]=&columns[1][data]=year&columns[1][searchable]=true&columns[1][search][value]=1971')
+        self.result = self.client.get('/api/albums/?format=datatables&length=10&columns[0][data]=year&columns[0][searchable]=true&columns[0][search][value]=1971')
 
     def test_count_before(self):
         self.assertEqual(self.result.json()['recordsTotal'], 15)
 
     def test_count_after(self):
         self.assertEqual(self.result.json()['recordsFiltered'], 1)
-
