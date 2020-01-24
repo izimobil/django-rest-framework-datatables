@@ -14,6 +14,8 @@ try:
     from django_filters import rest_framework as filters
     from rest_framework_datatables.django_filters.backends import (
         DatatablesFilterBackend)
+    from rest_framework_datatables.django_filters.filterset import (
+        DatatablesFilterSet)
 except ImportError:
     raise SkipTest('django-filter not available')
 
@@ -130,7 +132,7 @@ class TestInvalid(TestWithViewSet):
                 'That choice is not one of the available choices.']})
 
 
-class AlbumFilter(filters.FilterSet):
+class AlbumFilter(DatatablesFilterSet):
     """Filter name, artist and genre by name with icontains"""
 
     name = filters.CharFilter(lookup_expr='icontains')

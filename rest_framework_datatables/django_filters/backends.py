@@ -2,9 +2,13 @@ from rest_framework_datatables import filters
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from django_filters import utils
 
+from .filterset import DatatablesFilterSet
+
 
 class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
                               DjangoFilterBackend):
+
+    filterset_base = DatatablesFilterSet
 
     def filter_queryset(self, request, queryset, view):
         if request.accepted_renderer.format != 'datatables':
@@ -28,11 +32,12 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
     def get_filterset_kwargs(self, request, queryset, view):
         # parse query params
         query = self.parse_query_params(request, view)
+        self.datatables_query = query
         return {
             'data': query['form_fields'],
             'queryset': queryset,
             'request': request,
-            # 'datatables_query': query
+            'datatables_query': query
         }
 
     def parse_query_params(self, request, view):
