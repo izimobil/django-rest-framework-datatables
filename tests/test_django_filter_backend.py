@@ -78,8 +78,8 @@ class TestWithViewSet(TestDFBackendTestCase):
 class TestUnfiltered(TestWithViewSet):
 
     def setUp(self):
-        self.result = self.client.get('/api/albums/?format=datatables')
-        self.view = self.result.renderer_context.get('view')
+        self.response = self.client.get('/api/albums/?format=datatables')
+        self.view = self.response.renderer_context.get('view')
 
 
 class TestNoFilterSet(TestUnfiltered):
@@ -107,17 +107,18 @@ class TestCount(TestUnfiltered):
 class TestFiltered(TestWithViewSet):
 
     def setUp(self):
-        self.result = self.client.get(
+        self.response = self.client.get(
             '/api/albums/?format=datatables&length=10'
             '&columns[0][data]=year'
             '&columns[0][searchable]=true'
             '&columns[0][search][value]=1971')
+        self.json = self.response.json()
 
     def test_count_before(self):
-        self.assertEqual(self.result.json()['recordsTotal'], 15)
+        self.assertEqual(self.json['recordsTotal'], 15)
 
     def test_count_after(self):
-        self.assertEqual(self.result.json()['recordsFiltered'], 1)
+        self.assertEqual(self.json['recordsFiltered'], 1)
 
 
 class TestInvalid(TestWithViewSet):
@@ -130,16 +131,16 @@ class TestInvalid(TestWithViewSet):
     """
 
     def setUp(self):
-        self.result = self.client.get(
+        self.response = self.client.get(
             '/api/albums/?format=datatables&length=10'
             '&columns[0][data]=artist'
             '&columns[0][searchable]=true'
             '&columns[0][search][value]=Genesis')
 
     def test(self):
-        self.assertEqual(self.result.status_code, 400)
+        self.assertEqual(self.response.status_code, 400)
         self.assertEqual(
-            self.result.json()['data'],
+            self.response.json()['data'],
             {'artist': [
                 'Select a valid choice. '
                 'That choice is not one of the available choices.']})
@@ -165,22 +166,23 @@ class AlbumIcontainsViewSet(AlbumFilterViewSet):
 class TestIcontainsOne(TestWithViewSet):
 
     def setUp(self):
-        self.result = self.client.get(
+        self.response = self.client.get(
             '/api/albumsi/?format=datatables&length=10'
             '&columns[0][data]=name'
             '&columns[0][searchable]=true'
             '&columns[0][search][value]=on')
-        self.assertEqual(self.result.status_code, 200)
+        self.json = self.response.json()
+        self.assertEqual(self.response.status_code, 200)
 
     def test(self):
-        self.assertEqual(self.result.json()['recordsTotal'], 15)
-        self.assertEqual(self.result.json()['recordsFiltered'], 6)
+        self.assertEqual(self.json['recordsTotal'], 15)
+        self.assertEqual(self.json['recordsFiltered'], 6)
 
 
 class TestIcontainsTwo(TestWithViewSet):
 
     def setUp(self):
-        self.result = self.client.get(
+        self.response = self.client.get(
             '/api/albumsi/?format=datatables&length=10'
             '&columns[0][data]=name'
             '&columns[0][searchable]=true'
@@ -188,11 +190,12 @@ class TestIcontainsTwo(TestWithViewSet):
             '&columns[1][data]=genres'
             '&columns[1][searchable]=true'
             '&columns[1][search][value]=blues')
-        self.assertEqual(self.result.status_code, 200)
+        self.json = self.response.json()
+        self.assertEqual(self.response.status_code, 200)
 
     def test(self):
-        self.assertEqual(self.result.json()['recordsTotal'], 15)
-        self.assertEqual(self.result.json()['recordsFiltered'], 2)
+        self.assertEqual(self.json['recordsTotal'], 15)
+        self.assertEqual(self.json['recordsFiltered'], 2)
 
 
 router = routers.DefaultRouter()
