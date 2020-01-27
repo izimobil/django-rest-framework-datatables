@@ -82,6 +82,19 @@ class TestUnfiltered(TestWithViewSet):
         self.view = self.result.renderer_context.get('view')
 
 
+class TestNoFilterSet(TestUnfiltered):
+
+    def setUp(self):
+        with mock.patch.object(AlbumFilterViewSet, 'filterset_fields', None):
+            super().setUp()
+
+    def test_count_before(self):
+        self.assertEqual(self.view._datatables_total_count, 15)
+
+    def test_count_after(self):
+        self.assertEqual(self.view._datatables_filtered_count, 15)
+
+
 class TestCount(TestUnfiltered):
 
     def test_count_before(self):
