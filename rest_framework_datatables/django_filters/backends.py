@@ -27,6 +27,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         queryset = filterset.qs
 
         self.set_count_after(view, queryset.count())
+        queryset = queryset.order_by(*self.datatables_query['ordering'])
         return queryset
 
     def get_filterset_kwargs(self, request, queryset, view):
