@@ -2,7 +2,7 @@ from django_filters.rest_framework.filterset import FilterSet
 
 
 class DatatablesFilterSet(FilterSet):
-    """Basic FilterSet used by default in DatatablesFilterBackend (see below)
+    """Basic FilterSet used by default in DatatablesFilterBackend
     Datatables parameters are parsed and only the relevant parts are
     stored and propagated to the filters
 

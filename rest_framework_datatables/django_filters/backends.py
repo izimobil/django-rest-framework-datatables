@@ -11,11 +11,17 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
     filterset_base = DatatablesFilterSet
 
     def filter_queryset(self, request, queryset, view):
+        """Filter DataTables queries with a filterset
+
+        This method needs to combine the workflows from both its
+        superclasses.
+        """
         if request.accepted_renderer.format != 'datatables':
             return queryset
 
         filtered_count_before = self.count_before(queryset, view)
 
+        # parse query params
         filterset = self.get_filterset(request, queryset, view)
         if filterset is None:
             self.set_count_after(view, filtered_count_before)
@@ -27,11 +33,13 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         queryset = filterset.qs
 
         self.set_count_after(view, queryset.count())
+        # TODO Can we use OrderingFilter, maybe in the FilterSet, by
+        # default? See
+        # https://django-filter.readthedocs.io/en/master/ref/filters.html#ordering-filter
         queryset = queryset.order_by(*self.datatables_query['ordering'])
         return queryset
 
     def get_filterset_kwargs(self, request, queryset, view):
-        # parse query params
         query = self.parse_query_params(request, view)
         self.datatables_query = query
         return {

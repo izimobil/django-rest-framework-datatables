@@ -165,7 +165,6 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
             return queryset
         filtered_count_before = self.count_before(queryset, view)
 
-        # parse query params
         query = self.parse_query_params(request, view)
 
         # filter queryset
