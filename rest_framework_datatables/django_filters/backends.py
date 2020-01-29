@@ -1,6 +1,8 @@
-from rest_framework_datatables import filters
+from django.db.models import Q
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from django_filters import utils
+
+from rest_framework_datatables import filters
 
 from .filterset import DatatablesFilterSet
 
@@ -29,8 +31,13 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
 
         if not filterset.is_valid() and self.raise_exception:
             raise utils.translate_validation(filterset.errors)
-        # TODO combine the global search with OR for every field
         queryset = filterset.qs
+        q = Q()
+        for f in filterset.filters.values():
+            if hasattr(f, 'global_q'):
+                q |= f.global_q()
+        if q:
+            queryset = queryset.filter(q)
 
         self.set_count_after(view, queryset.count())
         # TODO Can we use OrderingFilter, maybe in the FilterSet, by

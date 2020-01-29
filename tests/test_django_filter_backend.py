@@ -229,6 +229,7 @@ class AlbumGlobalFilter(AlbumFilter):
     name = GlobalCharFilter(lookup_expr='icontains')
     genres = GlobalCharFilter(lookup_expr='name__icontains', distinct=True)
     artist = GlobalCharFilter(lookup_expr='name__icontains')
+    year = GlobalCharFilter()
 
     class Meta:
         model = Album
@@ -263,7 +264,7 @@ class TestGlobal(TestWithViewSet):
         self.assertEqual(self.json['recordsTotal'], 15)
         self.assertEqual(self.json['recordsFiltered'], 1)
         self.assertEqual(len(self.data), 1)
-        self.assertEqual(self.data['year'], '1971')
+        self.assertEqual(self.data[0]['year'], 1971)
 
 
 router = routers.DefaultRouter()

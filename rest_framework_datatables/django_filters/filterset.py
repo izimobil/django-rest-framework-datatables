@@ -15,6 +15,7 @@ class DatatablesFilterSet(FilterSet):
         self.datatables_query = datatables_query
         # Propagate the datatables information to the filters:
         for filter_ in self.filters.values():
+            filter_.global_search_value = datatables_query['search_value']
             queries = [x for x
                        in datatables_query['fields']
                        if x.get('data') == filter_.field_name]
