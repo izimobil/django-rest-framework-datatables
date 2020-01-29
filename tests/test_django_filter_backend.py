@@ -16,6 +16,8 @@ try:
         DatatablesFilterBackend)
     from rest_framework_datatables.django_filters.filterset import (
         DatatablesFilterSet)
+    from rest_framework_datatables.django_filters.filters import (
+        GlobalFilter)
 except ImportError:
     raise SkipTest('django-filter not available')
 
@@ -217,9 +219,57 @@ class TestOrder(TestWithViewSet):
                          'The Velvet Underground')
 
 
+class GlobalCharFilter(GlobalFilter, filters.CharFilter):
+    pass
+
+
+class AlbumGlobalFilter(AlbumFilter):
+    """Filter name, artist and genre by name with icontains"""
+
+    name = GlobalCharFilter(lookup_expr='icontains')
+    genres = GlobalCharFilter(lookup_expr='name__icontains', distinct=True)
+    artist = GlobalCharFilter(lookup_expr='name__icontains')
+
+    class Meta:
+        model = Album
+        fields = '__all__'
+
+
+class AlbumGlobalViewSet(AlbumIcontainsViewSet):
+    filterset_class = AlbumGlobalFilter
+
+
+class TestGlobal(TestWithViewSet):
+    """Test global searches.
+
+    Tests if the backend will automatically respect global search
+    queries and combine them with column searches in a meaningful
+    manner.
+
+    """
+
+    def search(self, url):
+        self.response = self.client.get(url)
+        self.json = self.response.json()
+        self.data = self.json['data']
+
+    def test(self):
+        self.search(
+            '/api/albumsg/?format=datatables&length=10'
+            '&columns[0][data]=year'
+            '&columns[0][searchable]=true'
+            '&search[value]=1971')
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.json['recordsTotal'], 15)
+        self.assertEqual(self.json['recordsFiltered'], 1)
+        self.assertEqual(len(self.data), 1)
+        self.assertEqual(self.data['year'], '1971')
+
+
 router = routers.DefaultRouter()
 router.register(r'albums', AlbumFilterViewSet)
 router.register(r'albumsi', AlbumIcontainsViewSet)
+router.register(r'albumsg', AlbumGlobalViewSet)
 
 
 urlpatterns = [
