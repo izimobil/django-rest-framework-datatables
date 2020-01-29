@@ -122,14 +122,6 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
                     ordering.append(additional)
         return ordering
 
-    def count_before(self, queryset, view):
-        """called by filter_queryset to get and store the ordering before the
-        filter operations"""
-        filtered_count_before = queryset.count()
-        total_count = view.get_queryset().count()
-        self.set_count_before(view, total_count)
-        return filtered_count_before
-
     def set_count_before(self, view, total_count):
         # set the queryset count as an attribute of the view for later
         # TODO: find a better way than this hack
@@ -169,7 +161,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         """
         if not self.check_renderer_format(request):
             return queryset
-        filtered_count_before = self.count_before(queryset, view)
+        self.set_count_before(view, view.get_queryset().count())
 
         query = self.parse_query_params(request, view)
 
@@ -186,10 +178,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
                             f.get('search_regex', False))
         if q:
             queryset = queryset.filter(q).distinct()
-            filtered_count = queryset.count()
-        else:
-            filtered_count = filtered_count_before
-        self.set_count_after(view, filtered_count)
+        self.set_count_after(view, queryset.count())
 
         queryset = queryset.order_by(*query['ordering'])
         return queryset

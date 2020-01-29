@@ -21,12 +21,12 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if not self.check_renderer_format(request):
             return queryset
 
-        filtered_count_before = self.count_before(queryset, view)
+        self.set_count_before(view, view.get_queryset().count())
 
-        # parse query params
+        # parse query params in get_filterset
         filterset = self.get_filterset(request, queryset, view)
         if filterset is None:
-            self.set_count_after(view, filtered_count_before)
+            self.set_count_after(view, queryset.count())
             return queryset
 
         if not filterset.is_valid() and self.raise_exception:
