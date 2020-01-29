@@ -308,6 +308,26 @@ class TestGlobal(TestWithViewSet):
         self.assertEqual(self.data[1]['name'], 'Kind of Blue')
         self.assertEqual(self.data[1]['genres'], 'Modal')
 
+    def test_combined_global_regex_distinct(self):
+        self.search(
+            '/api/albumsg/?format=datatables&length=10'
+            '&columns[0][data]=year'
+            '&columns[0][searchable]=true'
+            '&columns[1][data]=name'
+            '&columns[1][searchable]=true'
+            '&columns[2][data]=artist'
+            '&columns[2][searchable]=true'
+            '&columns[3][data]=genres'
+            '&columns[3][searchable]=true'
+            '&search[value]=^High.*61.*d$'
+            '&search[regex]=true')
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.json['recordsTotal'], 15)
+        self.assertEqual(self.json['recordsFiltered'], 1)
+        self.assertEqual(len(self.data), 1)
+        self.assertEqual(self.data[0]['name'], 'Highway 61 Revisited')
+        self.assertEqual(self.data[0]['genres'], 'Blues Rock, Folk Rock')
+
 
 router = routers.DefaultRouter()
 router.register(r'albums', AlbumFilterViewSet)

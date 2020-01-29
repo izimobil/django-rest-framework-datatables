@@ -29,6 +29,7 @@ class DatatablesFilterSet(FilterSet):
 
     def _set_global_info(self, filter_):
         filter_.global_search_value = self.datatables_query['search_value']
+        filter_.global_search_regex = self.datatables_query['search_regex']
 
     def _set_regex_info(self, filter_):
         if filter_.datatables_query.get('search_regex'):

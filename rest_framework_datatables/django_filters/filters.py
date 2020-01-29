@@ -36,4 +36,9 @@ class GlobalFilter(object):
 
     @property
     def global_lookup_expr(self):
+        assert hasattr(self, 'global_search_regex'), (
+            'Must be used with e.g. DatatablesFilterSet to ensure '
+            'global_search_regex is set')
+        if self.global_search_regex:
+            return 'iregex'
         return 'icontains'

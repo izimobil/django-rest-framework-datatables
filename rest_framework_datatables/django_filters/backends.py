@@ -39,7 +39,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
                     and hasattr(f, 'global_q')):
                 q |= f.global_q()
         if q:
-            queryset = queryset.filter(q)
+            queryset = queryset.filter(q).distinct()
 
         self.set_count_after(view, queryset.count())
         # TODO Can we use OrderingFilter, maybe in the FilterSet, by
