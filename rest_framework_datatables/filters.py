@@ -144,19 +144,16 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         """filter the queryset
 
-        subclasses overriding this method should adhere to the same
-        workflow:
+        subclasses overriding this method should make sure to do all
+        necessary steps
 
-        1.) Check the renderer format
-        2.) get and store the counts
-        3.) parse the query parameters with parse_query_params
-            (helpful if you want to support vanilla DataTables queries, but
-             strictly optional, as you can implement your own parser and change
-             your javascript code to pass different parameters)
-        4.) do the actual filtering
-        5.) order the filtered queryset AND store the counts *after* the
-            filtering with set_count_after
-        6.) return the filtered queryset
+        -  Return unfiltered queryset if accepted renderer format is
+           not 'datatables' (via `check_renderer_format`)
+
+        - store the counts before and after filtering with
+          `set_count_before` and `set_count_after`
+
+        - respect ordering (in `ordering` key of parsed queryset)
 
         """
         if not self.check_renderer_format(request):

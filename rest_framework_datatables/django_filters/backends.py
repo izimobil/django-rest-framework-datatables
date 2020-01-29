@@ -15,8 +15,9 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
     def filter_queryset(self, request, queryset, view):
         """Filter DataTables queries with a filterset
 
-        This method needs to combine the workflows from both its
+        This method needs to combine the necessary steps from both its
         superclasses.
+
         """
         if not self.check_renderer_format(request):
             return queryset
