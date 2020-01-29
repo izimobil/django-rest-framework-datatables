@@ -2,6 +2,18 @@ from django.db.models import Q
 
 
 class GlobalFilter(object):
+    """Simple global filter mixin that duplicates the behaviour of the
+    global filtering without using django-filter.
+
+    *Must* be used with DjangoFilterBackend which combines the global
+    and colum searches in the correct way and with
+    DatatablesFilterSet, which ensures that the correct attributes are
+    set to make this work.
+
+    For more fine-grained control over global filter behaviour, you
+    should implement the global_q method yourself.
+
+    """
 
     def global_q(self):
         """Return a Q-Object for the local search for this column"""
