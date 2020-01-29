@@ -18,6 +18,9 @@ class GlobalFilter(object):
     def global_q(self):
         """Return a Q-Object for the local search for this column"""
         ret = Q()
+        assert hasattr(self, 'global_search_value'), (
+            'Must be used with e.g. DatatablesFilterSet to ensure '
+            'global_search_value is set')
         if self.global_search_value:
             ret = Q(**{self.global_lookup: self.global_search_value})
         return ret
