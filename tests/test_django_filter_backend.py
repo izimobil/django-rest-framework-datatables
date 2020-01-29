@@ -227,7 +227,7 @@ class AlbumGlobalFilter(AlbumFilter):
     """Filter name, artist and genre by name with icontains"""
 
     name = GlobalCharFilter(lookup_expr='icontains')
-    genres = GlobalCharFilter(lookup_expr='name__icontains', distinct=True)
+    genres = GlobalCharFilter(lookup_expr='name__icontains')
     artist = GlobalCharFilter(lookup_expr='name__icontains')
     year = GlobalCharFilter()
 
@@ -254,7 +254,7 @@ class TestGlobal(TestWithViewSet):
         self.json = self.response.json()
         self.data = self.json['data']
 
-    def test(self):
+    def test_simple_global(self):
         self.search(
             '/api/albumsg/?format=datatables&length=10'
             '&columns[0][data]=year'
@@ -265,6 +265,22 @@ class TestGlobal(TestWithViewSet):
         self.assertEqual(self.json['recordsFiltered'], 1)
         self.assertEqual(len(self.data), 1)
         self.assertEqual(self.data[0]['year'], 1971)
+
+    def test_combined_global(self):
+        self.search(
+            '/api/albumsg/?format=datatables&length=10'
+            '&columns[0][data]=year'
+            '&columns[0][searchable]=true'
+            '&columns[0][search][value]=1966'
+            '&columns[1][data]=name'
+            '&columns[1][searchable]=true'
+            '&search[value]=l')
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.json['recordsTotal'], 15)
+        self.assertEqual(self.json['recordsFiltered'], 2)
+        self.assertEqual(len(self.data), 2)
+        self.assertEqual(self.data[0]['name'], 'Revolver')
+        self.assertEqual(self.data[1]['name'], 'Blonde on Blonde')
 
 
 router = routers.DefaultRouter()

@@ -34,7 +34,8 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         queryset = filterset.qs
         q = Q()
         for f in filterset.filters.values():
-            if hasattr(f, 'global_q'):
+            if (f.field_name in self.datatables_query['field_queries']
+                and hasattr(f, 'global_q')):
                 q |= f.global_q()
         if q:
             queryset = queryset.filter(q)
