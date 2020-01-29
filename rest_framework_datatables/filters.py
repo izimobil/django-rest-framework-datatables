@@ -127,10 +127,13 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
         filter operations"""
         filtered_count_before = queryset.count()
         total_count = view.get_queryset().count()
+        self.set_count_before(view, total_count)
+        return filtered_count_before
+
+    def set_count_before(self, view, total_count):
         # set the queryset count as an attribute of the view for later
         # TODO: find a better way than this hack
         setattr(view, '_datatables_total_count', total_count)
-        return filtered_count_before
 
     def set_count_after(self, view, filtered_count):
         """called by filter_queryset to store the ordering after the filter
@@ -153,7 +156,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         workflow:
 
         1.) Check the renderer format
-        2.) get and store the counts with count_before
+        2.) get and store the counts
         3.) parse the query parameters with parse_query_params
             (helpful if you want to support vanilla DataTables queries, but
              strictly optional, as you can implement your own parser and change
