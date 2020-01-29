@@ -12,12 +12,13 @@ class GlobalFilter(object):
 
     @property
     def global_lookup(self):
-        ret = self.lookup_expr
         lookup_expr_parts = self.lookup_expr.split('__')
         if lookup_expr_parts:
-            ret = '__'.join([self.field_name]
-                            + lookup_expr_parts[:-1]
-                            + ['icontains'])
-        else:
-            ret = '__'.join([self.field_name, 'icontains'])
-        return ret
+            lookup_expr_parts.pop()
+        return '__'.join([self.field_name]
+                         + lookup_expr_parts
+                         + [self.global_lookup_expr])
+
+    @property
+    def global_lookup_expr(self):
+        return 'icontains'
