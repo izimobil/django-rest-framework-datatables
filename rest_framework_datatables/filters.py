@@ -33,6 +33,9 @@ def f_search_q(f, search_value, search_regex=False):
 class DatatablesBaseFilterBackend(BaseFilterBackend):
     """Base class for definining your own DatatablesFilterBackend classes"""
 
+    def check_renderer_format(self, request):
+        return request.accepted_renderer.format == 'datatables'
+
     def parse_query_params(self, request, view):
         """parse request.query_params into a list of fields and orderings and
         global search parameters (value and regex)"""
@@ -161,7 +164,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         6.) return the filtered queryset
 
         """
-        if request.accepted_renderer.format != 'datatables':
+        if not self.check_renderer_format(request):
             return queryset
         filtered_count_before = self.count_before(queryset, view)
 

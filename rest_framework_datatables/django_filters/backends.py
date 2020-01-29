@@ -18,7 +18,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         This method needs to combine the workflows from both its
         superclasses.
         """
-        if request.accepted_renderer.format != 'datatables':
+        if not self.check_renderer_format(request):
             return queryset
 
         filtered_count_before = self.count_before(queryset, view)
