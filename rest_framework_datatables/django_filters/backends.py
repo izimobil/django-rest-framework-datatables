@@ -60,7 +60,10 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         query = super(DatatablesFilterBackend,
                       self).parse_query_params(request, view)
         form_fields = {}
+        field_queries = {}
         for f in query['fields']:
             form_fields[f['data']] = f['search_value']
+            field_queries[f['data']] = f
         query['form_fields'] = form_fields
+        query['field_queries'] = field_queries
         return query
