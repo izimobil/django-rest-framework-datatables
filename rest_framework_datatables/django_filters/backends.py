@@ -24,7 +24,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
 
         self.set_count_before(view, view.get_queryset().count())
 
-        # parse query params in get_filterset
+        # parsed datatables_query will be an attribute of the filterset
         filterset = self.get_filterset(request, queryset, view)
         if filterset is None:
             self.set_count_after(view, queryset.count())
@@ -33,25 +33,19 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if not filterset.is_valid() and self.raise_exception:
             raise utils.translate_validation(filterset.errors)
         queryset = filterset.qs
-        q = Q()
-        for f in filterset.filters.values():
-            if (
-                    f.field_name in self.datatables_query['field_queries']
-                    and hasattr(f, 'global_q')):
-                q |= f.global_q()
-        if q:
-            queryset = queryset.filter(q).distinct()
+        global_q = self.get_global_q(filterset)
+        if global_q:
+            queryset = queryset.filter(global_q).distinct()
 
         self.set_count_after(view, queryset.count())
-        # TODO Can we use OrderingFilter, maybe in the FilterSet, by
+        # TODO Can we use OrderingFilter, maybe in DatatablesFilterSet, by
         # default? See
         # https://django-filter.readthedocs.io/en/master/ref/filters.html#ordering-filter
-        queryset = queryset.order_by(*self.datatables_query['ordering'])
+        queryset = queryset.order_by(*filterset.datatables_query['ordering'])
         return queryset
 
     def get_filterset_kwargs(self, request, queryset, view):
-        query = self.parse_query_params(request, view)
-        self.datatables_query = query
+        query = self.parse_datatables_query(request, view)
         return {
             'data': query['form_fields'],
             'queryset': queryset,
@@ -59,9 +53,8 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
             'datatables_query': query
         }
 
-    def parse_query_params(self, request, view):
-        query = super(DatatablesFilterBackend,
-                      self).parse_query_params(request, view)
+    def parse_datatables_query(self, request, view):
+        query = super().parse_datatables_query(request, view)
         form_fields = {}
         field_queries = {}
         for f in query['fields']:
@@ -70,3 +63,12 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         query['form_fields'] = form_fields
         query['field_queries'] = field_queries
         return query
+
+    def get_global_q(self, filterset):
+        global_q = Q()
+        for f in filterset.filters.values():
+            if (
+                    f.field_name in filterset.datatables_query['field_queries']
+                    and hasattr(f, 'global_q')):
+                global_q |= f.global_q()
+        return global_q

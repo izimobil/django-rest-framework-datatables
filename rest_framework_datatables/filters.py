@@ -36,7 +36,7 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
     def check_renderer_format(self, request):
         return request.accepted_renderer.format == 'datatables'
 
-    def parse_query_params(self, request, view):
+    def parse_datatables_query(self, request, view):
         """parse request.query_params into a list of fields and orderings and
         global search parameters (value and regex)"""
         ret = {}
@@ -153,29 +153,34 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         - store the counts before and after filtering with
           `set_count_before` and `set_count_after`
 
-        - respect ordering (in `ordering` key of parsed queryset)
+        - respect ordering (in `ordering` key of parsed datatables
+          query)
 
         """
         if not self.check_renderer_format(request):
             return queryset
+
         self.set_count_before(view, view.get_queryset().count())
 
-        query = self.parse_query_params(request, view)
+        datatables_query = self.parse_datatables_query(request, view)
 
-        # filter queryset
-        q = Q()
-        for f in query['fields']:
-            if not f['searchable']:
-                continue
-            q |= f_search_q(f,
-                            query['search_value'],
-                            query['search_regex'])
-            q &= f_search_q(f,
-                            f.get('search_value'),
-                            f.get('search_regex', False))
+        q = self.get_q(datatables_query)
         if q:
             queryset = queryset.filter(q).distinct()
         self.set_count_after(view, queryset.count())
 
-        queryset = queryset.order_by(*query['ordering'])
+        queryset = queryset.order_by(*datatables_query['ordering'])
         return queryset
+
+    def get_q(self, datatables_query):
+        q = Q()
+        for f in datatables_query['fields']:
+            if not f['searchable']:
+                continue
+            q |= f_search_q(f,
+                            datatables_query['search_value'],
+                            datatables_query['search_regex'])
+            q &= f_search_q(f,
+                            f.get('search_value'),
+                            f.get('search_regex', False))
+        return q
