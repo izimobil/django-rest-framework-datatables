@@ -2,9 +2,14 @@
  Integration with Django-filter
 ================================
 
-Integration with `Django-filter
-<https://django-filter.readthedocs.io/en/master/index.html>`_ is
-provided through Datatables-specific ``DatatablesFilterSet`` and
+``django-rest-framework-datatables`` will always use ``icontains`` or
+``iregex`` queries on all columns, which may be costly. More
+fine-grained control on the generated database queries can be achieved
+with `Django-filter
+<https://django-filter.readthedocs.io/en/master/index.html>`_.
+
+Integration with Django-filter is provided through
+Datatables-specific ``DatatablesFilterSet`` and
 ``DatatablesFilterBackend`` classes. These may be found in the
 ``django_filters`` subpackage.
 
@@ -117,14 +122,25 @@ multiple selection. It's possible to use a javascript library such as
 Customizing (global) queries
 ============================
 
+The defined filters will be used to filter the column search queries.
+Global queries are implemented with the optional ``global_q`` method
+on the ``GlobalFilter`` mixin. This will generate ``icontains`` or
+``iregex`` lookups by default.
+
 If you want more fine-grained control over queries, you can simply
-define your own filters. If they have a ``global_q`` method (as for
-example the ``GlobalFilter`` mixin), you can return a `Q-object
+define your own filters.
+
+Only filters that provide a ``global_q`` method will support global
+search queries.
+
+The ``global_q`` method (as for example in the ``GlobalFilter``
+mixin), should return a `Q-object
 <https://docs.djangoproject.com/en/stable/topics/db/queries/#complex-lookups-with-q-objects>`_
 for the global field query. All these Q-objects will be combined with
-``|`` (``OR``) and the resulting Q-object will be used used to filter
-the queryset that was returned by the filterset. This logic is
-identical to the one implemented by plain
+``|`` (OR) and the resulting Q-object will be used used to filter the
+queryset that was returned by the applying the column filters.
+
+This logic is identical to the one implemented by plain
 ``django-rest-framework-datatables``.
 
 Further Reading
