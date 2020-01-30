@@ -2,6 +2,7 @@ from django.db.models import Q
 
 from .filterset import replace_last_lookup
 
+
 class GlobalFilter(object):
     """Simple global filter mixin that duplicates the behaviour of the
     global filtering without using django-filter.
@@ -13,6 +14,25 @@ class GlobalFilter(object):
 
     For more fine-grained control over global filter behaviour, you
     should implement the global_q method yourself.
+
+    Examples
+    --------
+
+    >>> class GlobalCharFilter(GlobalFilter, filters.CharFilter):
+    ...     pass
+    ...
+
+    >>> class AlbumGlobalFilter(AlbumFilter):
+    ...     name = GlobalCharFilter(lookup_expr='icontains')
+    ...     genres = GlobalCharFilter(lookup_expr='name__icontains')
+    ...     artist = GlobalCharFilter(lookup_expr='name__icontains')
+    ...     year = GlobalCharFilter()
+    ...     class Meta:
+    ...         model = Album
+    ...         fields = '__all__'
+    ...
+
+    see tests/test_django_filter_backend.py
 
     """
 
