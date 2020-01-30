@@ -1,5 +1,6 @@
 from django.db.models import Q
 
+from .filterset import replace_last_lookup
 
 class GlobalFilter(object):
     """Simple global filter mixin that duplicates the behaviour of the
@@ -27,15 +28,13 @@ class GlobalFilter(object):
 
     @property
     def global_lookup(self):
-        lookup_expr_parts = self.lookup_expr.split('__')
-        if lookup_expr_parts:
-            lookup_expr_parts.pop()
-        return '__'.join([self.field_name]
-                         + lookup_expr_parts
-                         + [self.global_lookup_expr])
+        return ('{}__{}'
+                .format(self.field_name,
+                        replace_last_lookup(self.lookup_expr,
+                                            self.global_lookup_type)))
 
     @property
-    def global_lookup_expr(self):
+    def global_lookup_type(self):
         assert hasattr(self, 'global_search_regex'), (
             'Must be used with e.g. DatatablesFilterSet to ensure '
             'global_search_regex is set')

@@ -1,6 +1,12 @@
 from django_filters.rest_framework.filterset import FilterSet
 
 
+def replace_last_lookup(lookup_expr, replacement):
+    lookups = lookup_expr.split('__')
+    lookups[-1] = replacement
+    return '__'.join(lookups)
+
+
 class DatatablesFilterSet(FilterSet):
     """Basic FilterSet used by default in DatatablesFilterBackend
     Datatables parameters are parsed and only the relevant parts are
@@ -33,6 +39,5 @@ class DatatablesFilterSet(FilterSet):
 
     def _set_regex_info(self, filter_):
         if filter_.datatables_query.get('search_regex'):
-            lookups = filter_.lookup_expr.split('__')
-            lookups[-1] = 'iregex'
-            filter_.lookup_expr = '__'.join(lookups)
+            filter_.lookup_expr = replace_last_lookup(filter_.lookup_expr,
+                                                      'iregex')
