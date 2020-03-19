@@ -1,10 +1,6 @@
 from django_filters.rest_framework.filterset import FilterSet
 
-
-def replace_last_lookup(lookup_expr, replacement):
-    lookups = lookup_expr.split('__')
-    lookups[-1] = replacement
-    return '__'.join(lookups)
+from .filters import SwitchRegexFilter
 
 
 class DatatablesFilterSet(FilterSet):
@@ -34,10 +30,11 @@ class DatatablesFilterSet(FilterSet):
             self._set_regex_info(filter_)
 
     def _set_global_info(self, filter_):
-        filter_.global_search_value = self.datatables_query['search_value']
-        filter_.global_search_regex = self.datatables_query['search_regex']
+        filter_._global_search_value = self.datatables_query['search_value']
+        filter_._global_search_regex = self.datatables_query['search_regex']
 
     def _set_regex_info(self, filter_):
         if filter_.datatables_query.get('search_regex'):
-            filter_.lookup_expr = replace_last_lookup(filter_.lookup_expr,
-                                                      'iregex')
+            filter_.lookup_expr = SwitchRegexFilter.replace_last_lookup(
+                filter_.lookup_expr,
+                'iregex')
