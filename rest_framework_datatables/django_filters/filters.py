@@ -51,10 +51,10 @@ class GlobalFilter(object):
         return ('{}__{}'
                 .format(self.field_name,
                         replace_last_lookup(self.lookup_expr,
-                                            self.global_lookup_type)))
+                                            self.global_lookup_expr)))
 
     @property
-    def global_lookup_type(self):
+    def global_lookup_expr(self):
         assert hasattr(self, 'global_search_regex'), (
             'Must be used with e.g. DatatablesFilterSet to ensure '
             'global_search_regex is set')
