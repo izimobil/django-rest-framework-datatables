@@ -2,9 +2,20 @@ from django.db.models import Q
 
 
 class SwitchRegexFilter(object):
+
+    lookup_regex_replacements = {
+      'icontains': 'iregex',
+      'contains': 'regex',
+      'exact': 'regex',
+    }
+
     @classmethod
-    def replace_last_lookup(cls, lookup_expr, replacement):
+    def replace_last_lookup(cls, lookup_expr, replacement=None):
         lookups = lookup_expr.split('__')
+        last_lookup = lookups[-1]
+        if replacement is None:
+            replacement = cls.lookup_regex_replacements.get(
+                last_lookup, last_lookup)
         lookups[-1] = replacement
         return '__'.join(lookups)
 
