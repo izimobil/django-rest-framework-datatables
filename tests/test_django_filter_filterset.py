@@ -17,6 +17,8 @@ try:
         DatatablesFilterBackend)
     from rest_framework_datatables.django_filters.filterset import (
         DatatablesFilterSet)
+    from rest_framework_datatables.django_filters.filters import (
+        SwitchRegexFilter)
 except ImportError:
     raise SkipTest('django-filter not available')
 
@@ -29,12 +31,16 @@ class TestWithViewSet(TestCase):
         self.client = APIClient()
 
 
+class SwitchRegexCharFilter(filters.CharFilter, SwitchRegexFilter):
+    pass
+
+
 class AlbumRegexFilter(DatatablesFilterSet):
     """Filter name, artist and genre by name with icontains"""
 
-    name = filters.CharFilter(lookup_expr='icontains')
-    genres = filters.CharFilter(lookup_expr='name__icontains', distinct=True)
-    artist = filters.CharFilter(lookup_expr='name__icontains')
+    name = SwitchRegexCharFilter(lookup_expr='icontains')
+    genres = SwitchRegexCharFilter(lookup_expr='name__icontains', distinct=True)
+    artist = SwitchRegexCharFilter(lookup_expr='name__icontains')
 
     class Meta:
         model = Album

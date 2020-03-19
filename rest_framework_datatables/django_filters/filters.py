@@ -9,6 +9,13 @@ class SwitchRegexFilter(object):
       'exact': 'regex',
     }
 
+    def __init__(self, field_name=None, lookup_expr='exact', *, label=None,
+                 method=None, distinct=False, exclude=False, **kwargs):
+        self._original_lookup_expr = lookup_expr
+        super().__init__(
+            field_name=field_name, lookup_expr=lookup_expr, label=label,
+            method=method, distinct=distinct, exclude=exclude, **kwargs)
+
     @classmethod
     def replace_last_lookup(cls, lookup_expr, replacement=None):
         lookups = lookup_expr.split('__')
@@ -18,6 +25,26 @@ class SwitchRegexFilter(object):
                 last_lookup, last_lookup)
         lookups[-1] = replacement
         return '__'.join(lookups)
+
+    def lookup_expr():
+        def fget(self):
+            if not self.search_regex:
+                return self._original_lookup_expr
+            else:
+                return self.replace_last_lookup(self._original_lookup_expr)
+
+        def fset(self, value):
+            self._original_lookup_expr = value
+        return locals()
+
+    lookup_expr = property(**lookup_expr())
+
+    @property
+    def search_regex(self):
+        # datatables_query is only present, if there's a query for
+        # this column, so even if we use the correct backend, it might
+        # not be.
+        return getattr(self, 'datatables_query', {}).get('search_regex')
 
 
 class GlobalFilter(SwitchRegexFilter):

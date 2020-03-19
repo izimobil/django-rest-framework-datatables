@@ -1,7 +1,5 @@
 from django_filters.rest_framework.filterset import FilterSet
 
-from .filters import SwitchRegexFilter
-
 
 class DatatablesFilterSet(FilterSet):
     """Basic FilterSet used by default in DatatablesFilterBackend
@@ -27,14 +25,7 @@ class DatatablesFilterSet(FilterSet):
         if filter_.field_name in self.datatables_query['field_queries']:
             query = self.datatables_query['field_queries'][filter_.field_name]
             filter_.datatables_query = query
-            self._set_regex_info(filter_)
 
     def _set_global_info(self, filter_):
         filter_._global_search_value = self.datatables_query['search_value']
         filter_._global_search_regex = self.datatables_query['search_regex']
-
-    def _set_regex_info(self, filter_):
-        if filter_.datatables_query.get('search_regex'):
-            filter_.lookup_expr = SwitchRegexFilter.replace_last_lookup(
-                filter_.lookup_expr,
-                'iregex')
