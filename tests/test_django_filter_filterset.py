@@ -40,7 +40,8 @@ class AlbumRegexFilter(DatatablesFilterSet):
 
     name = SwitchRegexCharFilter(lookup_expr='icontains')
     genres = SwitchRegexCharFilter(lookup_expr='name__icontains', distinct=True)
-    artist = SwitchRegexCharFilter(lookup_expr='name__icontains')
+    artist_name = SwitchRegexCharFilter(field_name='artist__name',
+                                        lookup_expr='icontains')
 
     class Meta:
         model = Album
@@ -112,7 +113,7 @@ class TestFilterRegex(TestWithViewSet):
     def setUp(self):
         self.response = self.client.get(
             '/api/albums/?format=datatables&length=10'
-            '&columns[0][data]=artist'
+            '&columns[0][data]=artist_name'
             '&columns[0][searchable]=true'
             '&columns[0][search][regex]=true'
             '&columns[0][search][value]=^bob')
@@ -123,8 +124,8 @@ class TestFilterRegex(TestWithViewSet):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.json['recordsFiltered'], 2)
         self.assertEqual(self.json['recordsTotal'], 15)
-        self.assertEqual(self.data[0]['artist']['name'], 'Bob Dylan')
-        self.assertEqual(self.data[1]['artist']['name'], 'Bob Dylan')
+        self.assertEqual(self.data[0]['artist_name'], 'Bob Dylan')
+        self.assertEqual(self.data[1]['artist_name'], 'Bob Dylan')
 
 
 class TestFilterRegexTwo(TestWithViewSet):
@@ -132,7 +133,7 @@ class TestFilterRegexTwo(TestWithViewSet):
     def setUp(self):
         self.response = self.client.get(
             '/api/albums/?format=datatables&length=10'
-            '&columns[0][data]=artist'
+            '&columns[0][data]=artist_name'
             '&columns[0][searchable]=true'
             '&columns[0][search][regex]=true'
             '&columns[0][search][value]=^bob'
@@ -147,7 +148,7 @@ class TestFilterRegexTwo(TestWithViewSet):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.json['recordsFiltered'], 1)
         self.assertEqual(self.json['recordsTotal'], 15)
-        self.assertEqual(self.data[0]['artist']['name'], 'Bob Dylan')
+        self.assertEqual(self.data[0]['artist_name'], 'Bob Dylan')
         self.assertEqual(self.data[0]['name'], 'Blonde on Blonde')
 
 
@@ -156,7 +157,7 @@ class TestFilterRegexIcontains(TestWithViewSet):
     def setUp(self):
         self.response = self.client.get(
             '/api/albums/?format=datatables&length=10'
-            '&columns[0][data]=artist'
+            '&columns[0][data]=artist_name'
             '&columns[0][searchable]=true'
             '&columns[0][search][regex]=true'
             '&columns[0][search][value]=^bob'
@@ -170,7 +171,7 @@ class TestFilterRegexIcontains(TestWithViewSet):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.json['recordsFiltered'], 1)
         self.assertEqual(self.json['recordsTotal'], 15)
-        self.assertEqual(self.json['data'][0]['artist']['name'], 'Bob Dylan')
+        self.assertEqual(self.json['data'][0]['artist_name'], 'Bob Dylan')
         self.assertEqual(self.json['data'][0]['name'], 'Highway 61 Revisited')
 
 
@@ -179,7 +180,7 @@ class TestFilterIcontainsRegex(TestWithViewSet):
     def setUp(self):
         self.response = self.client.get(
             '/api/albums/?format=datatables&length=10'
-            '&columns[0][data]=artist'
+            '&columns[0][data]=artist_name'
             '&columns[0][searchable]=true'
             '&columns[0][search][regex]=false'
             '&columns[0][search][value]=ylan'
@@ -194,5 +195,5 @@ class TestFilterIcontainsRegex(TestWithViewSet):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.json['recordsFiltered'], 1)
         self.assertEqual(self.json['recordsTotal'], 15)
-        self.assertEqual(self.data[0]['artist']['name'], 'Bob Dylan')
+        self.assertEqual(self.data[0]['artist_name'], 'Bob Dylan')
         self.assertEqual(self.data[0]['name'], 'Highway 61 Revisited')

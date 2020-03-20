@@ -17,13 +17,13 @@ class DatatablesFilterSet(FilterSet):
 
     def _propagate_datatables_query(self):
         """propagate parsed datatables query information to filters"""
-        for filter_ in self.filters.values():
-            self._propagate_to_filter(filter_)
+        for name, filter_ in self.filters.items():
+            self._propagate_to_filter(name, filter_)
 
-    def _propagate_to_filter(self, filter_):
+    def _propagate_to_filter(self, filter_name, filter_):
         self._set_global_info(filter_)
-        if filter_.field_name in self.datatables_query['field_queries']:
-            query = self.datatables_query['field_queries'][filter_.field_name]
+        if filter_name in self.datatables_query['field_queries']:
+            query = self.datatables_query['field_queries'][filter_name]
             filter_.datatables_query = query
 
     def _set_global_info(self, filter_):
