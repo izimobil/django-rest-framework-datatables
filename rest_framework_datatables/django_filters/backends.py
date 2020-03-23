@@ -86,4 +86,5 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
                     [:-1])
                 ret.append(('-' if dir_ == 'desc' else '')
                            + lookup)
+        self.append_additional_ordering(ret, view)
         return ret

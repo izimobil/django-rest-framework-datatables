@@ -126,6 +126,17 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
         # TODO: maybe find a better way than this hack ?
         setattr(view, '_datatables_filtered_count', filtered_count)
 
+    def append_additional_ordering(self, ordering, view):
+        if len(ordering):
+            if hasattr(view, 'datatables_additional_order_by'):
+                additional = view.datatables_additional_order_by
+                # Django will actually only take the first occurrence if the
+                # same column is added multiple times in an order_by, but it
+                # feels cleaner to double check for duplicate anyway.
+                if not any((o[1:] if o[0] == '-' else o) == additional
+                           for o in ordering):
+                    ordering.append(additional)
+
 
 class DatatablesFilterBackend(DatatablesBaseFilterBackend):
     """
@@ -189,13 +200,5 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
                 '-' if dir_ == 'desc' else '',
                 field['name'][0]
             ))
-        if len(ordering):
-            if hasattr(view, 'datatables_additional_order_by'):
-                additional = view.datatables_additional_order_by
-                # Django will actually only take the first occurrence if the
-                # same column is added multiple times in an order_by, but it
-                # feels cleaner to double check for duplicate anyway.
-                if not any((o[1:] if o[0] == '-' else o) == additional
-                           for o in ordering):
-                    ordering.append(additional)
+        self.append_additional_ordering(ordering, view)
         return ordering
