@@ -204,8 +204,8 @@ class TestOrder(TestWithViewSet):
     def setUp(self):
         self.response = self.client.get(
             '/api/albumsi/?format=datatables&length=10'
-            '&columns[0][data]=artist_name'
-            '&columns[0][name]=artist__name'
+            '&columns[0][data]=artist'
+            '&columns[0][name]=irrelevant'
             '&columns[0][orderable]=true'
             '&order[0][column]=0'
             '&order[0][dir]=desc')
@@ -215,7 +215,7 @@ class TestOrder(TestWithViewSet):
     def test(self):
         self.assertEqual(self.json['recordsTotal'], 15)
         self.assertEqual(self.json['recordsFiltered'], 15)
-        self.assertEqual(self.json['data'][0]['artist_name'],
+        self.assertEqual(self.json['data'][0]['artist']['name'],
                          'The Velvet Underground')
 
 

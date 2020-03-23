@@ -41,7 +41,8 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         # TODO Can we use OrderingFilter, maybe in DatatablesFilterSet, by
         # default? See
         # https://django-filter.readthedocs.io/en/master/ref/filters.html#ordering-filter
-        queryset = queryset.order_by(*filterset.datatables_query['ordering'])
+        queryset = queryset.order_by(
+            *self.get_ordering(request, view, filterset))
         return queryset
 
     def get_filterset_kwargs(self, request, queryset, view):
@@ -72,3 +73,17 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
                     and hasattr(f, 'global_q')):
                 global_q |= f.global_q()
         return global_q
+
+    def get_ordering(self, request, view, filterset):
+        ret = []
+        for field, dir_ in self.get_ordering_fields(
+                request, view, filterset.datatables_query['fields']):
+            if field['data'] in filterset.filters:
+                filter = filterset.filters[field['data']]
+                lookup = '__'.join(
+                    f'{filter.field_name}__{filter.lookup_expr}'
+                    .split('__')
+                    [:-1])
+                ret.append(('-' if dir_ == 'desc' else '')
+                           + lookup)
+        return ret

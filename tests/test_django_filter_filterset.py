@@ -99,13 +99,44 @@ class TestIcontainsTwo(TestWithViewSet):
             '&columns[0][search][value]=on'
             '&columns[1][data]=genres'
             '&columns[1][searchable]=true'
-            '&columns[1][search][value]=blues')
+            '&columns[1][search][value]=blues'
+            '&columns[2][data]=artist_name'
+            '&columns[2][orderable]=true'
+            '&order[0][column]=2'
+            '&order[0][dir]=asc')
         self.json = self.response.json()
         self.assertEqual(self.response.status_code, 200)
 
     def test(self):
         self.assertEqual(self.json['recordsTotal'], 15)
         self.assertEqual(self.json['recordsFiltered'], 2)
+        data = self.json['data']
+        self.assertEqual(data[0]['artist_name'], 'Bob Dylan')
+
+
+class TestIcontainsTwoDesc(TestWithViewSet):
+
+    def setUp(self):
+        self.response = self.client.get(
+            '/api/albums/?format=datatables&length=10'
+            '&columns[0][data]=name'
+            '&columns[0][searchable]=true'
+            '&columns[0][search][value]=on'
+            '&columns[1][data]=genres'
+            '&columns[1][searchable]=true'
+            '&columns[1][search][value]=blues'
+            '&columns[2][data]=artist_name'
+            '&columns[2][orderable]=true'
+            '&order[0][column]=2'
+            '&order[0][dir]=desc')
+        self.json = self.response.json()
+        self.assertEqual(self.response.status_code, 200)
+
+    def test(self):
+        self.assertEqual(self.json['recordsTotal'], 15)
+        self.assertEqual(self.json['recordsFiltered'], 2)
+        data = self.json['data']
+        self.assertEqual(data[0]['artist_name'], 'The Rolling Stones')
 
 
 class TestFilterRegex(TestWithViewSet):
