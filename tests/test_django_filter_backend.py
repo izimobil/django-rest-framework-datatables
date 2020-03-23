@@ -227,8 +227,8 @@ class AlbumGlobalFilter(AlbumFilter):
     """Filter name, artist and genre by name with icontains"""
 
     name = GlobalCharFilter(lookup_expr='icontains')
-    genres = GlobalCharFilter(lookup_expr='name__icontains')
-    artist = GlobalCharFilter(lookup_expr='name__icontains')
+    genres = GlobalCharFilter(field_name='genres__name', lookup_expr='icontains')
+    artist = GlobalCharFilter(field_name='artist__name', lookup_expr='icontains')
     year = GlobalCharFilter()
 
     class Meta:

@@ -67,9 +67,9 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
 
     def get_global_q(self, filterset):
         global_q = Q()
-        for f in filterset.filters.values():
+        for filter_name, f in filterset.filters.items():
             if (
-                    f.field_name in filterset.datatables_query['field_queries']
+                    filter_name in filterset.datatables_query['field_queries']
                     and hasattr(f, 'global_q')):
                 global_q |= f.global_q()
         return global_q
