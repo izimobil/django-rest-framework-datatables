@@ -15,7 +15,12 @@ class DatatablesFilterBackend(BaseFilterBackend):
             return queryset
 
         filtered_count_before = queryset.count()
-        total_count = view.get_queryset().count()
+        # avoid an extra count query if the queries are the same
+        if str(queryset.query) == str(view.get_queryset().query):
+            total_count = filtered_count_before
+        else:
+            total_count = view.get_queryset().count()
+
         # set the queryset count as an attribute of the view for later
         # TODO: find a better way than this hack
         setattr(view, '_datatables_total_count', total_count)
