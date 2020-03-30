@@ -1,12 +1,13 @@
 from collections import OrderedDict
 
-from django.core.paginator import InvalidPage
+from django.core.paginator import InvalidPage, Paginator as DjangoPaginator
 
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.pagination import (
     PageNumberPagination, LimitOffsetPagination
 )
+
 
 try:
     from django.utils import six
@@ -41,6 +42,16 @@ class DatatablesMixin(object):
         return count, total_count
 
 
+class CachedCountPaginator(DjangoPaginator):
+    def __init__(self, value, *args, **kwargs):
+        self.value = value
+        super(CachedCountPaginator, self).__init__(*args, **kwargs)
+
+    @property
+    def count(self):
+        return self.value
+
+
 class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
     def paginate_queryset(self, queryset, request, view=None):
         if request.accepted_renderer.format != 'datatables':
@@ -62,7 +73,7 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
         if not page_size:  # pragma: no cover
             return None
 
-        paginator = self.django_paginator_class(queryset, page_size)
+        paginator = CachedCountPaginator(self.count, queryset, page_size)
         start = int(request.query_params.get('start', 0))
         page_number = int(start / page_size) + 1
 
