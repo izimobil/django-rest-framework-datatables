@@ -10,8 +10,7 @@ from rest_framework.pagination import (
 
 try:
     from django.utils import six
-
-    text_type = six.text_type
+    text_type = six.text_type  # pragma: no cover
 except ImportError:
     text_type = str
 
@@ -62,7 +61,16 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
         if not page_size:  # pragma: no cover
             return None
 
-        paginator = self.django_paginator_class(queryset, page_size)
+        class CachedCountPaginator(self.django_paginator_class):
+            def __init__(self, value, *args, **kwargs):
+                self.value = value
+                super(CachedCountPaginator, self).__init__(*args, **kwargs)
+
+            @property
+            def count(self):
+                return self.value
+
+        paginator = CachedCountPaginator(self.count, queryset, page_size)
         start = int(request.query_params.get('start', 0))
         page_number = int(start / page_size) + 1
 

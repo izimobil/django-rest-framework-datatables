@@ -2,16 +2,24 @@ from albums.models import Album
 from albums.serializers import AlbumSerializer
 
 from django.conf.urls import url
-from django.test.utils import override_settings
+from django.test.utils import override_settings, modify_settings
 from django.test import TestCase
 
 from rest_framework.generics import ListAPIView
 from rest_framework.test import (
     APIClient,
 )
+from rest_framework.filters import BaseFilterBackend
 from rest_framework_datatables.pagination import (
     DatatablesLimitOffsetPagination,
 )
+from rest_framework_datatables.filters import DatatablesFilterBackend
+
+
+class CustomFilterBackend(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        return queryset.filter(name__istartswith='a')
+
 
 class TestFilterTestCase(TestCase):
     class TestAPIView(ListAPIView):
@@ -21,6 +29,15 @@ class TestFilterTestCase(TestCase):
 
         def get_queryset(self):
             return Album.objects.all()
+
+
+    class TestAPIView2(ListAPIView):
+        serializer_class = AlbumSerializer
+        filter_backends = [CustomFilterBackend, DatatablesFilterBackend]
+
+        def get_queryset(self):
+            return Album.objects.all()
+
 
     fixtures = ['test_data']
 
@@ -35,7 +52,22 @@ class TestFilterTestCase(TestCase):
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)
 
+    @override_settings(ROOT_URLCONF=__name__)
+    def test_multiple_filters_backend1(self):
+        response = self.client.get('/api/multiplefilterbackends/?format=datatables&columns[0][data]=name&columns[0][searchable]=true&columns[1][data]=artist__name&columns[1][searchable]=true&search[value]=are+you+exp')
+        expected = (1, 15, 'Are You Experienced')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)
+
+    @override_settings(ROOT_URLCONF=__name__)
+    def test_multiple_filters_backend2(self):
+        response = self.client.get('/api/multiplefilterbackends/?format=datatables&columns[0][data]=name&columns[0][searchable]=true&columns[1][data]=artist__name&columns[1][searchable]=true&search[value]=white')
+        expected = (0, 15)
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
+
 
 urlpatterns = [
     url('^api/additionalorderby', TestFilterTestCase.TestAPIView.as_view()),
+    url('^api/multiplefilterbackends', TestFilterTestCase.TestAPIView2.as_view()),
 ]
