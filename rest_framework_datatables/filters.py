@@ -101,8 +101,11 @@ class DatatablesFilterBackend(BaseFilterBackend):
         while True:
             col = 'columns[%d][%s]'
             data = getter(col % (i, 'data'))
-            # break out only when there are no more
-            # fields to get.
+            if data == "":  # null or empty string on datatables (JS) side
+                fields.append({'searchable': False, 'orderable': False})
+                i += 1
+                continue
+            # break out only when there are no more fields to get.
             if data is None:
                 break
             name = getter(col % (i, 'name'))
