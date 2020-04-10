@@ -72,7 +72,7 @@ class DatatablesRenderer(JSONRenderer):
     def _filter_unused_fields(self, request, result, force_serialize):
         # list of params to keep, triggered by ?keep= and can be comma
         # separated.
-        keep = get_param(request, 'keep', [])
+        keep = request.query_params.get('keep', [])
         cols = []
         i = 0
         while True:

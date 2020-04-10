@@ -47,7 +47,7 @@ class TestApiTestCase(TestCase):
     @override_settings(ROOT_URLCONF=__name__)
     def test_post_request(self):
         response = self.client.post(
-            '/api/post/albums/?format=datatables',
+            '/api/post/albums/?format=datatables&keep=name',
             {
                 'length': '10',
                 'columns[0][data]': 'artist_name',
@@ -60,6 +60,7 @@ class TestApiTestCase(TestCase):
         expected = (15, 15, 'The Velvet Underground')
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+        self.assertEquals((result['data'][0]['name']), 'The Velvet Underground & Nico')
 
     def test_datatables_suffix(self):
         response = self.client.get('/api/albums.datatables/')
