@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 0.5.2 (2020-04-10):
+---------------------------
+
+- Added support for POST requests from datatables
+- Avoid extra count queries
+- Handle dummy columns gracefully
+
 Version 0.5.1 (2020-01-13):
 ---------------------------
 
