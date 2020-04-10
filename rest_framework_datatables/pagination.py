@@ -14,6 +14,8 @@ try:
 except ImportError:
     text_type = str
 
+from .utils import get_param
+
 
 class DatatablesMixin(object):
     def get_paginated_response(self, data):
@@ -48,7 +50,7 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
                 DatatablesPageNumberPagination, self
             ).paginate_queryset(queryset, request, view)
 
-        length = request.query_params.get('length')
+        length = get_param(request, 'length')
 
         if length is None or length == '-1':
             return None
@@ -71,7 +73,7 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
                 return self.value
 
         paginator = CachedCountPaginator(self.count, queryset, page_size)
-        start = int(request.query_params.get('start', 0))
+        start = int(get_param(request, 'start', 0))
         page_number = int(start / page_size) + 1
 
         try:
@@ -89,7 +91,7 @@ class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
     def paginate_queryset(self, queryset, request, view=None):
         if request.accepted_renderer.format == 'datatables':
             self.is_datatable_request = True
-            if request.query_params.get('length') is None:
+            if get_param(request, 'length') is None:
                 return None
             self.limit_query_param = 'length'
             self.offset_query_param = 'start'

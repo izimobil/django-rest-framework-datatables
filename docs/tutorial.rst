@@ -374,22 +374,22 @@ If you need more complex filtering and ordering, you can always implement your o
 You can see this code live by running the :doc:`example app <example-app>`.
 
 
+Using DataTables via POST method
+--------------------------------
+
+By default, the Ajax request that DataTables makes to obtain server-side processing data is an HTTP GET request.
+However, there are times when you might wish to use POST, DRF-Datatables can handle this, just configure your Datatable as explained in the `related Datatables documentation section <https://datatables.net/examples/server_side/post.html>`_.
+
+
 Handling Duplicates in Sorting
 ------------------------------
 If sorting is done on a single column with more duplicates than the page size it's possible than some rows are never retrieved as we traverse through our datatable. This is because of how order by together with limit and offset works in the database.
 
 As a workaround for this problem we add a second column to sort by in the case of ties.
 
-class AlbumViewSet(viewsets.ModelViewSet):
-    queryset = Album.objects.all().order_by('year')
-    serializer_class = AlbumSerializer
-    datatables_additional_order_by = 'rank'
+.. code:: python
 
-    def get_options(self):
-        return "options", {
-            "artist": [{'label': obj.name, 'value': obj.pk} for obj in Artist.objects.all()],
-            "genre": [{'label': obj.name, 'value': obj.pk} for obj in Genre.objects.all()]
-        }
-
-    class Meta:
-        datatables_extra_json = ('get_options', )
+    class AlbumViewSet(viewsets.ModelViewSet):
+        queryset = Album.objects.all().order_by('year')
+        serializer_class = AlbumSerializer
+        datatables_additional_order_by = 'rank'

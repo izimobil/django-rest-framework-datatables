@@ -1,5 +1,7 @@
 from rest_framework.renderers import JSONRenderer
 
+from .utils import get_param
+
 
 class DatatablesRenderer(JSONRenderer):
     media_type = 'application/json'
@@ -37,7 +39,7 @@ class DatatablesRenderer(JSONRenderer):
         else:
             new_data = data
         # add datatables "draw" parameter
-        new_data['draw'] = int(request.query_params.get('draw', '1'))
+        new_data['draw'] = int(get_param(request, 'draw', '1'))
 
         serializer_class = None
         if hasattr(view, 'get_serializer_class'):
@@ -70,11 +72,11 @@ class DatatablesRenderer(JSONRenderer):
     def _filter_unused_fields(self, request, result, force_serialize):
         # list of params to keep, triggered by ?keep= and can be comma
         # separated.
-        keep = request.query_params.get('keep', [])
+        keep = get_param(request, 'keep', [])
         cols = []
         i = 0
         while True:
-            col = request.query_params.get('columns[%d][data]' % i)
+            col = get_param(request, 'columns[%d][data]' % i)
             if col is None:
                 break
             cols.append(col.split('.').pop(0))

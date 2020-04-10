@@ -1,13 +1,26 @@
 from django.test import TestCase, override_settings, modify_settings
 from django.conf import settings
+from django.conf.urls import url
+
 from rest_framework.test import APIClient
 from rest_framework.settings import api_settings
 
 from rest_framework_datatables.pagination import (
     DatatablesLimitOffsetPagination, DatatablesPageNumberPagination
 )
+from rest_framework.generics import ListAPIView
+
 from albums.views import AlbumViewSet
+from albums.models import Album
 from albums.serializers import AlbumSerializer
+
+
+class AlbumPostListAPIView(ListAPIView):
+    serializer_class = AlbumSerializer
+    queryset = Album.objects.all().order_by('rank')
+
+    def post(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 class TestApiTestCase(TestCase):
@@ -30,6 +43,23 @@ class TestApiTestCase(TestCase):
         self.assertEquals('count' in result, False)
         self.assertEquals('recordsTotal' in result, True)
         self.assertEquals(result['recordsTotal'], expected)
+
+    @override_settings(ROOT_URLCONF=__name__)
+    def test_post_request(self):
+        response = self.client.post(
+            '/api/post/albums/?format=datatables',
+            {
+                'length': '10',
+                'columns[0][data]': 'artist_name',
+                'columns[0][name]': 'artist__name',
+                'columns[0][orderable]': 'true',
+                'order[0][column]': '0',
+                'order[0][dir]': 'desc',
+            }
+        )
+        expected = (15, 15, 'The Velvet Underground')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
 
     def test_datatables_suffix(self):
         response = self.client.get('/api/albums.datatables/')
@@ -218,3 +248,8 @@ class TestApiTestCase(TestCase):
         expected = (15, 15, 'The Beatles')
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+
+urlpatterns = [
+    url('^api/post/albums', AlbumPostListAPIView.as_view()),
+]
