@@ -20,6 +20,7 @@ Seamless integration between Django REST framework and Datatables.
    quickstart
    tutorial
    example-app
+   django-filters
    changelog
 
 Useful links
