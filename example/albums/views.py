@@ -1,7 +1,9 @@
 from django.shortcuts import render
 
 from rest_framework import viewsets
+from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework_datatables import pagination as dt_pagination
 
 from .models import Album, Artist, Genre
 from .serializers import AlbumSerializer, ArtistSerializer
@@ -42,3 +44,12 @@ class ArtistViewSet(viewsets.ViewSet):
 
     class Meta:
         datatables_extra_json = ('get_options', )
+
+
+class AlbumPostListView(generics.ListAPIView):
+    queryset = Album.objects.all().order_by('rank')
+    serializer_class = AlbumSerializer
+    pagination_class = dt_pagination.DatatablesLimitOffsetPagination
+
+    def post(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
