@@ -48,6 +48,24 @@
         </table>
     </div>
 </div>
+<div class="row">
+    <div class="col-sm-12 text-center">
+        <h4 class="bg-primary text-white p-2" style="margin: 15px;">Example Using POST</h4>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <table id="albums_post" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Artist</th>
+                    <th>Album Name</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
 <footer class="footer" style="margin-top: 25px;">
     <div class="container">
         <p class="text-muted text-center">
@@ -85,6 +103,21 @@ $(document).ready(function() {
     $('#albums_minimal').DataTable({
         "search": {"regex": true},
         "language": {"searchPlaceholder": "regular expression"}
+    });
+    $('#albums_post').DataTable({
+        "serverSide": true,
+        "ajax": {
+            "url": "api/post-list/albums/?format=datatables",
+            "type": "POST",
+            "beforeSend": function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token|escapejs }}");
+            }
+        },
+        "columns": [
+            {"data": "rank", "searchable": false},
+            {"data": "artist.name", "name": "artist.name"},
+            {"data": "name"},
+        ]
     });
 });
 </script>
