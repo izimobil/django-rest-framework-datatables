@@ -15,5 +15,8 @@ urlpatterns = [
     url('^admin/', admin.site.urls),
     url('^api/', include(router.urls)),
     url('^api/post-list/albums', views.AlbumPostListView.as_view(), name='albums_post_list'),
+    url('^api/filter/albums/artist/options', views.AlbumFilterArtistOptionsListView.as_view(),
+        name='albums_filter_artist_options_list'),
+    url('^api/filter/albums', views.AlbumFilterListView.as_view(), name='albums_filter_list'),
     url('', views.index, name='albums')
 ]
