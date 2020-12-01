@@ -43,19 +43,16 @@ class DatatablesMixin(object):
 
 
 class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
-    page_query_param = 'start'
-    page_size_query_param = 'length'
-
     def get_page_size(self, request):
         if self.page_size_query_param:
             try:
                 size = int(get_param(request, self.page_size_query_param))
                 if size <= 0:
                     raise ValueError()
-                if self.max_page_size:
+                if self.max_page_size is not None:
                     return min(size, self.max_page_size)
                 return size
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
         return self.page_size
 
@@ -66,6 +63,8 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
                 DatatablesPageNumberPagination, self
             ).paginate_queryset(queryset, request, view)
 
+        self.page_query_param = 'start'
+        self.page_size_query_param = 'length'
         length = get_param(request, self.page_size_query_param)
 
         if length is None or length == '-1':
@@ -103,9 +102,6 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
 
 
 class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
-    limit_query_param = 'length'
-    offset_query_param = 'start'
-
     def get_limit(self, request):
         try:
             limit_value = int(get_param(request, self.limit_query_param))
@@ -115,7 +111,7 @@ class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
             if self.max_limit is not None:
                 return min(limit_value, self.max_limit)
             return limit_value
-        except ValueError:
+        except (ValueError, TypeError):
             return self.default_limit
 
     def get_offset(self, request):
@@ -125,12 +121,14 @@ class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
                 raise ValueError
 
             return offset_value
-        except ValueError:
+        except (ValueError, TypeError):
             return 0
 
     def paginate_queryset(self, queryset, request, view=None):
         if request.accepted_renderer.format == 'datatables':
             self.is_datatable_request = True
+            self.limit_query_param = 'length'
+            self.offset_query_param = 'start'
             if get_param(request, self.limit_query_param) is None:
                 return None
             self.count, self.total_count = self.get_count_and_total_count(
