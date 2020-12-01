@@ -43,6 +43,22 @@ class DatatablesMixin(object):
 
 
 class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
+    page_query_param = 'start'
+    page_size_query_param = 'length'
+
+    def get_page_size(self, request):
+        if self.page_size_query_param:
+            try:
+                size = int(get_param(request, self.page_size_query_param))
+                if size <= 0:
+                    raise ValueError()
+                if self.max_page_size:
+                    return min(size, self.max_page_size)
+                return size
+            except ValueError:
+                pass
+        return self.page_size
+
     def paginate_queryset(self, queryset, request, view=None):
         if request.accepted_renderer.format != 'datatables':
             self.is_datatable_request = False
@@ -50,7 +66,7 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
                 DatatablesPageNumberPagination, self
             ).paginate_queryset(queryset, request, view)
 
-        length = get_param(request, 'length')
+        length = get_param(request, self.page_size_query_param)
 
         if length is None or length == '-1':
             return None
@@ -58,7 +74,6 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
             queryset, view
         )
         self.is_datatable_request = True
-        self.page_size_query_param = 'length'
         page_size = self.get_page_size(request)
         if not page_size:  # pragma: no cover
             return None
@@ -73,7 +88,7 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
                 return self.value
 
         paginator = CachedCountPaginator(self.count, queryset, page_size)
-        start = int(get_param(request, 'start', 0))
+        start = int(get_param(request, self.page_query_param, 0))
         page_number = int(start / page_size) + 1
 
         try:
@@ -88,6 +103,9 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
 
 
 class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
+    limit_query_param = 'length'
+    offset_query_param = 'start'
+
     def get_limit(self, request):
         try:
             limit_value = int(get_param(request, self.limit_query_param))
@@ -113,10 +131,8 @@ class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
     def paginate_queryset(self, queryset, request, view=None):
         if request.accepted_renderer.format == 'datatables':
             self.is_datatable_request = True
-            if get_param(request, 'length') is None:
+            if get_param(request, self.limit_query_param) is None:
                 return None
-            self.limit_query_param = 'length'
-            self.offset_query_param = 'start'
             self.count, self.total_count = self.get_count_and_total_count(
                 queryset, view
             )
