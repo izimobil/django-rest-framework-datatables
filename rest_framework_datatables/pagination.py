@@ -56,6 +56,13 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
                 pass
         return self.page_size
 
+    def get_page(self, request, page_size):
+        try:
+            start = int(get_param(request, self.page_query_param, 0))
+            return int(start / page_size) + 1
+        except ValueError:
+            return None
+
     def paginate_queryset(self, queryset, request, view=None):
         if request.accepted_renderer.format != 'datatables':
             self.is_datatable_request = False
@@ -87,8 +94,7 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
                 return self.value
 
         paginator = CachedCountPaginator(self.count, queryset, page_size)
-        start = int(get_param(request, self.page_query_param, 0))
-        page_number = int(start / page_size) + 1
+        page_number = self.get_page(request, page_size)
 
         try:
             self.page = paginator.page(page_number)
