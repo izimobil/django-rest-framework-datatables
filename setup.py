@@ -43,15 +43,6 @@ def get_long_description():
     return '\n\n'.join(ret)
 
 
-def get_packages(package):
-    """
-    Return root package and all sub-packages.
-    """
-    return [dirpath
-            for dirpath, dirnames, filenames in os.walk(package)
-            if os.path.exists(os.path.join(dirpath, '__init__.py'))]
-
-
 def get_package_data(package):
     """
     Return all files under the root package, that are not in a
@@ -88,7 +79,7 @@ setup(
     long_description=get_long_description(),
     author=author,
     author_email=author_email,
-    packages=get_packages(package),
+    packages=['rest_framework_datatables', 'rest_framework_datatables.django_filters'],
     install_requires=[
         'djangorestframework>=3.5.0'
     ],
