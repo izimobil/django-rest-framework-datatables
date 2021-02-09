@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 0.6.0 (2021-02-09):
+---------------------------
+
+- Integration with django-filter
+- Example of using yadcf and django-filter to create a multi-select column
+- Fixed support for POST requests from datatables
+- Some fixes on pagination
+Many thanks to all the contributors on this release !
+
 Version 0.5.2 (2020-04-10):
 ---------------------------
 
