@@ -17,7 +17,7 @@
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <table id="albums" class="table table-striped table-bordered" style="width:100%">
+        <table id="albums_by_decade" class="table table-striped table-bordered" style="width:100%">
             <thead>
                 <tr>
                     <th>Rank</th>
@@ -66,10 +66,33 @@
         </table>
     </div>
 </div>
+<div class="row">
+    <div class="col-sm-12 text-center">
+        <h4 class="bg-primary text-white p-2" style="margin: 15px;">Example using column filters</h4>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <table id="albums_filter" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Artist</th>
+                    <th>Album Name</th>
+                </tr>
+                <tr class="table-filter-dropdown">
+                  <th></th>
+                  <th id="artist_select"></th>
+                  <th></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
 <footer class="footer" style="margin-top: 25px;">
     <div class="container">
         <p class="text-muted text-center">
-            Copyright © 2018 David Jean Louis - 
+            Copyright © 2018 David Jean Louis -
             Data from <a href="https://data.world/notgibs/rolling-stones-top-500-albums" target="_blank">data.world</a>
         </p>
     </div>
@@ -78,7 +101,7 @@
 {% block extra_js %}
 <script>
 $(document).ready(function() {
-    var table = $('#albums').DataTable({
+    var table = $('#albums_by_decade').DataTable({
         "serverSide": true,
         "ajax": "/api/albums/?format=datatables",
         "columns": [
@@ -118,6 +141,41 @@ $(document).ready(function() {
             {"data": "artist.name", "name": "artist.name"},
             {"data": "name"},
         ]
+    });
+    var albumFilterTable = $('#albums_filter').DataTable({
+        "serverSide": true,
+        "ajax": {
+            "url": "api/filter/albums/?format=datatables",
+            "type": "GET",
+        },
+        "columns": [
+            {"data": "rank", "searchable": false},
+            {"data": "artist_name", "name": "artist_name",},
+            {"data": "name"},
+        ]
+    });
+    yadcf.init(albumFilterTable, [
+        {
+            column_number: 1,
+            filter_type: 'multi_select',
+            filter_container_id: 'artist_select',
+            select_type: 'select2',
+            // static data can be declared here, otherwise it can be pulled via Ajax (see below)
+            // data: [{"value": 2, "label": "The Beatles"}]
+        }
+        ]
+    );
+    // Retrieve the full list of column options using an Ajax request
+    $.ajax({
+        type: "GET",
+        url: "/api/filter/albums/artist/options/",
+        success: function (res) {
+            var artistOptions = res.options;
+            yadcf.exRefreshColumnFilterWithDataProp(albumFilterTable, 1, artistOptions);
+        },
+        error: function (err) {
+            console.log('error: album artist options:', err);
+        }
     });
 });
 </script>

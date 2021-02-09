@@ -124,6 +124,9 @@ appropriate widgets to the datatable, because ``genres`` will need a
 multiple selection. It's possible to use a javascript library such as
 `yadcf <https://github.com/vedmack/yadcf>`_ to ease that task.
 
+See the :doc:`example app<example-app>`  for an example of multiple
+selection using ``yadcf``.
+
 Customizing (global) queries
 ============================
 
