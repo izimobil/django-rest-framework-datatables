@@ -147,11 +147,14 @@ LOGGING = {
         "console": {"level": "DEBUG", "class": "logging.StreamHandler"},
     },
     "loggers": {
-        "django.db.backends": {"level": "DEBUG", "handlers": ["console"]},
+        "django.db.backends": {
+            "level": "WARNING",
+            "handlers": ["console"]
+        },
         "django.request": {
             "handlers": ["console"],
             "propagate": False,
-            "level": "ERROR",
+            "level": "WARNING",
         },
         "django.server": {
             "handlers": ["console"],
