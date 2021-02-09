@@ -18,11 +18,11 @@ Full documentation is available on `Read the Docs <http://django-rest-framework-
 Requirements
 ------------
 
--  Python (2.7, 3.4, 3.5, 3.6, 3.7, 3.8)
--  Django (1.9, 1.10, 1.11, 2.0, 2.1, 2.2, 3.0)
--  Django REST Framework (3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 3.11)
+-  Python (3.5, 3.6, 3.7, 3.8, 3.9)
+-  Django (2.0, 2.1, 2.2, 3.0, 3.1)
+-  Django REST Framework (3.7, 3.8, 3.9, 3.10, 3.11, 3.12)
 
-Note: Django 3.0 is only supported with Django REST Framework 3.11 or superior and DRF-datatables version 0.5.1 or superior.
+Note: Django 3.0 or superior is only supported with Django REST Framework 3.11 or superior and DRF-datatables version 0.5.1 or superior.
 
 Quickstart
 ----------
