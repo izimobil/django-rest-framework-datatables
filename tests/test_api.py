@@ -23,6 +23,14 @@ class AlbumPostListAPIView(ListAPIView):
         return self.list(request, *args, **kwargs)
 
 
+class DatatablesPageNumberPaginationCustomMax(DatatablesPageNumberPagination):
+    max_page_size = 15
+
+
+class DatatablesLimitOffsetPaginationCustomMax(DatatablesLimitOffsetPagination):
+    max_limit = 15
+
+
 class TestApiTestCase(TestCase):
     fixtures = ['test_data']
 
@@ -82,9 +90,35 @@ class TestApiTestCase(TestCase):
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], len(result['data']), result['data'][0]['artist_name']), expected)
 
-    def test_pagenumber_pagination_invalid_page(self):
+    def test_pagenumber_pagination_invalid_page1(self):
         response = self.client.get('/api/albums/?format=datatables&length=10&start=20&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
         self.assertEquals(response.status_code, 404)
+
+    def test_pagenumber_pagination_invalid_page2(self):
+        response = self.client.get('/api/albums/?format=datatables&length=10&start=abc&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        self.assertEquals(response.status_code, 404)
+
+    def test_pagenumber_pagination_invalid_page_size1(self):
+        response = self.client.get('/api/albums/?format=datatables&length=abc&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 5, 'Elvis Presley')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], len(result['data']), result['data'][0]['artist_name']), expected)
+
+    def test_pagenumber_pagination_invalid_page_size2(self):
+        response = self.client.get('/api/albums/?format=datatables&length=-999&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 5, 'Elvis Presley')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], len(result['data']), result['data'][0]['artist_name']), expected)
+
+    @override_settings(REST_FRAMEWORK={
+        'DEFAULT_PAGINATION_CLASS': __name__ + '.DatatablesPageNumberPaginationCustomMax',
+    })
+    def test_pagenumber_pagination_invalid_max(self):
+        AlbumViewSet.pagination_class = DatatablesPageNumberPaginationCustomMax
+        response = self.client.get('/api/albums/?format=datatables&length=20&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 15, 'The Beatles')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], len(result['data']), result['data'][0]['artist_name']), expected)
 
     @override_settings(REST_FRAMEWORK={
         'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesLimitOffsetPagination',
@@ -105,6 +139,66 @@ class TestApiTestCase(TestCase):
         client = APIClient()
         response = client.get('/api/albums/?format=datatables&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
         expected = (15, 15, 'The Beatles')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    @override_settings(REST_FRAMEWORK={
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesLimitOffsetPagination',
+    })
+    def test_limitoffset_pagination_invalid_length1(self):
+        AlbumViewSet.pagination_class = DatatablesLimitOffsetPagination
+        client = APIClient()
+        response = client.get(
+            '/api/albums/?format=datatables&length=abc&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 'Elvis Presley')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    @override_settings(REST_FRAMEWORK={
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesLimitOffsetPagination',
+    })
+    def test_limitoffset_pagination_invalid_length2(self):
+        AlbumViewSet.pagination_class = DatatablesLimitOffsetPagination
+        client = APIClient()
+        response = client.get(
+            '/api/albums/?format=datatables&length=-999&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 'Elvis Presley')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    @override_settings(REST_FRAMEWORK={
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesLimitOffsetPagination',
+    })
+    def test_limitoffset_pagination_invalid_start1(self):
+        AlbumViewSet.pagination_class = DatatablesLimitOffsetPagination
+        client = APIClient()
+        response = client.get(
+            '/api/albums/?format=datatables&length=10&start=abc&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 'The Beatles')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    @override_settings(REST_FRAMEWORK={
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesLimitOffsetPagination',
+    })
+    def test_limitoffset_pagination_invalid_start2(self):
+        AlbumViewSet.pagination_class = DatatablesLimitOffsetPagination
+        client = APIClient()
+        response = client.get(
+            '/api/albums/?format=datatables&length=10&start=-999&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 'The Beatles')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    @override_settings(REST_FRAMEWORK={
+        'DEFAULT_PAGINATION_CLASS': __name__ + '.DatatablesLimitOffsetPaginationCustomMax',
+    })
+    def test_limitoffset_pagination_invalid_max(self):
+        AlbumViewSet.pagination_class = DatatablesLimitOffsetPaginationCustomMax
+        client = APIClient()
+        response = client.get(
+            '/api/albums/?format=datatables&length=20&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 'Elvis Presley')
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
 
