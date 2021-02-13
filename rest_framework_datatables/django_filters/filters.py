@@ -52,7 +52,7 @@ class GlobalFilter(SwitchRegexFilter):
     global filtering without using django-filter.
 
     *Must* be used with DjangoFilterBackend which combines the global
-    and colum searches in the correct way and with
+    and column searches in the correct way and with
     DatatablesFilterSet, which ensures that the correct attributes are
     set to make this work.
 
@@ -81,7 +81,7 @@ class GlobalFilter(SwitchRegexFilter):
     """
 
     def global_q(self):
-        """Return a Q-Object for the local search for this column"""
+        """Return a Q-Object for the global search for this column"""
         ret = Q()
         if self.global_search_value:
             ret = Q(**{self.global_lookup: self.global_search_value})

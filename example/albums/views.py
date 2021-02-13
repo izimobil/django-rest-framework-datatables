@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render
 from django_filters import widgets, fields, filters, NumberFilter, CharFilter
 
@@ -7,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from rest_framework_datatables import pagination as dt_pagination
+from rest_framework_datatables.django_filters.filters import GlobalFilter
 from rest_framework_datatables.django_filters.filterset import DatatablesFilterSet
 from rest_framework_datatables.django_filters.backends import DatatablesFilterBackend
 
@@ -77,23 +79,41 @@ class YADCFModelMultipleChoiceField(fields.ModelMultipleChoiceField):
 class YADCFModelMultipleChoiceFilter(filters.ModelMultipleChoiceFilter):
     field_class = YADCFModelMultipleChoiceField
 
+    def global_q(self):
+        """
+        This method is necessary for the global filter
+        - i.e. any string values entered into the search box.
+        """
+        if not self._global_search_value:
+            return Q()
+        kw = "{}__{}".format(self.field_name, self.lookup_expr)
+        return Q(**{kw: self._global_search_value})
+
+
+class GlobalCharFilter(GlobalFilter, filters.CharFilter):
+    pass
+
+
+class GlobalNumberFilter(GlobalFilter, filters.NumberFilter):
+    pass
+
 
 class AlbumFilter(DatatablesFilterSet):
 
-    # the name of this attribute must match the declared 'name' attribute in
+    # the name of this attribute must match the declared 'data' attribute in
     # the DataTables column
     artist_name = YADCFModelMultipleChoiceFilter(
-        field_name="artist", queryset=Artist.objects.all()
+        field_name="artist__name", queryset=Artist.objects.all(), lookup_expr="contains"
     )
 
     # additional attributes need to be declared so that sorting works
     # the field names must match those declared in the DataTables columns.
-    rank = NumberFilter()
-    name = CharFilter()
+    rank = GlobalNumberFilter()
+    name = GlobalCharFilter()
 
     class Meta:
         model = Album
-        fields = ("artist",)
+        fields = ("artist_name", )
 
 
 class AlbumFilterListView(generics.ListAPIView):
