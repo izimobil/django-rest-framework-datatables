@@ -237,7 +237,7 @@ In the above example, the 'get_options' method will be called to populate the re
 A more complex and detailed example
 -----------------------------------
 
-In this example we want to display more informations about the album:
+In this example we want to display more information about the album:
 
 - the album artist name (``Album.artist`` is a foreignkey to ``Artist`` model)
 - the genres (``Album.genres`` is a many to many relation with ``Genre`` model)
