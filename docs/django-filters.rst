@@ -22,6 +22,7 @@ import from the ``django_filters`` subpackage.
 
 .. code-block:: python
 
+    from django_filters import filters
     from rest_framework_datatables.django_filters.backends import DatatablesFilterBackend
     from rest_framework_datatables.django_filters.filterset import DatatablesFilterSet
     from rest_framework_datatables.django_filters.filters import GlobalFilter
