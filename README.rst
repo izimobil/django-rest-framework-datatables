@@ -15,6 +15,8 @@ The great benefit of django-rest-framework-datatables is that you don't have to 
 
 Full documentation is available on `Read the Docs <http://django-rest-framework-datatables.readthedocs.io/en/latest/>`_ !
 
+You can play with a demo of the example app on `Python Anywhere <https://izimobil.pythonanywhere.com>`_.
+
 Requirements
 ------------
 
