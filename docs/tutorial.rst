@@ -356,6 +356,7 @@ Filtering is based off of the either the ``data`` or ``name`` fields. If you nee
     <script>
         'columns': [
             {'data': 'artist.name', 'name': 'artist.name, artist__year'}
+        ]
     </script>
 
 This would allow you to filter the ``artist.name`` column based upon ``name`` or ``year``.
