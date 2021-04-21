@@ -267,7 +267,7 @@ The HTML/JS code will look like this:
                   <th data-data="artist.name" data-name="artist.name">Artist</th>
                   <th data-data="name">Album name</th>
                   <th data-data="year">Year</th>
-                  <th data-data="genres" data-name="genres.name">Year</th>
+                  <th data-data="genres" data-name="genres.name">Genres</th>
                 </tr>
               </thead>
             </table>
@@ -312,7 +312,7 @@ We could also have written that in a more conventional form (without data attrib
                   <th>Artist</th>
                   <th>Album name</th>
                   <th>Year</th>
-                  <th>Year</th>
+                  <th>Genres</th>
                 </tr>
               </thead>
             </table>
