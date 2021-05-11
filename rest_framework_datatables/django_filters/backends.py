@@ -62,6 +62,9 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         form_fields = {}
         field_queries = {}
         for f in query['fields']:
+            if 'data' not in f:
+                continue
+
             form_fields[f['data']] = f['search_value']
             field_queries[f['data']] = f
         query['form_fields'] = form_fields
