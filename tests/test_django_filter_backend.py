@@ -137,7 +137,8 @@ class TestInvalid(TestWithViewSet):
             '/api/albums/?format=datatables&length=10'
             '&columns[0][data]=artist'
             '&columns[0][searchable]=true'
-            '&columns[0][search][value]=Genesis')
+            '&columns[0][search][value]=Genesis'
+            '&columns[1][data]=')
 
     def test(self):
         self.assertEqual(self.response.status_code, 400)
