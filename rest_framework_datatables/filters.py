@@ -197,15 +197,16 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
 
     def get_q(self, datatables_query):
         q = Q()
+        initial_q = Q()
+        for f in datatables_query['fields']:
+            if f.get('search_value'):
+                initial_q &= f_search_q(f, f.get('search_value'), f.get('search_regex', False))
         for f in datatables_query['fields']:
             if not f['searchable']:
                 continue
-            q |= f_search_q(f,
-                            datatables_query['search_value'],
-                            datatables_query['search_regex'])
-            q &= f_search_q(f,
-                            f.get('search_value'),
-                            f.get('search_regex', False))
+            query = f_search_q(f, datatables_query['search_value'], datatables_query['search_regex'])
+            query &= initial_q
+            q |= query
         return q
 
     def get_ordering(self, request, view, fields):
