@@ -200,7 +200,9 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         initial_q = Q()
         for f in datatables_query['fields']:
             if f.get('search_value'):
-                initial_q &= f_search_q(f, f.get('search_value'), f.get('search_regex', False))
+                initial_q &= f_search_q(f,
+                                        f.get('search_value'),
+                                        f.get('search_regex', False))
         for f in datatables_query['fields']:
             if not f['searchable']:
                 continue
