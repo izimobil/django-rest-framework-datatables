@@ -17,3 +17,32 @@ We encourage you to give it a try with a few commandline calls:
 A screenshot of the example app:
 
 .. image:: _static/screenshot.jpg
+
+Postgres
+########
+
+You can use Postgres as the source database.  To do this, you will need to have `Docker <https://docker.com/>`_ installed.
+
+Initialise the database as follows:
+
+.. code:: bash
+
+  $ export DRFDT_TEST_TYPE=postgres
+  $ export DRFDT_POSTGRESQL_USER=pguser
+  $ export DRFDT_POSTGRESQL_PASSWORD=pguserpass
+  $ export DJANGO_SETTINGS_MODULE=example.settings
+
+  $ # start a local postgres instance
+  $ docker-compose -f example/pg/docker-compose.yml up -d
+
+  $ python example/manage.py migrate
+  $ python example/manage.py test
+
+  $ # only required if you want to login to the Admin site
+  $ python example/manage.py createsuperuser --username admin  --email=email@example.com
+
+  $ # load test data
+  $ python example/manage.py loaddata test_data
+
+  $ # shutdown the db (append -v to remove the data volume and delete all data)
+  $ docker-compose -f example/pg/docker-compose.yml down
