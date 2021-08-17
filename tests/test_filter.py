@@ -86,6 +86,14 @@ class TestFilterTestCase(TestCase):
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
 
+    @override_settings(ROOT_URLCONF=__name__)
+    def test_search_over_filters_backend2(self):
+        response = self.client.get('/api/filter/albums/?format=datatables&length=10&columns[0][data]=rank&columns[0][searchable]=false&columns[1][data]=artist.name&columns[1][searchable]=true&columns[2][data]=name&columns[2][searchable]=true&columns[3][data]=year&columns[3][searchable]=true&columns[3][search][value]=1967&columns[4][data]=genres.name&columns[4][searchable]=true&search[value]=Velvet')
+        expected = (1, 15)
+
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
+
 urlpatterns = [
     url('^api/additionalorderby', TestFilterTestCase.TestAPIView.as_view()),
     url('^api/multiplefilterbackends', TestFilterTestCase.TestAPIView2.as_view()),
