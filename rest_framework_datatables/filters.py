@@ -1,9 +1,8 @@
+import operator
 import re
 from functools import reduce
-import operator
 
 from django.db.models import Q
-
 from rest_framework.filters import BaseFilterBackend
 
 from .utils import get_param
@@ -151,6 +150,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
     """
     Filter that works with datatables params.
     """
+
     def filter_queryset(self, request, queryset, view):
         """filter the queryset
 
@@ -197,15 +197,17 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
 
     def get_q(self, datatables_query):
         q = Q()
+        initial_q = Q()
         for f in datatables_query['fields']:
             if not f['searchable']:
                 continue
             q |= f_search_q(f,
                             datatables_query['search_value'],
                             datatables_query['search_regex'])
-            q &= f_search_q(f,
-                            f.get('search_value'),
-                            f.get('search_regex', False))
+            initial_q &= f_search_q(f,
+                                    f.get('search_value'),
+                                    f.get('search_regex', False))
+        q &= initial_q
         return q
 
     def get_ordering(self, request, view, fields):
