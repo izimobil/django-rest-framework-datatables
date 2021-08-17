@@ -38,6 +38,12 @@ class TestFilterTestCase(TestCase):
         def get_queryset(self):
             return Album.objects.all()
 
+    class TestAPIView3(ListAPIView):
+        serializer_class = AlbumSerializer
+        filter_backends = [DatatablesFilterBackend]
+
+        def get_queryset(self):
+            return Album.objects.all()
 
     fixtures = ['test_data']
 
@@ -66,8 +72,22 @@ class TestFilterTestCase(TestCase):
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
 
+    @override_settings(ROOT_URLCONF=__name__)
+    def test_search_over_filters_backend1(self):
+        """Search over all columns
+
+        Searches should be made over all columns data
+        (It can be manual tested on 'Full example with foreign key and many to many relation' table)
+
+        """
+        response = self.client.get('/api/filter/albums/?format=datatables&length=10&columns[0][data]=rank&columns[0][searchable]=false&columns[1][data]=artist.name&columns[1][searchable]=true&columns[2][data]=name&columns[2][searchable]=true&columns[3][data]=year&columns[3][searchable]=true&columns[3][search][value]=1966&columns[4][data]=genres.name&columns[4][searchable]=true&search[value]=Blues')
+        expected = (1, 15)
+
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
 
 urlpatterns = [
     url('^api/additionalorderby', TestFilterTestCase.TestAPIView.as_view()),
     url('^api/multiplefilterbackends', TestFilterTestCase.TestAPIView2.as_view()),
+    url('^api/filter/albums', TestFilterTestCase.TestAPIView3.as_view()),
 ]
