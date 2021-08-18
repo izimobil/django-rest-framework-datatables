@@ -21,7 +21,7 @@ A screenshot of the example app:
 Postgres
 ########
 
-You can use Postgres as the source database.  To do this, you will need to have `Docker <https://docker.com/>`_ installed.
+You can use Postgres as the source database.  This example uses `Docker <https://docker.com/>`_ as a container for the database.
 
 Initialise the database as follows:
 
