@@ -196,7 +196,7 @@ To build the documentation:
 
 .. _tox: http://tox.readthedocs.org/en/latest/
 
-.. |build-status-image| image:: https://secure.travis-ci.com/izimobil/django-rest-framework-datatables.svg?branch=master
+.. |build-status-image| image:: https://api.travis-ci.com/izimobil/django-rest-framework-datatables.svg?branch=master
    :target: http://travis-ci.com/izimobil/django-rest-framework-datatables?branch=master
    :alt: Travis build
 
