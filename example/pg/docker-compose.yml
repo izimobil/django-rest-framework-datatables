@@ -1,0 +1,23 @@
+version: '3.3'
+services:
+  db:
+    container_name: drfdt_pgdb
+    environment:
+      DRFDT_TEST_TYPE: 'postgres'
+      DB_HOST: 'db'
+      DB_PORT: '5432'
+      DB_NAME: 'pg'
+      DRFDT_POSTGRESQL_USER: ${DRFDT_POSTGRESQL_USER}
+      DRFDT_POSTGRESQL_PASSWORD: ${DRFDT_POSTGRESQL_PASSWORD}
+      POSTGRES_PASSWORD: ${DRFDT_POSTGRESQL_PASSWORD}
+    image: postgres:10
+    restart: "no"
+    ports:
+      - 5432:5432
+    volumes:
+      - ./docker/db/:/docker-entrypoint-initdb.d/
+      - local-db-data:/var/lib/postgresql/data
+
+volumes:
+  local-db-data:
+    driver: local
