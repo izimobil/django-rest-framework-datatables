@@ -145,3 +145,11 @@ class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
         return super(
             DatatablesLimitOffsetPagination, self
         ).paginate_queryset(queryset, request, view)
+
+
+class DatatablesOnlyPageNumberPagination(DatatablesPageNumberPagination):
+    def paginate_queryset(self, queryset, request, view=None):
+        if request.accepted_renderer.format != 'datatables':
+            return None
+        else:
+            return super().paginate_queryset(queryset, request, view)

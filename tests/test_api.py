@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 from rest_framework.settings import api_settings
 
 from rest_framework_datatables.pagination import (
-    DatatablesLimitOffsetPagination, DatatablesPageNumberPagination
+    DatatablesLimitOffsetPagination, DatatablesPageNumberPagination, DatatablesOnlyPageNumberPagination
 )
 from rest_framework.generics import ListAPIView
 
@@ -29,6 +29,10 @@ class DatatablesPageNumberPaginationCustomMax(DatatablesPageNumberPagination):
 
 class DatatablesLimitOffsetPaginationCustomMax(DatatablesLimitOffsetPagination):
     max_limit = 15
+
+
+class DatatablesOnlyPageNumberPaginationCustomMax(DatatablesOnlyPageNumberPagination):
+    max_page_size = 15
 
 
 class TestApiTestCase(TestCase):
@@ -343,6 +347,23 @@ class TestApiTestCase(TestCase):
         expected = (15, 15, 'The Beatles')
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    @override_settings(REST_FRAMEWORK={
+        'DEFAULT_PAGINATION_CLASS': __name__ + '.DatatablesOnlyPageNumberPaginationCustomMax',
+    })
+    def test_datatables_only_pagination_no_datatables(self):
+        AlbumViewSet.pagination_class = DatatablesOnlyPageNumberPaginationCustomMax
+        response = self.client.get('/api/albums/')
+        expected = (list, 15)
+        result = response.json()
+        self.assertEquals((type(result), len(result)), expected)
+
+    def test_datatables_only_pagination_with_datatables(self):
+        AlbumViewSet.pagination_class = DatatablesOnlyPageNumberPaginationCustomMax
+        response = self.client.get('/api/albums/?format=datatables&length=20&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        expected = (15, 15, 15, 'The Beatles')
+        result = response.json()
+        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], len(result['data']), result['data'][0]['artist_name']), expected)
 
 
 urlpatterns = [

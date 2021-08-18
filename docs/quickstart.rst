@@ -35,6 +35,7 @@ What have we done so far ?
 - we added the ``rest_framework_datatables.renderers.DatatablesRenderer`` to existings renderers
 - we added the ``rest_framework_datatables.filters.DatatablesFilterBackend`` to the filter backends
 - we replaced the pagination class by ``rest_framework_datatables.pagination.DatatablesPageNumberPagination``
+- we added the ``rest_framework_datatables.pagination.DatatablesOnlyPageNumberPagination`` to paginate queries only when datatables format requested
 
 .. note::
 
