@@ -80,13 +80,25 @@ WSGI_APPLICATION = 'example.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'TEST': {'NAME': os.path.join(BASE_DIR, 'test.sqlite3')},
+if os.environ.get('DRFDT_TEST_TYPE') == 'postgres':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'pg',
+            'USER': os.environ.get('DRFDT_POSTGRESQL_USER'),
+            'PASSWORD': os.environ.get('DRFDT_POSTGRESQL_PASSWORD'),
+            'HOST': 'localhost',
+            'PORT': 5432
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'TEST': {'NAME': os.path.join(BASE_DIR, 'test.sqlite3')},
+        }
+    }
 
 
 # Password validation
