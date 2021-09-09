@@ -31,7 +31,7 @@ import from the ``django_filters`` subpackage.
         pass
 
 
-    class AlbumGlobalFilter(GlobalFilter):
+    class AlbumGlobalFilter(DatatablesFilterSet):
         """Filter name, artist and genre by name with icontains"""
 
         name = GlobalCharFilter(lookup_expr='icontains')
