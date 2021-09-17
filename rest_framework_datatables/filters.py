@@ -189,9 +189,8 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
             filtered_count = filtered_count_before
         self.set_count_after(view, filtered_count)
 
-        ordering = self.get_ordering(request, view, datatables_query['fields'])
-        if ordering:
-            queryset = queryset.order_by(*ordering)
+        queryset = self.order_queryset(queryset, request, view,
+                                       datatables_query['fields'])
 
         return queryset
 
@@ -209,6 +208,12 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
                                     f.get('search_regex', False))
         q &= initial_q
         return q
+
+    def order_queryset(self, queryset, request, view, fields):
+        ordering = self.get_ordering(request, view, fields)
+        if ordering:
+            queryset = queryset.order_by(*ordering)
+        return queryset
 
     def get_ordering(self, request, view, fields):
         """called by parse_query_params to get the ordering

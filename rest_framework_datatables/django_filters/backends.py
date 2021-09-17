@@ -39,12 +39,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
 
         self.set_count_after(view, queryset.count())
 
-        # TODO Can we use OrderingFilter, maybe in DatatablesFilterSet, by
-        # default? See
-        # https://django-filter.readthedocs.io/en/master/ref/filters.html#ordering-filter
-        ordering = self.get_ordering(request, view, filterset)
-        if ordering:
-            queryset = queryset.order_by(*ordering)
+        queryset = self.order_queryset(queryset, request, view, filterset)
 
         return queryset
 
@@ -79,6 +74,15 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
                     and hasattr(f, 'global_q')):
                 global_q |= f.global_q()
         return global_q
+
+    def order_queryset(self, queryset, request, view, filterset):
+        # TODO Can we use OrderingFilter, maybe in DatatablesFilterSet, by
+        # default? See
+        # https://django-filter.readthedocs.io/en/master/ref/filters.html#ordering-filter
+        ordering = self.get_ordering(request, view, filterset)
+        if ordering:
+            queryset = queryset.order_by(*ordering)
+        return queryset
 
     def get_ordering(self, request, view, filterset):
         ret = []
