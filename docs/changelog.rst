@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 0.7.0 (2021-12-09):
+---------------------------
+
+- Django 4.0 compatibility
+- Added global search support to YADCFModelMultipleChoiceFilter
+- Various fixes on filters
+- Various fixes on pagination
+- Fixed / improved documentation and examples
+Many thanks to all the contributors on this release !
+
 Version 0.6.0 (2021-02-09):
 ---------------------------
 
