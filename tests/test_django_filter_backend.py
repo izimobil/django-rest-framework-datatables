@@ -80,7 +80,7 @@ class TestWithViewSet(TestDFBackendTestCase):
 class TestUnfiltered(TestWithViewSet):
 
     def setUp(self):
-        self.response = self.client.get('/api/albums/?format=datatables')
+        self.response = self.client.get('/api/albums/?format=datatables&length=-1')
         self.view = self.response.renderer_context.get('view')
 
 

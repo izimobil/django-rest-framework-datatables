@@ -375,6 +375,14 @@ If you need more complex filtering and ordering, you can always implement your o
 You can see this code live by running the :doc:`example app <example-app>`.
 
 
+Pagination
+----------
+
+If you want to disable pagination for a particular table, you can pass the value `-1` in the `length` parameter to do this, just set the `pageLength` DataTable option to `-1`.
+
+If you want to disable pagination completely just set `PAGE_SIZE` to `None` in your `REST_FRAMEWORK` settings dictionary and disable paging on your DataTable options (by setting `paging` to `false`).
+
+
 Using DataTables via POST method
 --------------------------------
 

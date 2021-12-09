@@ -138,10 +138,10 @@ class TestApiTestCase(TestCase):
     @override_settings(REST_FRAMEWORK={
         'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesLimitOffsetPagination',
     })
-    def test_limitoffset_pagination_no_length(self):
+    def test_limitoffset_pagination_disable_pagination(self):
         AlbumViewSet.pagination_class = DatatablesLimitOffsetPagination
         client = APIClient()
-        response = client.get('/api/albums/?format=datatables&start=10&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        response = client.get('/api/albums/?format=datatables&start=10&columns[0][data]=name&columns[1][data]=artist_name&length=-1&draw=1')
         expected = (15, 15, 'The Beatles')
         result = response.json()
         self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)

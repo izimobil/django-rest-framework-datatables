@@ -74,7 +74,7 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
         self.page_size_query_param = 'length'
         length = get_param(request, self.page_size_query_param)
 
-        if length is None or length == '-1':
+        if length == '-1':
             return None
         self.count, self.total_count = self.get_count_and_total_count(
             queryset, view
@@ -135,7 +135,7 @@ class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
             self.is_datatable_request = True
             self.limit_query_param = 'length'
             self.offset_query_param = 'start'
-            if get_param(request, self.limit_query_param) is None:
+            if get_param(request, self.limit_query_param) == '-1':
                 return None
             self.count, self.total_count = self.get_count_and_total_count(
                 queryset, view
