@@ -1,1 +1,2 @@
-djangorestframework>=3.8
+djangorestframework>=3.7
+pytz

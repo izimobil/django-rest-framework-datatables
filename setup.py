@@ -87,7 +87,8 @@ setup(
         'rest_framework_datatables.django_filters'
     ],
     install_requires=[
-        'djangorestframework>=3.5.0'
+        'djangorestframework>=3.7.0',
+        'pytz',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
