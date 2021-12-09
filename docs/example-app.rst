@@ -27,6 +27,8 @@ Initialise the database as follows:
 
 .. code:: bash
 
+  $ pip install psycopg2-binary
+
   $ export DRFDT_TEST_TYPE=postgres
   $ export DRFDT_POSTGRESQL_USER=pguser
   $ export DRFDT_POSTGRESQL_PASSWORD=pguserpass
