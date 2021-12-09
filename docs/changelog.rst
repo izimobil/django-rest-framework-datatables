@@ -9,6 +9,7 @@ Version 0.7.0 (2021-12-09):
 - Various fixes on filters
 - Various fixes on pagination
 - Fixed / improved documentation and examples
+
 Many thanks to all the contributors on this release !
 
 Version 0.6.0 (2021-02-09):
@@ -18,6 +19,7 @@ Version 0.6.0 (2021-02-09):
 - Example of using yadcf and django-filter to create a multi-select column
 - Fixed support for POST requests from datatables
 - Some fixes on pagination
+
 Many thanks to all the contributors on this release !
 
 Version 0.5.2 (2020-04-10):
