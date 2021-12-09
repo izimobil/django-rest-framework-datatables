@@ -1,6 +1,6 @@
 from django.test import TestCase, override_settings, modify_settings
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path
 
 from rest_framework.test import APIClient
 from rest_framework.settings import api_settings
@@ -367,5 +367,5 @@ class TestApiTestCase(TestCase):
 
 
 urlpatterns = [
-    url('^api/post/albums', AlbumPostListAPIView.as_view()),
+    path('api/post/albums/', AlbumPostListAPIView.as_view()),
 ]

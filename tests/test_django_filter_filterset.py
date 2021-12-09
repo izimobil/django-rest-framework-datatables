@@ -1,6 +1,6 @@
 from unittest import SkipTest
 
-from django.conf.urls import include, url
+from django.urls import include, path
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -67,7 +67,7 @@ router.register(r'albums', AlbumRegexViewSet)
 
 
 urlpatterns = [
-    url('^api/', include(router.urls)),
+    path('api/', include(router.urls)),
 ]
 
 

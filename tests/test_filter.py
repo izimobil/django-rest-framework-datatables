@@ -1,7 +1,7 @@
 from albums.models import Album
 from albums.serializers import AlbumSerializer
 
-from django.conf.urls import url
+from django.urls import path
 from django.test.utils import override_settings, modify_settings
 from django.test import TestCase
 
@@ -95,7 +95,7 @@ class TestFilterTestCase(TestCase):
         self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
 
 urlpatterns = [
-    url('^api/additionalorderby', TestFilterTestCase.TestAPIView.as_view()),
-    url('^api/multiplefilterbackends', TestFilterTestCase.TestAPIView2.as_view()),
-    url('^api/filter/albums', TestFilterTestCase.TestAPIView3.as_view()),
+    path('api/additionalorderby/', TestFilterTestCase.TestAPIView.as_view()),
+    path('api/multiplefilterbackends/', TestFilterTestCase.TestAPIView2.as_view()),
+    path('api/filter/albums/', TestFilterTestCase.TestAPIView3.as_view()),
 ]
