@@ -6,7 +6,7 @@
 ``iregex`` queries on all columns, which may be costly. More
 fine-grained control on the generated database queries can be achieved
 with `Django-filter
-<https://django-filter.readthedocs.io/en/master/index.html>`_.
+<https://django-filter.readthedocs.io/en/main/>`_.
 
 Integration with Django-filter is provided through
 Datatables-specific ``DatatablesFilterSet`` and
