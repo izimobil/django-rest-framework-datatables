@@ -220,6 +220,38 @@ class TestOrder(TestWithViewSet):
                          'The Velvet Underground')
 
 
+class TestDisableCount(TestWithViewSet):
+    @override_settings(REST_FRAMEWORK_DATATABLES={"DISABLE_COUNT": False})
+    def test_disable_count_is_False(self):
+        self.response = self.client.get(
+            '/api/albumsi/?format=datatables&length=10'
+            '&columns[0][data]=name'
+            '&columns[0][searchable]=true'
+            '&columns[0][search][value]=on'
+            '&columns[1][data]=genres'
+            '&columns[1][searchable]=true'
+            '&columns[1][search][value]=blues')
+        self.json = self.response.json()
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.json['recordsTotal'], 15)
+        self.assertEqual(self.json['recordsFiltered'], 2)
+
+    @override_settings(REST_FRAMEWORK_DATATABLES={"DISABLE_COUNT": True})
+    def test_disable_count_is_True(self):
+        self.response = self.client.get(
+            '/api/albumsi/?format=datatables&length=10'
+            '&columns[0][data]=name'
+            '&columns[0][searchable]=true'
+            '&columns[0][search][value]=on'
+            '&columns[1][data]=genres'
+            '&columns[1][searchable]=true'
+            '&columns[1][search][value]=blues')
+        self.json = self.response.json()
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.json['recordsTotal'], 2)
+        self.assertEqual(self.json['recordsFiltered'], 2)
+
+
 class GlobalCharFilter(GlobalFilter, filters.CharFilter):
     pass
 

@@ -15,8 +15,8 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
 
     def __init__(self):
         super().__init__()
-        rest_framework_datatables_settings = settings.get["REST_FRAMEWORK_DATATABLES"]
-        self.disable_count = rest_framework_datatables_settings.get("disable_count", False)
+        rest_framework_datatables_settings = getattr(settings, "REST_FRAMEWORK_DATATABLES", dict())
+        self.disable_count = rest_framework_datatables_settings.get("DISABLE_COUNT", False)
 
     def filter_queryset(self, request, queryset, view):
         """Filter DataTables queries with a filterset
