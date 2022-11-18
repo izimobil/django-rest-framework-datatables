@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db.models import Q
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from django_filters import utils
@@ -12,6 +13,11 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
 
     filterset_base = DatatablesFilterSet
 
+    def __init__(self):
+        super().__init__()
+        rest_framework_datatables_settings = settings.get["REST_FRAMEWORK_DATATABLES"]
+        self.disable_count = rest_framework_datatables_settings.get("disable_count", False)
+
     def filter_queryset(self, request, queryset, view):
         """Filter DataTables queries with a filterset
 
@@ -22,12 +28,14 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if not self.check_renderer_format(request):
             return queryset
 
-        self.set_count_before(view, view.get_queryset().count())
+        if not self.disable_count:
+            self.set_count_before(view, view.get_queryset().count())
 
         # parsed datatables_query will be an attribute of the filterset
         filterset = self.get_filterset(request, queryset, view)
         if filterset is None:
-            self.set_count_after(view, queryset.count())
+            if not self.disable_count:
+                self.set_count_after(view, queryset.count())
             return queryset
 
         if not filterset.is_valid() and self.raise_exception:
@@ -37,7 +45,8 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if global_q:
             queryset = queryset.filter(global_q).distinct()
 
-        self.set_count_after(view, queryset.count())
+        if not self.disable_count:
+            self.set_count_after(view, queryset.count())
 
         # TODO Can we use OrderingFilter, maybe in DatatablesFilterSet, by
         # default? See
