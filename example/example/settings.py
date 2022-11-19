@@ -42,7 +42,6 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework_datatables',
-    'django_extensions',
 
     'albums',
 ]

@@ -1,5 +1,6 @@
 """
 Generate random album data for load testing.
+Add 'django_extensions' to INSTALLED_APPS, then run with:
 
 ./manage.py runscript create_albums
 """
@@ -11,7 +12,9 @@ from django.utils.crypto import get_random_string
 
 from albums import models
 
+# Modify this value to increase the number of albums created per artist
 ALBUMS_PER_ARTIST = 1
+
 
 def run(*args):
     start = timezone.now()
@@ -23,8 +26,8 @@ def run(*args):
             album = models.Album(
                 name=get_random_string(length=16, allowed_chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ '),
                 artist=artist,
-                rank=random.randint(1, 9),
-                year=2021
+                rank=random.randint(1, 99),
+                year=random.randint(1950, 2023),
             )
             albums.append(album)
             if count % 10000 == 0:
