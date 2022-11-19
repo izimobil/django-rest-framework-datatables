@@ -1,5 +1,5 @@
 """
-Generate random album data for load testing:
+Generate random album data for load testing.
 
 ./manage.py runscript create_albums
 """
