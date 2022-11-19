@@ -221,7 +221,7 @@ class TestOrder(TestWithViewSet):
 
 
 class TestDisableCount(TestWithViewSet):
-    @override_settings(REST_FRAMEWORK_DATATABLES={"DISABLE_COUNT": False})
+    @override_settings(REST_FRAMEWORK_DATATABLES={"DISABLE_TOTAL_COUNT": False})
     def test_disable_count_is_False(self):
         self.response = self.client.get(
             '/api/albumsi/?format=datatables&length=10'
@@ -236,7 +236,7 @@ class TestDisableCount(TestWithViewSet):
         self.assertEqual(self.json['recordsTotal'], 15)
         self.assertEqual(self.json['recordsFiltered'], 2)
 
-    @override_settings(REST_FRAMEWORK_DATATABLES={"DISABLE_COUNT": True})
+    @override_settings(REST_FRAMEWORK_DATATABLES={"DISABLE_TOTAL_COUNT": True})
     def test_disable_count_is_True(self):
         self.response = self.client.get(
             '/api/albumsi/?format=datatables&length=10'

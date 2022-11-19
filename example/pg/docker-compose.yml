@@ -10,7 +10,7 @@ services:
       DRFDT_POSTGRESQL_USER: ${DRFDT_POSTGRESQL_USER}
       DRFDT_POSTGRESQL_PASSWORD: ${DRFDT_POSTGRESQL_PASSWORD}
       POSTGRES_PASSWORD: ${DRFDT_POSTGRESQL_PASSWORD}
-    image: postgres:10
+    image: postgres:11
     restart: "no"
     ports:
       - 5432:5432

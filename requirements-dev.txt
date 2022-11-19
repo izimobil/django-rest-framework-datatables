@@ -4,3 +4,5 @@ djangorestframework>=3.7
 pycodestyle>=2.3
 django-filter>=2.4.0
 pytz
+django-extensions
+psycopg2-binary

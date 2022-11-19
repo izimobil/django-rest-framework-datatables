@@ -16,7 +16,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
     def __init__(self):
         super().__init__()
         settings_ = getattr(settings, "REST_FRAMEWORK_DATATABLES", dict())
-        self.disable_count = settings_.get("DISABLE_COUNT", False)
+        self.disable_total_count = settings_.get("DISABLE_TOTAL_COUNT", False)
 
     def filter_queryset(self, request, queryset, view):
         """Filter DataTables queries with a filterset
@@ -28,14 +28,13 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if not self.check_renderer_format(request):
             return queryset
 
-        if not self.disable_count:
+        if not self.disable_total_count:
             self.set_count_before(view, view.get_queryset().count())
 
         # parsed datatables_query will be an attribute of the filterset
         filterset = self.get_filterset(request, queryset, view)
         if filterset is None:
-            if not self.disable_count:
-                self.set_count_after(view, queryset.count())
+            self.set_count_after(view, queryset.count())
             return queryset
 
         if not filterset.is_valid() and self.raise_exception:
@@ -45,8 +44,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if global_q:
             queryset = queryset.filter(global_q).distinct()
 
-        if not self.disable_count:
-            self.set_count_after(view, queryset.count())
+        self.set_count_after(view, queryset.count())
 
         # TODO Can we use OrderingFilter, maybe in DatatablesFilterSet, by
         # default? See
