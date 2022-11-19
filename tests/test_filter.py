@@ -2,7 +2,7 @@ from albums.models import Album
 from albums.serializers import AlbumSerializer
 
 from django.urls import path
-from django.test.utils import override_settings, modify_settings
+from django.test.utils import override_settings
 from django.test import TestCase
 
 from rest_framework.generics import ListAPIView
@@ -56,21 +56,21 @@ class TestFilterTestCase(TestCase):
         # Would be "Sgt. Pepper's Lonely Hearts Club Band" without the additional order by
         expected = (15, 15, 'Rubber Soul')
         result = response.json()
-        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)
+        self.assertEqual((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)
 
     @override_settings(ROOT_URLCONF=__name__)
     def test_multiple_filters_backend1(self):
         response = self.client.get('/api/multiplefilterbackends/?format=datatables&columns[0][data]=name&columns[0][searchable]=true&columns[1][data]=artist__name&columns[1][searchable]=true&search[value]=are+you+exp')
         expected = (1, 15, 'Are You Experienced')
         result = response.json()
-        self.assertEquals((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)
+        self.assertEqual((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['name']), expected)
 
     @override_settings(ROOT_URLCONF=__name__)
     def test_multiple_filters_backend2(self):
         response = self.client.get('/api/multiplefilterbackends/?format=datatables&columns[0][data]=name&columns[0][searchable]=true&columns[1][data]=artist__name&columns[1][searchable]=true&search[value]=white')
         expected = (0, 15)
         result = response.json()
-        self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
+        self.assertEqual((result['recordsFiltered'], result['recordsTotal']), expected)
 
     @override_settings(ROOT_URLCONF=__name__)
     def test_search_over_filters_backend1(self):
@@ -84,7 +84,7 @@ class TestFilterTestCase(TestCase):
         expected = (1, 15)
 
         result = response.json()
-        self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
+        self.assertEqual((result['recordsFiltered'], result['recordsTotal']), expected)
 
     @override_settings(ROOT_URLCONF=__name__)
     def test_search_over_filters_backend2(self):
@@ -92,7 +92,7 @@ class TestFilterTestCase(TestCase):
         expected = (1, 15)
 
         result = response.json()
-        self.assertEquals((result['recordsFiltered'], result['recordsTotal']), expected)
+        self.assertEqual((result['recordsFiltered'], result['recordsTotal']), expected)
 
 urlpatterns = [
     path('api/additionalorderby/', TestFilterTestCase.TestAPIView.as_view()),
