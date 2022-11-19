@@ -1,5 +1,5 @@
 coverage==6.5.0
-Django>=4.1
+Django>=3.2
 djangorestframework>=3.14
 pycodestyle>=2.3
 django-filter>=22.1
