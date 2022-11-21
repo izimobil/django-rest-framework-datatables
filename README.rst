@@ -191,7 +191,7 @@ To build the documentation:
 .. code:: bash
 
     $ cd docs
-    $ make clean && make build
+    $ make clean && make html
 
 
 .. _tox: http://tox.readthedocs.org/en/latest/
