@@ -20,15 +20,11 @@ You can play with a demo of the example app on `Python Anywhere <https://izimobi
 Requirements
 ------------
 
-- Python (3.7, 3.8, 3.9)
-- Django (2.0, 2.1, 2.2, 3.0, 3.1, 3.2, 4.0)
-- Django REST Framework (3.7, 3.8, 3.9, 3.10, 3.11, 3.12)
+- Python (3.7, 3.8, 3.9, 3.10)
+- Django (3.2, 4.0, 4.1)
+- Django REST Framework (3.14)
 
-Please note:
-
-- Django 3.X branch is only supported with Django REST Framework 3.11 or superior and DRF-datatables version 0.5.1 or superior.
-- Django 4.X branch is only supported with Django REST Framework 3.12 or superior and DRF-datatables version 0.7.0 or superior.
-
+We highly recommend and only officially support the latest patch release of each Python, Django and Django Rest Framework series.
 
 Quickstart
 ----------
