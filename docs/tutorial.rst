@@ -402,3 +402,44 @@ As a workaround for this problem we add a second column to sort by in the case o
         queryset = Album.objects.all().order_by('year')
         serializer_class = AlbumSerializer
         datatables_additional_order_by = 'rank'
+        
+      
+ 
+
+Creating Links in the Table 
+------------------------------
+If you want to create a link (or add any other HTML) to the contents of a cell, you can specify this in the serializer. For example, if you wanted to change every album name to appear as "Search google for <album name>" and have it link to a google search for that album, you would modify the album serializer like so:
+
+
+albums/serializers.py:
+
+.. code:: python
+    
+    ...
+    from django.utils.html import format_html
+    ...
+
+    
+    class AlbumSerializer(serializers.ModelSerializer):
+        artist_name = serializers.ReadOnlyField(source='artist.name')
+        # DRF-Datatables can deal with nested serializers as well.
+        artist = ArtistSerializer()
+        genres = serializers.SerializerMethodField()
+        name =  serializers.SerializerMethodField()
+
+        def get_genres(self, album):
+            return ', '.join([str(genre) for genre in album.genres.all()])
+
+        def get_name(self, album):
+            google_search_url = "https://www.google.com/search?q=" + album.name
+            return format_html("<a href={}> <b> {} </b><a>", google_search_url, "Sarch google for " + album.name)
+
+        class Meta:
+            model = Album
+            fields = (
+                'rank', 'name',
+                'year', 'artist_name', 'genres', 'artist',
+            )
+
+
+To use a url in your urls.py that needs parameters, use [Django's built in Reverse function](https://docs.djangoproject.com/en/4.0/ref/urlresolvers/).
