@@ -15,7 +15,7 @@ class DatatablesRendererTestCase(TestCase):
     def test_render_no_data(self):
         renderer = DatatablesRenderer()
         content = renderer.render(None)
-        self.assertEquals(content, bytes())
+        self.assertEqual(content, bytes())
 
     def test_render_no_pagination1(self):
         obj = [{'foo': 'bar'}]
@@ -31,7 +31,7 @@ class DatatablesRendererTestCase(TestCase):
             'data': [{'foo': 'bar'}],
             'draw': 1
         }
-        self.assertEquals(json.loads(content.decode('utf-8')), expected)
+        self.assertEqual(json.loads(content.decode('utf-8')), expected)
 
     def test_render_no_pagination1_1(self):
         obj = [{'foo': 'bar'}]
@@ -47,7 +47,7 @@ class DatatablesRendererTestCase(TestCase):
             'data': [{'foo': 'bar'}],
             'draw': 1
         }
-        self.assertEquals(json.loads(content.decode('utf-8')), expected)
+        self.assertEqual(json.loads(content.decode('utf-8')), expected)
 
     def test_render_no_pagination2(self):
         obj = {'results': [{'foo': 'bar'}, {'spam': 'eggs'}]}
@@ -63,7 +63,7 @@ class DatatablesRendererTestCase(TestCase):
             'data': [{'foo': 'bar'}, {'spam': 'eggs'}],
             'draw': 1
         }
-        self.assertEquals(json.loads(content.decode('utf-8')), expected)
+        self.assertEqual(json.loads(content.decode('utf-8')), expected)
 
     def test_render_no_pagination3(self):
         obj = {'results': [{'foo': 'bar'}, {'spam': 'eggs'}]}
@@ -81,7 +81,7 @@ class DatatablesRendererTestCase(TestCase):
             'data': [{'foo': 'bar'}, {'spam': 'eggs'}],
             'draw': 1
         }
-        self.assertEquals(json.loads(content.decode('utf-8')), expected)
+        self.assertEqual(json.loads(content.decode('utf-8')), expected)
 
     def test_render(self):
         obj = {'recordsTotal': 4, 'recordsFiltered': 2, 'data': [{'foo': 'bar'}, {'spam': 'eggs'}]}
@@ -97,7 +97,7 @@ class DatatablesRendererTestCase(TestCase):
             'data': [{'foo': 'bar'}, {'spam': 'eggs'}],
             'draw': 2
         }
-        self.assertEquals(json.loads(content.decode('utf-8')), expected)
+        self.assertEqual(json.loads(content.decode('utf-8')), expected)
 
     def test_render_extra_json(self):
         class TestAPIView(APIView):
@@ -120,7 +120,7 @@ class DatatablesRendererTestCase(TestCase):
             'key': 'value',
             'draw': 2
         }
-        self.assertEquals(json.loads(content.decode('utf-8')), expected)
+        self.assertEqual(json.loads(content.decode('utf-8')), expected)
 
     def test_render_extra_json_attr_missing(self):
         class TestAPIView(APIView):

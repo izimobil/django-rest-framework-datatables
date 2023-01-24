@@ -1,2 +1,2 @@
-djangorestframework>=3.7
+djangorestframework>=3.14
 pytz
