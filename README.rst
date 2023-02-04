@@ -137,22 +137,26 @@ Example project
 
 To play with the example project, just clone the repository and run the dev server.
 
+`Install poetry <https://python-poetry.org/docs/#installation>`_ if not already installed.
+
 .. code:: bash
 
     $ git clone https://github.com/izimobil/django-rest-framework-datatables.git
     $ cd django-rest-framework-datatables
-    $ pip install -r requirements-dev.txt
+    $ poetry install --with dev
     $ python example/manage.py runserver
     $ firefox http://127.0.0.1:8000
 
 Testing
 -------
 
+`Install poetry <https://python-poetry.org/docs/#installation>`_ if not already installed.
+
 Install development requirements.
 
 .. code:: bash
 
-    $ pip install -r requirements-dev.txt
+    $ poetry install --with dev
 
 Run the tests.
 
@@ -184,7 +188,7 @@ To build the documentation, you’ll need to install ``sphinx``.
 
 .. code:: bash
 
-    $ pip install -r requirements-docs.txt
+    $ poetry install --with docs
 
 To build the documentation:
 
@@ -193,6 +197,15 @@ To build the documentation:
     $ cd docs
     $ make clean && make html
 
+Publish to PyPI
+---------------
+
+`Build <https://python-poetry.org/docs/cli/#build>`_ package and `Publish <https://python-poetry.org/docs/cli/#publish>`_ to PyPI with two commands.
+
+.. code:: bash
+
+    $ poetry build
+    $ poetry publish
 
 .. _tox: http://tox.readthedocs.org/en/latest/
 
