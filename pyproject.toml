@@ -1,0 +1,62 @@
+[tool.poetry]
+name = "djangorestframework-datatables"
+version = "0.7.1"
+description = "Seamless integration between Django REST framework and Datatables (https://datatables.net)"
+authors = ["David Jean Louis <izimobil@gmail.com>"]
+license = "MIT"
+readme = ["README.rst", "docs/changelog.rst"]
+packages = [
+    { include = "rest_framework_datatables" },
+    { include = "rest_framework_datatables/django_filters" },    
+]
+homepage = "https://github.com/izimobil/django-rest-framework-datatables"
+repository = "https://github.com/izimobil/django-rest-framework-datatables"
+keywords = ["django",]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Internet :: WWW/HTTP",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.7"
+djangorestframework = ">=3.14.0"
+pytz = ">=2019.1"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+coverage = "==6.5.0"
+Django = ">=3.2"
+pycodestyle = ">=2.9.1"
+django-filter = ">=22.1"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+Sphinx = "==5.3.0"
+sphinx-rtd-theme = "==1.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+

@@ -203,7 +203,7 @@ In the above example, the fields 'id' and 'rank' will always be serialized in th
 
     Alternatively, if you wish to choose which fields to preserve at runtime rather than hardcoding them into your serializer models, use the ``?keep=`` param along with the fields you wish to maintain (comma separated). For example, if you wished to preserve ``id`` and ``rank`` as before, you would simply use the following API call:
 
-    .. code:: html
+    .. code::
 
         data-ajax="/api/albums/?format=datatables&keep=id,rank"
 
