@@ -1,4 +1,4 @@
-coverage==6.5.0
+coverage==7.2.7
 Django>=3.2
 djangorestframework>=3.14
 pycodestyle>=2.9.1

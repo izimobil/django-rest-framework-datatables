@@ -20,8 +20,8 @@ You can play with a demo of the example app on `Python Anywhere <https://izimobi
 Requirements
 ------------
 
-- Python (3.7, 3.8, 3.9, 3.10)
-- Django (3.2, 4.0, 4.1)
+- Python (3.8, 3.9, 3.10, 3.11)
+- Django (3.2, 4.1, 4.2)
 - Django REST Framework (3.14)
 
 We highly recommend and only officially support the latest patch release of each Python, Django and Django Rest Framework series.
