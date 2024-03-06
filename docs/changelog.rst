@@ -1,10 +1,14 @@
 Changelog
 =========
 
-Unreleased
+Version 0.7.1 (2024-03-06):
 ---------------------------
 
 - Django 4.2 support
+- Dependencies versions updates
+- Fixed deprecation warnings on tests
+
+Many thanks to all the contributors on this release !
 
 Version 0.7.0 (2021-12-09):
 ---------------------------
