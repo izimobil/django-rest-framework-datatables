@@ -20,7 +20,7 @@ You can play with a demo of the example app on `Python Anywhere <https://izimobi
 Requirements
 ------------
 
-- Python (3.8, 3.9, 3.10, 3.11)
+- Python (3.8, 3.9, 3.10, 3.11, 3.12)
 - Django (3.2, 4.1, 4.2)
 - Django REST Framework (3.14)
 
@@ -197,7 +197,7 @@ To build the documentation:
 .. _tox: http://tox.readthedocs.org/en/latest/
 
 .. |build-status-image| image:: https://api.travis-ci.com/izimobil/django-rest-framework-datatables.svg?branch=master
-   :target: http://travis-ci.com/izimobil/django-rest-framework-datatables?branch=master
+   :target: https://app.travis-ci.com/github/izimobil/django-rest-framework-datatables
    :alt: Travis build
 
 .. |codecov-image| image:: https://codecov.io/gh/izimobil/django-rest-framework-datatables/branch/master/graph/badge.svg
