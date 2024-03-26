@@ -89,7 +89,6 @@ setup(
     ],
     install_requires=[
         'djangorestframework>=3.14.0',
-        'pytz',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
