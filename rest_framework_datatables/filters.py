@@ -170,12 +170,12 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         if not self.check_renderer_format(request):
             return queryset
 
-        total_count = view.get_queryset().count()
+        total_count = len(view.get_queryset())
         self.set_count_before(view, total_count)
 
         if len(getattr(view, 'filter_backends', [])) > 1:
             # case of a view with more than 1 filter backend
-            filtered_count_before = queryset.count()
+            filtered_count_before = len(queryset)
         else:
             filtered_count_before = total_count
 
@@ -184,7 +184,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         q = self.get_q(datatables_query)
         if q:
             queryset = queryset.filter(q).distinct()
-            filtered_count = queryset.count()
+            filtered_count = len(queryset)
         else:
             filtered_count = filtered_count_before
         self.set_count_after(view, filtered_count)
