@@ -22,12 +22,14 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if not self.check_renderer_format(request):
             return queryset
 
-        self.set_count_before(view, view.get_queryset().count())
+        count = self.get_queryset_count_before(view.get_queryset())
+        self.set_count_before(view, count)
 
         # parsed datatables_query will be an attribute of the filterset
         filterset = self.get_filterset(request, queryset, view)
         if filterset is None:
-            self.set_count_after(view, queryset.count())
+            count = self.get_queryset_count_after(queryset)
+            self.set_count_after(view, count)
             return queryset
 
         if not filterset.is_valid() and self.raise_exception:
@@ -37,7 +39,8 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if global_q:
             queryset = queryset.filter(global_q).distinct()
 
-        self.set_count_after(view, queryset.count())
+        count = self.get_queryset_count_after(queryset)
+        self.set_count_after(view, count)
 
         # TODO Can we use OrderingFilter, maybe in DatatablesFilterSet, by
         # default? See
@@ -94,3 +97,18 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
                            + lookup)
         self.append_additional_ordering(ret, view)
         return ret
+
+    def get_queryset_count_before(self, queryset):
+        """
+        Provide an overrideable method to return a custom count.
+        This can be useful for very large tables, as calls to model.count()
+        can be very expensive.
+        """
+        return queryset.count()
+
+    def get_queryset_count_after(self, queryset):
+        """
+        See
+        :meth:`~rest_framework_datatables.django_filters.backends.DatatablesFilterBackend.get_queryset_count_before`.
+        """
+        return queryset.count()
