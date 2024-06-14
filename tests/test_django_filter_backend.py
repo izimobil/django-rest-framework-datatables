@@ -25,6 +25,18 @@ except ImportError:
 factory = APIRequestFactory()
 
 
+class CustomDatatablesFilterBackend(DatatablesFilterBackend):
+    """
+    Override before and after counts to demonstrate performance fix.
+    """
+
+    def get_queryset_count_before(self, queryset):
+        return 999
+
+    def get_queryset_count_after(self, queryset):
+        return 99
+
+
 class TestDFBackendTestCase(TestCase):
 
     fixtures = ['test_data']
@@ -70,11 +82,20 @@ class AlbumFilterViewSet(viewsets.ModelViewSet):
     filterset_fields = '__all__'
 
 
+class CustomBackendAlbumFilterViewSet(viewsets.ModelViewSet):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+    filter_backends = [CustomDatatablesFilterBackend]
+    filterset_fields = '__all__'
+
+
 @override_settings(ROOT_URLCONF=__name__)
 class TestWithViewSet(TestDFBackendTestCase):
 
     def setUp(self):
         self.client = APIClient()
+
+
 
 
 class TestUnfiltered(TestWithViewSet):
@@ -121,6 +142,26 @@ class TestFiltered(TestWithViewSet):
 
     def test_count_after(self):
         self.assertEqual(self.json['recordsFiltered'], 1)
+
+
+class TestCustomFiltered(TestWithViewSet):
+    fixtures = ['test_data']
+    backend = CustomDatatablesFilterBackend()
+
+
+    def setUp(self):
+        self.response = self.client.get(
+            '/api/albumsc/?format=datatables&length=10'
+            '&columns[0][data]=year'
+            '&columns[0][searchable]=true'
+            '&columns[0][search][value]=1971')
+        self.json = self.response.json()
+
+    def test_count_before(self):
+        self.assertEqual(self.json['recordsTotal'], 999)
+
+    def test_count_after(self):
+        self.assertEqual(self.json['recordsFiltered'], 99)
 
 
 class TestInvalid(TestWithViewSet):
@@ -331,9 +372,10 @@ class TestGlobal(TestWithViewSet):
 
 
 router = routers.DefaultRouter()
-router.register(r'albums', AlbumFilterViewSet)
-router.register(r'albumsi', AlbumIcontainsViewSet)
-router.register(r'albumsg', AlbumGlobalViewSet)
+router.register(r'albums', AlbumFilterViewSet, basename="albums")
+router.register(r'albumsc', CustomBackendAlbumFilterViewSet, basename="albumsc")
+router.register(r'albumsi', AlbumIcontainsViewSet, basename="albumsi")
+router.register(r'albumsg', AlbumGlobalViewSet, basename="albumsg")
 
 
 urlpatterns = [
