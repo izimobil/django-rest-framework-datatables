@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.7.2 (2024-06-14):
+---------------------------
+
+- Django 5.0 and 5.1 support
+- Allow overriding queryset.count() with two additional methods
+
+Many thanks to all the contributors on this release !
+
 Version 0.7.1 (2024-03-06):
 ---------------------------
 
