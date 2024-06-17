@@ -30,10 +30,10 @@ class CustomDatatablesFilterBackend(DatatablesFilterBackend):
     Override before and after counts to demonstrate performance fix.
     """
 
-    def get_queryset_count_before(self, queryset):
+    def get_queryset_count_before(self, request, queryset, view):
         return 999
 
-    def get_queryset_count_after(self, queryset):
+    def get_queryset_count_after(self, request, queryset, view):
         return 99
 
 
