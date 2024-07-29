@@ -29,11 +29,7 @@ class DatatablesMixin(object):
         ]))
 
     def get_count_and_total_count(self, queryset, view):
-        if hasattr(view, '_datatables_filtered_count'):
-            count = view._datatables_filtered_count
-            del view._datatables_filtered_count
-        else:  # pragma: no cover
-            count = queryset.count()
+        count = queryset.count()
         if hasattr(view, '_datatables_total_count'):
             total_count = view._datatables_total_count
             del view._datatables_total_count
