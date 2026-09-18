@@ -1,4 +1,6 @@
+from django.db import connection
 from django.test import TestCase, override_settings, modify_settings
+from django.test.utils import CaptureQueriesContext
 from django.conf import settings
 from django.urls import path
 
@@ -134,6 +136,17 @@ class TestApiTestCase(TestCase):
         expected = (15, 15, 'Elvis Presley')
         result = response.json()
         self.assertEqual((result['recordsFiltered'], result['recordsTotal'], result['data'][0]['artist_name']), expected)
+
+    @override_settings(REST_FRAMEWORK={
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesLimitOffsetPagination',
+    })
+    def test_limitoffset_pagination_counts_once(self):
+        AlbumViewSet.pagination_class = DatatablesLimitOffsetPagination
+        client = APIClient()
+        with CaptureQueriesContext(connection) as queries:
+            client.get('/api/albums/?format=datatables&length=10&start=0&columns[0][data]=name&columns[1][data]=artist_name&draw=1')
+        counts = [q for q in queries.captured_queries if 'COUNT' in q['sql'].upper()]
+        self.assertEqual(len(counts), 1)
 
     @override_settings(REST_FRAMEWORK={
         'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesLimitOffsetPagination',

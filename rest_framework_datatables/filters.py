@@ -31,6 +31,30 @@ def f_search_q(f, search_value, search_regex=False):
     return reduce(operator.or_, qs, Q())
 
 
+def count_rows(queryset):
+    """helper function that counts the rows a queryset would return
+
+    Counting a distinct queryset makes the database dedupe every
+    selected column, joined ones included; deduping the primary key
+    alone gives the same number for much less work. Querysets using
+    DISTINCT ON, selecting only some columns with values() or
+    values_list(), or selecting more with annotations or extra(), are
+    counted as they were before, since those columns decide which rows
+    are distinct.
+
+    """
+    countable_by_pk = (
+        queryset.query.distinct
+        and not queryset.query.distinct_fields
+        and not queryset.query.values_select
+        and not queryset.query.annotations
+        and not queryset.query.extra
+    )
+    if countable_by_pk:
+        return queryset.order_by().values('pk').distinct().count()
+    return queryset.count()
+
+
 class DatatablesBaseFilterBackend(BaseFilterBackend):
     """Base class for definining your own DatatablesFilterBackend classes"""
 
@@ -120,6 +144,25 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
             i += 1
         return ret
 
+    def get_queryset_count_before(self, request, queryset, view):
+        """called by filter_queryset to count the unfiltered queryset
+
+        Provide an overrideable method to return a custom count.
+        This can be useful for very large tables, as calls to model.count()
+        can be very expensive.
+
+        """
+        return queryset.count()
+
+    def get_queryset_count_after(self, request, queryset, view):
+        """called by filter_queryset to count the filtered queryset
+
+        See
+        :meth:`~rest_framework_datatables.filters.DatatablesBaseFilterBackend.get_queryset_count_before`.
+
+        """
+        return count_rows(queryset)
+
     def set_count_before(self, view, total_count):
         # set the queryset count as an attribute of the view for later
         # TODO: find a better way than this hack
@@ -146,6 +189,22 @@ class DatatablesBaseFilterBackend(BaseFilterBackend):
                     ordering.append(additional)
 
 
+def uses_default_counts(backend_class):
+    """helper function that tells if a backend counts with the default hooks
+
+    The default hooks count the queryset, so their result can be reused
+    wherever the same queryset would be counted again. An overridden
+    hook may return a cached or estimated number instead, which only
+    its own caller should use.
+
+    """
+    return all(
+        getattr(backend_class, name)
+        is getattr(DatatablesBaseFilterBackend, name)
+        for name in ('get_queryset_count_before', 'get_queryset_count_after')
+    )
+
+
 class DatatablesFilterBackend(DatatablesBaseFilterBackend):
     """
     Filter that works with datatables params.
@@ -170,12 +229,18 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         if not self.check_renderer_format(request):
             return queryset
 
-        total_count = view.get_queryset().count()
+        total_count = self.get_queryset_count_before(
+            request, view.get_queryset(), view
+        )
         self.set_count_before(view, total_count)
 
-        if len(getattr(view, 'filter_backends', [])) > 1:
-            # case of a view with more than 1 filter backend
-            filtered_count_before = queryset.count()
+        if (len(getattr(view, 'filter_backends', [])) > 1
+                or not uses_default_counts(type(self))):
+            # case of a view with more than 1 filter backend, or of a
+            # count before filtering that may not be the queryset's count
+            filtered_count_before = self.get_queryset_count_after(
+                request, queryset, view
+            )
         else:
             filtered_count_before = total_count
 
@@ -184,7 +249,9 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
         q = self.get_q(datatables_query)
         if q:
             queryset = queryset.filter(q).distinct()
-            filtered_count = queryset.count()
+            filtered_count = self.get_queryset_count_after(
+                request, queryset, view
+            )
         else:
             filtered_count = filtered_count_before
         self.set_count_after(view, filtered_count)

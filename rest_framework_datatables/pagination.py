@@ -14,6 +14,7 @@ try:
 except ImportError:
     text_type = str
 
+from .filters import DatatablesBaseFilterBackend, uses_default_counts
 from .utils import get_param
 
 
@@ -108,6 +109,8 @@ class DatatablesPageNumberPagination(DatatablesMixin, PageNumberPagination):
 
 
 class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
+    use_filter_backend_count = False
+
     def get_limit(self, request):
         try:
             limit_value = int(get_param(request, self.limit_query_param))
@@ -130,6 +133,20 @@ class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
         except (ValueError, TypeError):
             return 0
 
+    def get_count(self, queryset):
+        """the filter backend already counted the filtered queryset
+
+        Without this, LimitOffsetPagination.paginate_queryset would
+        overwrite the count taken from the view with an identical query
+        of its own.
+
+        """
+        if self.is_datatable_request and self.reuse_count:
+            return self.count
+        return super(
+            DatatablesLimitOffsetPagination, self
+        ).get_count(queryset)
+
     def paginate_queryset(self, queryset, request, view=None):
         if request.accepted_renderer.format == 'datatables':
             self.is_datatable_request = True
@@ -140,11 +157,30 @@ class DatatablesLimitOffsetPagination(DatatablesMixin, LimitOffsetPagination):
             self.count, self.total_count = self.get_count_and_total_count(
                 queryset, view
             )
+            self.reuse_count = self.trusts_filter_backend_count(view)
         else:
             self.is_datatable_request = False
         return super(
             DatatablesLimitOffsetPagination, self
         ).paginate_queryset(queryset, request, view)
+
+    def trusts_filter_backend_count(self, view):
+        """called by paginate_queryset to know if the view's count is exact
+
+        A count from the default hooks is exact. An overridden hook may
+        return a cached or estimated number, and DRF returns an empty
+        page for any offset past the count, so an undercount would hide
+        rows. The paginator counts again then, unless
+        use_filter_backend_count opts in to trusting the override.
+
+        """
+        if self.use_filter_backend_count:
+            return True
+        return all(
+            uses_default_counts(backend)
+            for backend in getattr(view, 'filter_backends', [])
+            if issubclass(backend, DatatablesBaseFilterBackend)
+        )
 
 
 class DatatablesOnlyPageNumberPagination(DatatablesPageNumberPagination):

@@ -1,10 +1,14 @@
 from unittest import mock, SkipTest
 
+from django.db import connection
 from django.urls import include, path
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import CaptureQueriesContext, override_settings
 from rest_framework import routers, viewsets
+from rest_framework.filters import BaseFilterBackend
 from rest_framework.test import APIClient, APIRequestFactory
+from rest_framework_datatables.pagination import (
+    DatatablesLimitOffsetPagination)
 
 from albums.models import Album
 from albums.serializers import AlbumSerializer
@@ -23,6 +27,11 @@ except ImportError:
 
 
 factory = APIRequestFactory()
+
+
+class NameStartsWithAFilterBackend(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        return queryset.filter(name__istartswith='a')
 
 
 class CustomDatatablesFilterBackend(DatatablesFilterBackend):
@@ -89,6 +98,13 @@ class CustomBackendAlbumFilterViewSet(viewsets.ModelViewSet):
     filterset_fields = '__all__'
 
 
+class MultipleBackendsAlbumFilterViewSet(viewsets.ModelViewSet):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+    filter_backends = [NameStartsWithAFilterBackend, DatatablesFilterBackend]
+    filterset_fields = '__all__'
+
+
 @override_settings(ROOT_URLCONF=__name__)
 class TestWithViewSet(TestDFBackendTestCase):
 
@@ -125,6 +141,42 @@ class TestCount(TestUnfiltered):
 
     def test_count_after(self):
         self.assertEqual(self.view._datatables_filtered_count, 15)
+
+
+class TestUnfilteredCountQueries(TestUnfiltered):
+    """An unfiltered draw should not count the same queryset twice"""
+
+    def test_single_count_query(self):
+        with CaptureQueriesContext(connection) as queries:
+            self.client.get('/api/albums/?format=datatables&length=10')
+        counts = [
+            query for query in queries.captured_queries
+            if 'COUNT' in query['sql'].upper()
+        ]
+        self.assertEqual(len(counts), 1)
+
+
+class TestMultipleFilterBackends(TestWithViewSet):
+    """Another backend can filter, so the filtered count is still needed"""
+
+    def setUp(self):
+        self.response = self.client.get(
+            '/api/albumsm/?format=datatables&length=10')
+        self.json = self.response.json()
+
+    def test_count_before(self):
+        self.assertEqual(self.json['recordsTotal'], 15)
+
+    def test_count_after(self):
+        self.assertEqual(self.json['recordsFiltered'], 2)
+
+
+class TestNoFilterSetMultipleFilterBackends(TestMultipleFilterBackends):
+
+    def setUp(self):
+        with mock.patch.object(
+                MultipleBackendsAlbumFilterViewSet, 'filterset_fields', None):
+            super().setUp()
 
 
 class TestFiltered(TestWithViewSet):
@@ -164,6 +216,54 @@ class TestCustomFiltered(TestWithViewSet):
         self.assertEqual(self.json['recordsFiltered'], 99)
 
 
+class TestCustomUnfiltered(TestWithViewSet):
+    """An overridden count after filtering is used on every draw"""
+
+    def test_count_after(self):
+        response = self.client.get('/api/albumsc/?format=datatables&length=10')
+        self.assertEqual(response.json()['recordsFiltered'], 99)
+
+
+class FilterBackendCountPagination(DatatablesLimitOffsetPagination):
+    use_filter_backend_count = True
+
+
+class CustomBackendLimitOffsetViewSet(CustomBackendAlbumFilterViewSet):
+    pagination_class = DatatablesLimitOffsetPagination
+
+
+class CustomBackendTrustedCountViewSet(CustomBackendAlbumFilterViewSet):
+    pagination_class = FilterBackendCountPagination
+
+
+class TestCustomLimitOffset(TestWithViewSet):
+    """An overridden count does not decide which rows a page holds
+
+    Unless the paginator opts in, it counts the rows itself, so an
+    override that undercounts cannot empty a page that has rows.
+
+    """
+    query = (
+        '?format=datatables&length=10'
+        '&columns[0][data]=year'
+        '&columns[0][searchable]=true'
+        '&columns[0][search][value]=1971')
+
+    def test_count_after(self):
+        response = self.client.get('/api/albumsclo/' + self.query)
+        self.assertEqual(response.json()['recordsFiltered'], 1)
+
+    def test_opted_in_count_after(self):
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get('/api/albumsct/' + self.query)
+        counts = [
+            query for query in queries.captured_queries
+            if 'COUNT' in query['sql'].upper()
+        ]
+        self.assertEqual(response.json()['recordsFiltered'], 99)
+        self.assertEqual(counts, [])
+
+
 class TestInvalid(TestWithViewSet):
     """Test handling invalid data
 
@@ -200,6 +300,56 @@ class AlbumFilter(DatatablesFilterSet):
     class Meta:
         model = Album
         fields = '__all__'
+
+
+class RecentAlbumFilter(DatatablesFilterSet):
+    """Narrow every draw, whatever the request asks for"""
+
+    def filter_queryset(self, queryset):
+        return super().filter_queryset(queryset).filter(year__gte=1970)
+
+    class Meta:
+        model = Album
+        fields = '__all__'
+
+
+class RecentAlbumViewSet(AlbumFilterViewSet):
+    filterset_fields = None
+    filterset_class = RecentAlbumFilter
+
+
+class TestFilterSetNarrowsUnfiltered(TestWithViewSet):
+    """A FilterSet can narrow the queryset with no filter in the request"""
+
+    def test_count_after(self):
+        response = self.client.get('/api/albumsr/?format=datatables&length=10')
+        expected = Album.objects.filter(year__gte=1970).count()
+        self.assertLess(expected, Album.objects.count())
+        self.assertEqual(response.json()['recordsFiltered'], expected)
+
+
+class NoAlbumFilter(DatatablesFilterSet):
+    """Narrow every draw to nothing, which has no SQL to compare"""
+
+    def filter_queryset(self, queryset):
+        return queryset.none()
+
+    class Meta:
+        model = Album
+        fields = '__all__'
+
+
+class NoAlbumViewSet(AlbumFilterViewSet):
+    filterset_fields = None
+    filterset_class = NoAlbumFilter
+
+
+class TestFilterSetEmptiesUnfiltered(TestWithViewSet):
+    """A FilterSet that returns none() is counted, not compared"""
+
+    def test_count_after(self):
+        response = self.client.get('/api/albumsn/?format=datatables&length=10')
+        self.assertEqual(response.json()['recordsFiltered'], 0)
 
 
 class AlbumIcontainsViewSet(AlbumFilterViewSet):
@@ -374,7 +524,15 @@ class TestGlobal(TestWithViewSet):
 router = routers.DefaultRouter()
 router.register(r'albums', AlbumFilterViewSet, basename="albums")
 router.register(r'albumsc', CustomBackendAlbumFilterViewSet, basename="albumsc")
+router.register(
+    r'albumsclo', CustomBackendLimitOffsetViewSet, basename="albumsclo")
+router.register(
+    r'albumsct', CustomBackendTrustedCountViewSet, basename="albumsct")
+router.register(r'albumsr', RecentAlbumViewSet, basename="albumsr")
+router.register(r'albumsn', NoAlbumViewSet, basename="albumsn")
 router.register(r'albumsi', AlbumIcontainsViewSet, basename="albumsi")
+router.register(
+    r'albumsm', MultipleBackendsAlbumFilterViewSet, basename="albumsm")
 router.register(r'albumsg', AlbumGlobalViewSet, basename="albumsg")
 
 

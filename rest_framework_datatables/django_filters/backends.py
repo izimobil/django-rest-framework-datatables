@@ -1,3 +1,4 @@
+from django.core.exceptions import EmptyResultSet
 from django.db.models import Q
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from django_filters import utils
@@ -22,13 +23,15 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if not self.check_renderer_format(request):
             return queryset
 
-        count = self.get_queryset_count_before(request, view.get_queryset(), view)
+        counted = view.get_queryset()
+        count = self.get_queryset_count_before(request, counted, view)
         self.set_count_before(view, count)
 
         # parsed datatables_query will be an attribute of the filterset
         filterset = self.get_filterset(request, queryset, view)
         if filterset is None:
-            count = self.get_queryset_count_after(request, queryset, view)
+            if self.queryset_was_filtered(counted, queryset):
+                count = self.get_queryset_count_after(request, queryset, view)
             self.set_count_after(view, count)
             return queryset
 
@@ -39,9 +42,10 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if global_q:
             queryset = queryset.filter(global_q).distinct()
 
-        count = self.get_queryset_count_after(
-            request, queryset, view
-        )
+        if self.queryset_was_filtered(counted, queryset):
+            count = self.get_queryset_count_after(
+                request, queryset, view
+            )
         self.set_count_after(view, count)
 
         # TODO Can we use OrderingFilter, maybe in DatatablesFilterSet, by
@@ -52,6 +56,23 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
             queryset = queryset.order_by(*ordering)
 
         return queryset
+
+    def queryset_was_filtered(self, counted, queryset):
+        """called by filter_queryset to know if a filtered count is needed
+
+        The count taken before filtering is reused only when the default
+        hooks took it and the filtered queryset still runs the same SQL.
+        Whatever narrows the queryset changes its SQL: a column filter,
+        the global search, another filter backend, or the FilterSet
+        itself, even with nothing in the request.
+
+        """
+        if not filters.uses_default_counts(type(self)):
+            return True
+        try:
+            return str(queryset.query) != str(counted.query)
+        except EmptyResultSet:
+            return True
 
     def get_filterset_kwargs(self, request, queryset, view):
         query = self.parse_datatables_query(request, view)
@@ -99,18 +120,3 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
                            + lookup)
         self.append_additional_ordering(ret, view)
         return ret
-
-    def get_queryset_count_before(self, request, queryset, view):
-        """
-        Provide an overrideable method to return a custom count.
-        This can be useful for very large tables, as calls to model.count()
-        can be very expensive.
-        """
-        return queryset.count()
-
-    def get_queryset_count_after(self, request, queryset, view):
-        """
-        See
-        :meth:`~rest_framework_datatables.django_filters.backends.DatatablesFilterBackend.get_queryset_count_before`.
-        """
-        return queryset.count()
