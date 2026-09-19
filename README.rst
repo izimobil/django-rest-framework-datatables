@@ -20,11 +20,13 @@ You can play with a demo of the example app on `Python Anywhere <https://izimobi
 Requirements
 ------------
 
-- Python (3.8, 3.9, 3.10, 3.11, 3.12)
-- Django (3.2, 4.1, 4.2)
-- Django REST Framework (3.14)
+- Python (3.8, 3.9, 3.10, 3.11, 3.12, 3.13, 3.14)
+- Django (3.2, 4.1, 4.2, 5.0, 5.1, 5.2, 6.0, 6.1)
+- Django REST Framework (3.14 and later)
 
 We highly recommend and only officially support the latest patch release of each Python, Django and Django Rest Framework series.
+
+The test suite runs on every pull request and every push to master, against each Python version that each of those Django releases supports, with the newest Django REST Framework and django-filter releases that support that Django, and once more with the oldest supported releases of both on Django 3.2. A scheduled workflow also runs it against Django's ``main`` branch.
 
 Quickstart
 ----------
@@ -196,9 +198,9 @@ To build the documentation:
 
 .. _tox: http://tox.readthedocs.org/en/latest/
 
-.. |build-status-image| image:: https://api.travis-ci.com/izimobil/django-rest-framework-datatables.svg?branch=master
-   :target: https://app.travis-ci.com/github/izimobil/django-rest-framework-datatables
-   :alt: Travis build
+.. |build-status-image| image:: https://github.com/izimobil/django-rest-framework-datatables/actions/workflows/main.yml/badge.svg?branch=master
+   :target: https://github.com/izimobil/django-rest-framework-datatables/actions/workflows/main.yml
+   :alt: CI status
 
 .. |codecov-image| image:: https://codecov.io/gh/izimobil/django-rest-framework-datatables/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/izimobil/django-rest-framework-datatables

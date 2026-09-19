@@ -1,2 +1,5 @@
 [run]
 source=rest_framework_datatables
+
+[report]
+fail_under = 100

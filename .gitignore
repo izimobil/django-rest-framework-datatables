@@ -13,3 +13,5 @@ dist/
 MANIFEST
 docs/_build
 /.idea
+.coverage.*
+coverage.xml

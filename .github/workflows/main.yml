@@ -1,0 +1,178 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-suffix: ${{ github.job }}
+          cache-dependency-glob: |
+            tox.ini
+            setup.py
+            requirements*.txt
+
+      - name: Run pycodestyle
+        run: uvx --with tox-uv tox run -e lint
+
+  tests:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.8'
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-suffix: ${{ github.job }}-${{ matrix.python-version }}
+          cache-dependency-glob: |
+            tox.ini
+            setup.py
+            requirements*.txt
+
+      - name: Run tox targets for Python ${{ matrix.python-version }}
+        run: >
+          uvx --with tox-uv tox run-parallel --parallel-no-spinner
+          -f "py$(echo '${{ matrix.python-version }}' | tr -d .)"
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: .coverage.*
+          include-hidden-files: true
+          if-no-files-found: error
+
+  postgres:
+    name: PostgreSQL (${{ matrix.tox-env }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - tox-env: py313-django61-postgres
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: pg
+          POSTGRES_USER: pguser
+          POSTGRES_PASSWORD: pguserpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DRFDT_POSTGRESQL_USER: pguser
+      DRFDT_POSTGRESQL_PASSWORD: pguserpass
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-suffix: ${{ github.job }}-${{ matrix.tox-env }}
+          cache-dependency-glob: |
+            tox.ini
+            setup.py
+            requirements*.txt
+
+      - name: Run the test suite against PostgreSQL
+        run: uvx --with tox-uv tox run -e "${{ matrix.tox-env }}"
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-${{ matrix.tox-env }}
+          path: .coverage.*
+          include-hidden-files: true
+          if-no-files-found: error
+
+  coverage:
+    name: Coverage
+    needs: [tests, postgres]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-suffix: ${{ github.job }}
+          cache-dependency-glob: |
+            tox.ini
+            setup.py
+            requirements*.txt
+
+      - name: Download coverage data
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+
+      - name: Combine coverage
+        run: |
+          uvx coverage combine
+          uvx coverage xml --fail-under=0
+          echo '## Coverage' >> "$GITHUB_STEP_SUMMARY"
+          uvx coverage report --format=markdown --fail-under=0 >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        # Codecov being unavailable should not fail the build; the gate below does that.
+        continue-on-error: true
+        with:
+          files: coverage.xml
+          disable_search: true
+          use_oidc: true
+
+      - name: Fail if coverage is under 100%
+        run: uvx coverage report --show-missing

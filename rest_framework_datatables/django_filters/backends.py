@@ -22,7 +22,9 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         if not self.check_renderer_format(request):
             return queryset
 
-        count = self.get_queryset_count_before(request, view.get_queryset(), view)
+        count = self.get_queryset_count_before(
+            request, view.get_queryset(), view
+        )
         self.set_count_before(view, count)
 
         # parsed datatables_query will be an attribute of the filterset

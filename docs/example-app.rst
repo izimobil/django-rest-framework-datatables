@@ -23,6 +23,8 @@ Postgres
 
 You can use Postgres as the source database.  This example uses `Docker <https://docker.com/>`_ as a container for the database.
 
+If you created the database volume with an earlier version of the compose file (PostgreSQL 10), remove it once with ``docker compose -f example/pg/docker-compose.yml down -v`` before starting: PostgreSQL 17 cannot open a data directory initialised by 10, and the init script only runs against an empty volume.
+
 Initialise the database as follows:
 
 .. code:: bash
@@ -35,7 +37,7 @@ Initialise the database as follows:
   $ export DJANGO_SETTINGS_MODULE=example.settings
 
   $ # start a local postgres instance
-  $ docker-compose -f example/pg/docker-compose.yml up -d
+  $ docker compose -f example/pg/docker-compose.yml up -d
 
   $ python example/manage.py migrate
   $ python example/manage.py test
@@ -47,4 +49,4 @@ Initialise the database as follows:
   $ python example/manage.py loaddata test_data
 
   $ # shutdown the db (append -v to remove the data volume and delete all data)
-  $ docker-compose -f example/pg/docker-compose.yml down
+  $ docker compose -f example/pg/docker-compose.yml down
