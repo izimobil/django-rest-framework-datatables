@@ -51,7 +51,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
         # https://django-filter.readthedocs.io/en/master/ref/filters.html#ordering-filter
         ordering = self.get_ordering(request, view, filterset)
         if ordering:
-            queryset = queryset.order_by(*ordering)
+            queryset = filters.order_by_one_value(queryset, ordering)
 
         return queryset
 
