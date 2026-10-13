@@ -7,21 +7,25 @@
   <title>Rolling Stone Top 500 albums of all time</title>
   <meta name="description" content="Rolling Stone magazine's 2012 list of 500 greatest albums of all time with genres.">
 
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
-  <link rel="stylesheet" href="//cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css">
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/yadcf/0.9.4-beta.45/jquery.dataTables.yadcf.css">
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdn.datatables.net/2.3.6/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/yadcf/0.9.6/jquery.dataTables.yadcf.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+  <link rel="stylesheet" href="//cdn.datatables.net/columncontrol/1.2.0/css/columnControl.bootstrap5.css">
 </head>
 
 <body>
   <div class="container" style="font-size: .9em;">
     {% block content %}{% endblock %}
   </div>
-  <script src="//code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="//cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
-  <script src="//cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/yadcf/0.9.4-beta.45/jquery.dataTables.yadcf.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="//code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="//cdn.datatables.net/2.3.6/js/dataTables.min.js"></script>
+  <script src="//cdn.datatables.net/2.3.6/js/dataTables.bootstrap5.min.js"></script>
+  <script src="{% static 'jquery.dataTables.yadcf-2.0.js' %}"></script>
+  <script src="//cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="//cdn.datatables.net/columncontrol/1.2.0/js/dataTables.columnControl.min.js"></script>
+  <script src="//cdn.datatables.net/columncontrol/1.2.0/js/columnControl.bootstrap5.min.js"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

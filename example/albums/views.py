@@ -26,6 +26,12 @@ def get_album_options():
         "genre": [{'label': obj.name, 'value': obj.pk} for obj in Genre.objects.all()]
     }
 
+def get_columnControl():
+    return "columnControl", {
+        "rank": [obj.rank for obj in Album.objects.all()],
+        "artist.name": [obj.name for obj in Artist.objects.all()],
+    }
+
 
 class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all().order_by('rank')
@@ -33,9 +39,11 @@ class AlbumViewSet(viewsets.ModelViewSet):
 
     def get_options(self):
         return get_album_options()
+    def get_columnControl(self):
+        return get_columnControl()
 
     class Meta:
-        datatables_extra_json = ('get_options', )
+        datatables_extra_json = ['get_columnControl','get_options']
 
 
 class ArtistViewSet(viewsets.ViewSet):
