@@ -375,6 +375,37 @@ If you need more complex filtering and ordering, you can always implement your o
 You can see this code live by running the :doc:`example app <example-app>`.
 
 
+Display-only computed columns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A column whose ``data`` function computes display text may have no corresponding
+queryable Django field. Disable both ``searchable`` and ``orderable`` for such a
+column so the server does not try to use it in a queryset filter or ordering:
+
+.. code:: javascript
+
+    $('#albums').DataTable({
+        'serverSide': true,
+        'ajax': '/api/albums/?format=datatables&keep=name,year',
+        'columns': [
+            {'data': 'name'},
+            {
+                'data': function(row, type, set, meta) {
+                    return row.name + ' (' + row.year + ')';
+                },
+                'searchable': false,
+                'orderable': false
+            }
+        ]
+    });
+
+The ordinary ``name`` column remains searchable and orderable. The ``keep``
+parameter ensures that both fields used by the function are included in the
+response. If a computed column should support server-side searching or ordering,
+map its ``name`` to appropriate queryable fields as described above, or use a
+custom filter backend for more complex behavior.
+
+
 Pagination
 ----------
 
