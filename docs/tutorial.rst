@@ -406,6 +406,20 @@ As a workaround for this problem we add a second column to sort by in the case o
       
  
 
+Sorting a Column Across a To-Many Relation
+------------------------------------------
+A column whose ``name`` crosses a to-many relation, such as ``genres.name`` on
+an album, matches several related rows for one object. Sorting by such a column
+sorts by a single value per object: the **lowest** related value ascending, and
+the **highest** descending. Each object therefore appears once, and the record
+count matches the rows the table can page through.
+
+When the same column is being searched, only the related values that matched
+are considered, so a row sorts by the value that placed it in the results. An
+album with the genres Blues Rock and Folk Rock sorts under Blues Rock
+ascending, but under Folk Rock when the search term is ``folk``.
+
+
 Creating Links in the Table 
 ------------------------------
 If you want to create a link (or add any other HTML) to the contents of a cell, you can specify this in the serializer. For example, if you wanted to change every album name to appear as "Search google for <album name>" and have it link to a google search for that album, you would modify the album serializer like so:

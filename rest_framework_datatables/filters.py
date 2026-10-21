@@ -2,7 +2,10 @@ import operator
 import re
 from functools import reduce
 
-from django.db.models import Q
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import F, ForeignObjectRel, Max, Min, Q
+from django.db.models.constants import LOOKUP_SEP
+from django.db.models.expressions import OrderBy
 from rest_framework.filters import BaseFilterBackend
 
 from .utils import get_param
@@ -29,6 +32,122 @@ def f_search_q(f, search_value, search_regex=False):
             for x in f['name']:
                 qs.append(Q(**{'%s__icontains' % x: search_value}))
     return reduce(operator.or_, qs, Q())
+
+
+def is_to_many(model, lookup):
+    """helper function that tells if a lookup crosses a to-many relation"""
+    for part in lookup.split(LOOKUP_SEP):
+        try:
+            field = model._meta.get_field(part)
+        except FieldDoesNotExist:
+            return False
+        if field.many_to_many or field.one_to_many:
+            return True
+        if not field.is_relation:
+            return False
+        model = field.related_model
+    return False
+
+
+def repeats_objects(query):
+    """helper function that tells if a query's joins can repeat an object
+
+    A join across a to-many relation, or a table added with extra(), can
+    return an object once for each related row; a join to one related
+    object cannot.
+
+    """
+    if query.extra_tables:
+        return True
+    for join in query.alias_map.values():
+        field = getattr(join, 'join_field', None)
+        if field is not None and reaches_many(field):
+            return True
+    return False
+
+
+def reaches_many(field):
+    """helper function that tells if a join field reaches many rows
+
+    A reverse relation, including a generic one, says so itself; a
+    forward field by its kind.
+
+    """
+    if isinstance(field, ForeignObjectRel):
+        return field.multiple
+    return field.one_to_many or field.many_to_many
+
+
+def aggregates_safely(query):
+    """helper function that tells if a query can be ordered by an aggregate
+
+    An aggregate groups the rows by object, which leaves them as they
+    are only when each object is already one row, with DISTINCT or with
+    no join that repeats it. Its own aggregates and windows would change
+    with the grouping or the added join, and DISTINCT compares its
+    extra() columns, so a query with any of those is not grouped.
+
+    """
+    if query.group_by is not None or query.extra:
+        return False
+    if any(getattr(annotation, 'contains_over_clause', False)
+           for annotation in query.annotations.values()):
+        return False
+    return query.distinct or not repeats_objects(query)
+
+
+def one_value_ordering(queryset, term, name):
+    """helper function that orders by one related value instead of each
+
+    Returns the annotations to add and the ordering term to use in place
+    of term: the lowest related value, or the highest when term is
+    descending. The value comes from the
+    rows the queryset keeps, so a search on the relation orders by the
+    values it matched. It is an aggregate, added with alias() so a count
+    leaves it out.
+
+    """
+    descending = term.startswith('-')
+    aggregate = (Max if descending else Min)(term.lstrip('-'))
+    return {name: aggregate}, OrderBy(F(name), descending=descending)
+
+
+def unused_name(query, position):
+    """helper function that names a sort value no annotation already uses"""
+    name = '_datatables_order_%d' % position
+    while name in query.annotations:
+        name += '_'
+    return name
+
+
+def order_by_one_value(queryset, ordering):
+    """helper function that orders a queryset without repeating its rows
+
+    Ordering by a field across a to-many relation joins every related
+    row, so each row came back once per related object. Such a field is
+    ordered by one related value instead, leaving the rows as the
+    queryset returns them, so only when grouping by object keeps them.
+    Otherwise, as for a values() queryset, whose rows are not objects,
+    the ordering is kept as given.
+
+    """
+    query = queryset.query
+    if query.values_select or not aggregates_safely(query):
+        return queryset.order_by(*ordering)
+    annotations = {}
+    order_by = []
+    for term in ordering:
+        if not isinstance(term, str) or not is_to_many(
+                queryset.model, term.lstrip('-')):
+            order_by.append(term)
+            continue
+        name = unused_name(queryset.query, len(order_by))
+        added, ordered = one_value_ordering(queryset, term, name)
+        annotations.update(added)
+        order_by.append(ordered)
+    if annotations:
+        queryset = queryset.alias(**annotations)
+    return queryset.order_by(*order_by)
 
 
 class DatatablesBaseFilterBackend(BaseFilterBackend):
@@ -191,7 +310,7 @@ class DatatablesFilterBackend(DatatablesBaseFilterBackend):
 
         ordering = self.get_ordering(request, view, datatables_query['fields'])
         if ordering:
-            queryset = queryset.order_by(*ordering)
+            queryset = order_by_one_value(queryset, ordering)
 
         return queryset
 
